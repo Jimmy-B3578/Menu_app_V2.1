@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 // import { View, Text, StyleSheet } from 'react-native'; // Remove Text, keep StyleSheet if needed later
 import {
   View,
@@ -8,10 +8,13 @@ import {
   TextInput,
   Button,
   Pressable, // For the 'X' button
+  ActivityIndicator // <<< Import ActivityIndicator
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps'; // Import MapView and Marker
 import * as Location from 'expo-location'; // Import expo-location
+import axios from 'axios'; // <<< Make sure axios is imported
 import styles from '../styles/MapScreenStyles';
+import { colors } from '../styles/themes'; // <<< Import colors
 
 export default function MapScreen({ user }) {
   const [initialRegion, setInitialRegion] = useState(null);
@@ -22,49 +25,96 @@ export default function MapScreen({ user }) {
   const [modalVisible, setModalVisible] = useState(false);
   const [newMarkerCoord, setNewMarkerCoord] = useState(null);
   const [locationName, setLocationName] = useState('');
+  const [pinsInitiallyLoaded, setPinsInitiallyLoaded] = useState(false);
+  const [isMapLoading, setIsMapLoading] = useState(true); // <<< Add map loading state
   // ------------------------------------
 
   // --- Add MapView Ref ---
   const mapRef = useRef(null);
   // -----------------------
 
+  // --- Fetch existing pins --- 
+  const fetchPins = useCallback(async () => {
+    try {
+      const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/pins`);
+      const fetchedMarkers = response.data.map(pin => ({
+        id: pin._id,
+        coordinate: { latitude: pin.location.coordinates[1], longitude: pin.location.coordinates[0] },
+        title: pin.name,
+      }));
+      setMarkers(fetchedMarkers);
+      setPinsInitiallyLoaded(true);
+    } catch (error) {
+      console.error('Error fetching pins:', error.response ? error.response.data : error.message);
+      // Still set pins loaded even on error to potentially remove loading indicator
+      setPinsInitiallyLoaded(true); 
+    }
+  }, []);
+
+  // --- Separate useEffect for fetching pins AND setting loading state ---
   useEffect(() => {
-    (async () => {
-      // Request permission to access location
+    fetchPins();
+    // Set a timeout to hide loading indicator after 0.5 seconds
+    const timer = setTimeout(() => {
+      setIsMapLoading(false);
+    }, 500); // 500 milliseconds
+
+    // Clear the timer if the component unmounts before it fires
+    return () => clearTimeout(timer);
+
+  }, [fetchPins]); // Depends only on fetchPins
+
+  // --- Initial load effect FOR LOCATION ONLY ---
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadMapData = async () => {
+      // console.log('### MapScreen Location useEffect running ###');
+      // --- Location fetching logic (unchanged) ---
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
+        if (!isMounted) return;
         setErrorMsg('Permission to access location was denied');
-        // Optionally set a default initial region if permission denied
-        setInitialRegion({
-          latitude: 37.78825, // Default latitude (e.g., San Francisco)
-          longitude: -122.4324, // Default longitude
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        });
+        setInitialRegion({ /* fallback */ });
+        // --- REMOVE fetchPins call from here ---
+        // console.log('### Location denied, calling fetchPins ###');
+        // fetchPins(); 
+        // ----------------------------------------
         return;
       }
-
-      // Get the current location
       try {
         let location = await Location.getCurrentPositionAsync({});
+        if (!isMounted) return;
         setInitialRegion({
           latitude: location.coords.latitude,
           longitude: location.coords.longitude,
-          latitudeDelta: 0.01, // Zoom level - smaller delta means more zoomed in
+          latitudeDelta: 0.01,
           longitudeDelta: 0.01,
         });
+        // --- REMOVE fetchPins call from here ---
+        // console.log('### Location fetched, calling fetchPins ###');
+        // fetchPins();
+        // ----------------------------------------
       } catch (error) {
+        if (!isMounted) return;
         setErrorMsg('Could not fetch location');
-        // Optionally set a default region on error too
-        setInitialRegion({
-          latitude: 37.78825,
-          longitude: -122.4324,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        });
+        setInitialRegion({ /* fallback */ });
+        // --- REMOVE fetchPins call from here ---
+        // console.log('### Location error, calling fetchPins ###');
+        // fetchPins();
+        // ----------------------------------------
       }
-    })();
-  }, []); // Empty dependency array ensures this runs only once on mount
+      // -----------------------------------------
+    };
+
+    loadMapData();
+
+    return () => { isMounted = false; };
+
+  // }, [user, fetchPins]); // Old dependencies
+  // }, [fetchPins]); // Old dependency
+  }, []); // <<< EMPTY dependency array for location effect
+  // ---------------------------------------------------
 
   // --- Restore handlers ---
   const handleLongPress = (event) => {
@@ -80,20 +130,43 @@ export default function MapScreen({ user }) {
     setLocationName('');
   };
 
-  const handleCreatePin = () => {
-    if (newMarkerCoord && locationName.trim()) {
+  // --- Modify handleCreatePin to use API ---
+  const handleCreatePin = async () => { // Make async
+    if (!newMarkerCoord || !locationName.trim() || !user?._id) {
+      alert('Missing data to create pin or user not logged in.');
+      return;
+    }
+
+    const pinData = {
+      name: locationName.trim(),
+      latitude: newMarkerCoord.latitude,
+      longitude: newMarkerCoord.longitude,
+      userId: user._id, // Pass the logged-in user's ID
+    };
+
+    try {
+      const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/pins`, pinData);
+      const createdPin = response.data;
+
+      // Map backend data to frontend marker format
       const newMarker = {
-        id: Date.now(),
-        coordinate: newMarkerCoord,
-        title: locationName.trim(),
+        id: createdPin._id,
+        coordinate: {
+          latitude: createdPin.location.coordinates[1],
+          longitude: createdPin.location.coordinates[0],
+        },
+        title: createdPin.name,
       };
+
       setMarkers(prevMarkers => [...prevMarkers, newMarker]);
-      handleCancel();
-    } else {
-      alert('Please enter a location name.');
+      handleCancel(); // Close modal and reset state
+    } catch (error) {
+      console.error('Error creating pin via API:', error.response ? error.response.data : error.message);
+      alert('Failed to create pin. Please try again.');
+      // Optionally: Keep modal open? handleCancel(); 
     }
   };
-  // ---------------
+  // ----------------------------------------
 
   // --- Recenter Handler ---
   const handleRecenter = async () => {
@@ -122,58 +195,55 @@ export default function MapScreen({ user }) {
   };
   // ---------------------
 
-  let mapContent = <Text>Loading map...</Text>; // Placeholder while loading
-
-  if (errorMsg) {
-    mapContent = <Text>{errorMsg}</Text>; // Show error message
-  }
-
-  // Only render MapView when we have an initialRegion
-  if (initialRegion) {
-    mapContent = (
-      <MapView
-        ref={mapRef} // <<< Add ref
-        style={StyleSheet.absoluteFillObject}
-        initialRegion={initialRegion} // Set the initial region
-        showsUserLocation={true} // Optionally show the blue dot for user location
-        showsMyLocationButton={false} // <<< Turn off native button
-        onLongPress={user && user.role === 'business' ? handleLongPress : undefined}
-      >
-        {/* Restore marker rendering */}
-        {markers.map(marker => (
-          <Marker
-            key={marker.id}
-            coordinate={marker.coordinate}
-            title={marker.title}
-          />
-        ))}
-      </MapView>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      {mapContent}
-      {/* 
-          You can add initialRegion or other props later 
-          initialRegion={{
-            latitude: 37.78825,
-            longitude: -122.4324,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-      */}
-
-      {/* --- Custom Recenter Button --- */}
-      {initialRegion && ( // Only show if map is loaded
+      {/* --- Conditional Rendering Logic --- */}
+      {isMapLoading ? (
+        // Show loading indicator while timer is active
+        <View style={styles.loadingContainer}> 
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      ) : errorMsg ? (
+        // Show error message if location failed
+        <View style={styles.centeredMessageContainer}> 
+          <Text>{errorMsg}</Text>
+        </View>
+      ) : initialRegion ? (
+        // Show map view if region is ready
+        <MapView
+          ref={mapRef}
+          key={pinsInitiallyLoaded ? 'pins-loaded' : 'pins-loading'}
+          style={StyleSheet.absoluteFillObject}
+          initialRegion={initialRegion}
+          showsUserLocation={true}
+          showsMyLocationButton={false}
+          onLongPress={user && user.role === 'business' ? handleLongPress : undefined}
+        >
+          {markers.map(marker => (
+            <Marker
+              key={marker.id}
+              coordinate={marker.coordinate}
+              title={marker.title}
+            />
+          ))}
+        </MapView>
+      ) : (
+        // Fallback: Still loading region/permissions (show indicator or nothing)
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      )}
+      {/* ----------------------------------- */}
+      
+      {/* --- Buttons and Modal (Rendered separately, potentially overlaying) --- */}
+      {/* Custom Recenter Button - Conditionally render based on map readiness */}
+      {!isMapLoading && initialRegion && (
         <Pressable style={styles.recenterButton} onPress={handleRecenter}>
-          {/* You can use an icon here instead of text */}
           <Text style={styles.recenterButtonText}>⌖</Text>
         </Pressable>
       )}
-      {/* --------------------------- */}
 
-      {/* --- Restore Modal --- */}
+      {/* Modal - Renders based on its own visible state */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -207,7 +277,15 @@ export default function MapScreen({ user }) {
           </View>
         </View>
       </Modal>
-      {/* -------------------- */}
+      {/* ----------------------------------------------------------------------- */}
     </View>
   );
-} 
+}
+
+// Add styles for centeredMessageContainer if needed:
+// centeredMessageContainer: {
+//   flex: 1,
+//   justifyContent: 'center',
+//   alignItems: 'center',
+//   padding: 20,
+// }, 
