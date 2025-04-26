@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as SecureStore from 'expo-secure-store';
 
 // Import screens
 import HomeScreen from './screens/HomeScreen';
@@ -9,23 +10,48 @@ import BusinessPageScreen from './screens/BusinessPageScreen';
 import ProfileScreen from './screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
+const USER_STORAGE_KEY = 'user_data';
 
 export default function App() {
-  // Keep user state here to pass down
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const storedUser = await SecureStore.getItemAsync(USER_STORAGE_KEY);
+        if (storedUser) {
+          setUser(JSON.parse(storedUser));
+          console.log('👤 User loaded from storage');
+        }
+      } catch (e) {
+        console.error('Error loading user from storage:', e);
+        // Handle error, maybe delete invalid data?
+        // await SecureStore.deleteItemAsync(USER_STORAGE_KEY);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadUser();
+  }, []);
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={{
-          headerShown: false, // Optional: hide headers for simplicity
+          headerShown: false,
         }}
       >
         <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Map" component={MapScreen} />
+        <Tab.Screen name="Map">
+          {(props) => <MapScreen {...props} user={user} />}
+        </Tab.Screen>
         <Tab.Screen name="Business" component={BusinessPageScreen} />
         <Tab.Screen name="Profile">
-          {/* Pass user state and setter down to ProfileScreen */}
           {(props) => <ProfileScreen {...props} user={user} setUser={setUser} />}
         </Tab.Screen>
       </Tab.Navigator>

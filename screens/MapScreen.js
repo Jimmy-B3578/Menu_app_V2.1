@@ -13,7 +13,7 @@ import MapView, { Marker } from 'react-native-maps'; // Import MapView and Marke
 import * as Location from 'expo-location'; // Import expo-location
 import styles from '../styles/MapScreenStyles';
 
-export default function MapScreen() {
+export default function MapScreen({ user }) {
   const [initialRegion, setInitialRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -137,7 +137,7 @@ export default function MapScreen() {
         initialRegion={initialRegion} // Set the initial region
         showsUserLocation={true} // Optionally show the blue dot for user location
         showsMyLocationButton={false} // <<< Turn off native button
-        onLongPress={handleLongPress}
+        onLongPress={user && user.role === 'business' ? handleLongPress : undefined}
       >
         {/* Restore marker rendering */}
         {markers.map(marker => (

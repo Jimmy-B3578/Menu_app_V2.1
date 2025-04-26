@@ -50,17 +50,22 @@ const User = mongoose.model('User', userSchema, 'accounts');
 
 // Routes
 app.post('/users', async (req, res) => {
-    const { name, email } = req.body;
+    const { name, email, role } = req.body;
 
     if (!email) {
         return res.status(400).json({ message: 'Email is required' });
     }
 
     try {
+        const updateData = {
+            name,
+            email: email.toLowerCase(),
+            ...(role && { role: role })
+        };
         const user = await User.findOneAndUpdate(
-            { email: email.toLowerCase() }, // find a document with this filter
-            { name, email: email.toLowerCase() }, // document to insert when nothing was found
-            { new: true, upsert: true, runValidators: true } // options
+            { email: email.toLowerCase() },
+            { $set: updateData },
+            { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true }
         );
         console.log('User upserted:', user);
         res.status(200).json(user);
