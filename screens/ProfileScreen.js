@@ -20,7 +20,7 @@ export default function ProfileScreen({ user, setUser }) { // Receive props
 
   // Build the proxy redirect URI
   const redirectUri = makeRedirectUri({ useProxy: true });
-  console.log('Generated Auth0 Redirect URI:', redirectUri);
+  // console.log('Generated Auth0 Redirect URI:', redirectUri);
 
   // Auth0 configuration (moved from App.js)
   const discovery = {

@@ -39,13 +39,11 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         trim: true
     },
-    // --- New field added below ---
     role: {
         type: String,
         enum: ['user', 'admin'], // Allowed values
         default: 'user'         // Default value if not provided
     }
-    // --- End of new field ---
 }, { timestamps: false, versionKey: false });
 
 const User = mongoose.model('User', userSchema, 'accounts');
