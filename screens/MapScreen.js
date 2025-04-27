@@ -49,12 +49,12 @@ export default function MapScreen({ user, navigation }) {
         id: pin._id,
         coordinate: { latitude: pin.location.coordinates[1], longitude: pin.location.coordinates[0] },
         title: pin.name,
+        createdBy: pin.createdBy,
       }));
       setMarkers(fetchedMarkers);
       setPinsInitiallyLoaded(true);
     } catch (error) {
       console.error('Error fetching pins:', error.response ? error.response.data : error.message);
-      // Still set pins loaded even on error to potentially remove loading indicator
       setPinsInitiallyLoaded(true); 
     }
   }, []);
@@ -164,6 +164,7 @@ export default function MapScreen({ user, navigation }) {
           longitude: createdPin.location.coordinates[0],
         },
         title: createdPin.name,
+        createdBy: createdPin.createdBy,
       };
 
       setMarkers(prevMarkers => [...prevMarkers, newMarker]);
@@ -288,7 +289,7 @@ export default function MapScreen({ user, navigation }) {
           <Pressable 
             style={styles.contextButtonFull} 
             onPress={() => {
-                if (selectedMarker) { // Ensure marker data exists
+                if (selectedMarker) {
                     navigation.navigate('Business', { businessData: selectedMarker });
                 }
             }}
@@ -303,7 +304,8 @@ export default function MapScreen({ user, navigation }) {
                 if (selectedMarker) {
                   navigation.push('FoodMenu', { 
                     businessId: selectedMarker.id, 
-                    businessName: selectedMarker.title 
+                    businessName: selectedMarker.title, 
+                    pinCreatorId: selectedMarker.createdBy 
                   });
                 }
               }}
@@ -317,7 +319,8 @@ export default function MapScreen({ user, navigation }) {
                 if (selectedMarker) {
                   navigation.push('DrinksMenu', { 
                     businessId: selectedMarker.id,
-                    businessName: selectedMarker.title 
+                    businessName: selectedMarker.title, 
+                    pinCreatorId: selectedMarker.createdBy 
                   });
                 }
               }}

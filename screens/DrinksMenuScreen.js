@@ -18,6 +18,7 @@ import { styles } from '../styles/DrinksMenuScreenStyles';
 import { colors } from '../styles/themes';
 import uuid from 'react-native-uuid';
 import axios from 'axios';
+import { useUser } from '../context/UserContext';
 
 // --- Add Item Modal Component ---
 const AddItemModal = ({ visible, onClose, onSave }) => {
@@ -133,7 +134,8 @@ const AddHeaderModal = ({ visible, onClose, onSave }) => {
 
 // --- Main Screen Component ---
 export default function DrinksMenuScreen({ route, navigation }) {
-  const { businessId, businessName } = route.params || {};
+  const { businessId, businessName, pinCreatorId } = route.params || {};
+  const currentUser = useUser();
 
   // State for the menu structure
   const [menuStructure, setMenuStructure] = useState([]);
@@ -148,7 +150,10 @@ export default function DrinksMenuScreen({ route, navigation }) {
   const [itemModalSaveHandler, setItemModalSaveHandler] = useState(() => handleSaveNewItem);
   const [headerModalSaveHandler, setHeaderModalSaveHandler] = useState(() => handleSaveNewHeader);
 
-  // TODO: useEffect to fetch existing menu for businessId
+  // Determine Edit Permissions
+  const canEdit = currentUser && 
+                  pinCreatorId && 
+                  (currentUser._id === pinCreatorId || currentUser.role === 'admin');
 
   // Add useEffect to fetch existing menu
   useEffect(() => {
@@ -302,7 +307,10 @@ export default function DrinksMenuScreen({ route, navigation }) {
   // --- Render Function for FlatList ---
   const renderMenuItem = ({ item, index }) => {
     return (
-      <TouchableOpacity onLongPress={() => showContextMenu(item, index)}>
+      <TouchableOpacity 
+        onLongPress={canEdit ? () => showContextMenu(item, index) : null} 
+        disabled={!canEdit}
+      >
         {item.type === 'header' ? (
           <View style={styles.headerItem}>
             <Text style={styles.headerText}>{item.title}</Text>
@@ -339,15 +347,17 @@ export default function DrinksMenuScreen({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-        {/* Add Buttons Container */}
-        <View style={styles.addButtonsContainer}>
-             <TouchableOpacity style={styles.addButton} onPress={() => openAddItemModal()}> 
-                 <Text style={styles.addButtonText}>+ Add Menu Item</Text>
-             </TouchableOpacity>
-             <TouchableOpacity style={styles.addButton} onPress={() => openAddHeaderModal()}> 
-                 <Text style={styles.addButtonText}>+ Add Header</Text>
-             </TouchableOpacity>
-        </View>
+        {/* Conditionally Render Add Buttons */}
+        {canEdit && (
+          <View style={styles.addButtonsContainer}>
+               <TouchableOpacity style={styles.addButton} onPress={() => openAddItemModal()}> 
+                   <Text style={styles.addButtonText}>+ Add Menu Item</Text>
+               </TouchableOpacity>
+               <TouchableOpacity style={styles.addButton} onPress={() => openAddHeaderModal()}> 
+                   <Text style={styles.addButtonText}>+ Add Header</Text>
+               </TouchableOpacity>
+          </View>
+        )}
 
         {/* Menu List */}
         <FlatList
@@ -362,7 +372,7 @@ export default function DrinksMenuScreen({ route, navigation }) {
             contentContainerStyle={styles.listContentContainer}
         />
 
-        {/* Modals - Pass the dynamic save handler */}
+        {/* Modals (Rendered regardless, but opened only if canEdit allows buttons/actions) */}
         <AddItemModal
             visible={isAddItemModalVisible}
             onClose={() => { setIsAddItemModalVisible(false); resetModalSaveHandlers(); }}

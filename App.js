@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as SecureStore from 'expo-secure-store';
+import { UserProvider } from './context/UserContext';
 
 // Import screens
 import HomeScreen from './screens/HomeScreen';
@@ -73,17 +74,19 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen 
-          name="Tabs"
-          options={{ headerShown: false }}
-        >
-          {(props) => <TabNavigator {...props} user={user} setUser={setUser} />} 
-        </Stack.Screen>
-        <Stack.Screen name="FoodMenu" component={FoodMenuScreen} options={{ title: 'Food Menu' }} />
-        <Stack.Screen name="DrinksMenu" component={DrinksMenuScreen} options={{ title: 'Drinks Menu' }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <UserProvider user={user} isLoading={isLoading} setUser={setUser}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen 
+            name="Tabs"
+            options={{ headerShown: false }}
+          >
+            {(props) => <TabNavigator {...props} user={user} setUser={setUser} />} 
+          </Stack.Screen>
+          <Stack.Screen name="FoodMenu" component={FoodMenuScreen} options={{ title: 'Food Menu' }} />
+          <Stack.Screen name="DrinksMenu" component={DrinksMenuScreen} options={{ title: 'Drinks Menu' }} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </UserProvider>
   );
 }
