@@ -8,13 +8,16 @@ import {
   TextInput,
   Button,
   Pressable, // For the 'X' button
-  ActivityIndicator // <<< Import ActivityIndicator
+  ActivityIndicator, // <<< Import ActivityIndicator
+  Dimensions // <<< Import Dimensions
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps'; // Import MapView and Marker
 import * as Location from 'expo-location'; // Import expo-location
 import axios from 'axios'; // <<< Make sure axios is imported
 import styles from '../styles/MapScreenStyles';
 import { colors } from '../styles/themes'; // <<< Import colors
+
+const { height: screenHeight } = Dimensions.get('window'); // Get screen height
 
 export default function MapScreen({ user }) {
   const [initialRegion, setInitialRegion] = useState(null);
@@ -28,6 +31,11 @@ export default function MapScreen({ user }) {
   const [pinsInitiallyLoaded, setPinsInitiallyLoaded] = useState(false);
   const [isMapLoading, setIsMapLoading] = useState(true); // <<< Add map loading state
   // ------------------------------------
+
+  // --- Add State for Selected Marker and Context Box ---
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [contextBoxHeight, setContextBoxHeight] = useState(180); // Initial height (e.g., 30% of screen)
+  // ---------------------------------------------------
 
   // --- Add MapView Ref ---
   const mapRef = useRef(null);
@@ -168,6 +176,28 @@ export default function MapScreen({ user }) {
   };
   // ----------------------------------------
 
+  // --- Add Marker Press Handler ---
+  const handleMarkerPress = (marker) => {
+    setSelectedMarker(marker);
+    // Optionally animate map to center the marker slightly above the context box
+    if (mapRef.current) {
+      mapRef.current.animateToRegion({
+        ...marker.coordinate,
+        latitudeDelta: initialRegion?.latitudeDelta || 0.01,
+        longitudeDelta: initialRegion?.longitudeDelta || 0.01,
+      }, 300); // Animation duration 300ms
+    }
+  };
+  // ------------------------------
+
+  // --- Add Context Box Dismiss Handler ---
+  const handleMapPress = () => {
+    if (selectedMarker) {
+      setSelectedMarker(null); // Hide context box when map is pressed
+    }
+  };
+  // ------------------------------------
+
   // --- Recenter Handler ---
   const handleRecenter = async () => {
     // Re-check permissions (optional but good practice)
@@ -218,12 +248,14 @@ export default function MapScreen({ user }) {
           showsUserLocation={true}
           showsMyLocationButton={false}
           onLongPress={user && user.role === 'business' ? handleLongPress : undefined}
+          onPress={handleMapPress} // <<< Add map press handler
         >
           {markers.map(marker => (
             <Marker
               key={marker.id}
               coordinate={marker.coordinate}
               title={marker.title}
+              onPress={() => handleMarkerPress(marker)} // <<< Add marker press handler
             />
           ))}
         </MapView>
@@ -242,6 +274,26 @@ export default function MapScreen({ user }) {
           <Text style={styles.recenterButtonText}>⌖</Text>
         </Pressable>
       )}
+
+      {/* --- Context Box --- */}
+      {selectedMarker && (
+        <View style={[styles.contextBox, { height: contextBoxHeight }]}>
+          <Text style={styles.contextBoxTitle}>{selectedMarker.title}</Text>
+          <Pressable style={styles.contextButtonFull} onPress={() => {/* Placeholder */}}>
+            <Text style={styles.contextButtonText}>View Business Page</Text>
+          </Pressable>
+          <View style={styles.contextButtonRow}>
+            <Pressable style={styles.contextButtonHalf} onPress={() => {/* Placeholder */}}>
+              <Text style={styles.contextButtonText}>Food Menu</Text>
+            </Pressable>
+            <Pressable style={styles.contextButtonHalf} onPress={() => {/* Placeholder */}}>
+              <Text style={styles.contextButtonText}>Drinks Menu</Text>
+            </Pressable>
+          </View>
+          {/* Add a drag handle or other controls to adjust height later if needed */}
+        </View>
+      )}
+      {/* ----------------- */}
 
       {/* Modal - Renders based on its own visible state */}
       <Modal
