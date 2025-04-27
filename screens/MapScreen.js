@@ -296,10 +296,32 @@ export default function MapScreen({ user, navigation }) {
             <Text style={styles.contextButtonText}>View Business Page</Text>
           </Pressable>
           <View style={styles.contextButtonRow}>
-            <Pressable style={styles.contextButtonHalf} onPress={() => {/* Placeholder */}}>
+            {/* Food Menu Button */}
+            <Pressable 
+              style={styles.contextButtonHalf} 
+              onPress={() => {
+                if (selectedMarker) {
+                  navigation.push('FoodMenu', { 
+                    businessId: selectedMarker.id, 
+                    businessName: selectedMarker.title 
+                  });
+                }
+              }}
+            >
               <Text style={styles.contextButtonText}>Food Menu</Text>
             </Pressable>
-            <Pressable style={styles.contextButtonHalf} onPress={() => {/* Placeholder */}}>
+            {/* Drinks Menu Button */}
+            <Pressable 
+              style={styles.contextButtonHalf} 
+              onPress={() => {
+                if (selectedMarker) {
+                  navigation.push('DrinksMenu', { 
+                    businessId: selectedMarker.id,
+                    businessName: selectedMarker.title 
+                  });
+                }
+              }}
+            >
               <Text style={styles.contextButtonText}>Drinks Menu</Text>
             </Pressable>
           </View>
