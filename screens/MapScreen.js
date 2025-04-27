@@ -19,7 +19,7 @@ import { colors } from '../styles/themes'; // <<< Import colors
 
 const { height: screenHeight } = Dimensions.get('window'); // Get screen height
 
-export default function MapScreen({ user }) {
+export default function MapScreen({ user, navigation }) {
   const [initialRegion, setInitialRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -285,7 +285,14 @@ export default function MapScreen({ user }) {
       {selectedMarker && (
         <View style={[styles.contextBox, { height: contextBoxHeight }]}>
           <Text style={styles.contextBoxTitle}>{selectedMarker.title}</Text>
-          <Pressable style={styles.contextButtonFull} onPress={() => {/* Placeholder */}}>
+          <Pressable 
+            style={styles.contextButtonFull} 
+            onPress={() => {
+                if (selectedMarker) { // Ensure marker data exists
+                    navigation.navigate('Business', { businessData: selectedMarker });
+                }
+            }}
+          >
             <Text style={styles.contextButtonText}>View Business Page</Text>
           </Pressable>
           <View style={styles.contextButtonRow}>

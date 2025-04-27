@@ -45,15 +45,22 @@ export default function BusinessPageScreen({ route, navigation }) {
     }
   }, [selectedBusiness]);
 
+  useEffect(() => {
+    if (route.params?.businessData && !selectedBusiness) {
+      console.log("Received businessData from route params:", route.params.businessData);
+      handleSelectBusiness(route.params.businessData);
+    }
+  }, [route.params?.businessData, selectedBusiness]);
+
   const handleSelectBusiness = (business) => {
     const details = {
       id: business._id || business.id || '',
-      name: business.name || 'Business Name',
+      name: business.name || business.title || 'Business Name',
       description: business.description || 'A cozy place to enjoy coffee and pastries with friends and family.',
       address: business.address || '123 Coffee Street, Melbourne',
       phone: business.phone || '+61 3 1234 5678',
       website: business.website || 'https://example.com',
-      coordinate: business.location?.coordinates ? { latitude: business.location.coordinates[1], longitude: business.location.coordinates[0] } : null,
+      coordinate: business.coordinate || (business.location?.coordinates ? { latitude: business.location.coordinates[1], longitude: business.location.coordinates[0] } : null),
       hours: business.hours || [
         { day: 'Monday - Friday', hours: '7:00 AM - 6:00 PM' },
         { day: 'Saturday', hours: '8:00 AM - 5:00 PM' },
@@ -70,10 +77,6 @@ export default function BusinessPageScreen({ route, navigation }) {
       ]
     };
     setSelectedBusiness(details);
-  };
-
-  const handleGoBackToList = () => {
-    setSelectedBusiness(null);
   };
 
   const handleShare = async () => {
@@ -246,7 +249,7 @@ export default function BusinessPageScreen({ route, navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         {selectedBusiness ? (
-          <TouchableOpacity style={styles.backButton} onPress={handleGoBackToList}>
+          <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Map')}>
             <Ionicons name="arrow-back" size={24} color={colors.text || '#333'} />
           </TouchableOpacity>
         ) : (
@@ -278,7 +281,7 @@ export default function BusinessPageScreen({ route, navigation }) {
           ListEmptyComponent={() => (
             <View style={styles.emptyListContainer}>
               <Text style={styles.emptyListText}>No businesses found.</Text>
-    </View>
+            </View>
           )}
         />
       )}
