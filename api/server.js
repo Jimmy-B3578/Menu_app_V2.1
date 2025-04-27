@@ -50,13 +50,6 @@ const User = mongoose.model('User', userSchema, 'accounts');
 
 // --- Define Pin Schema --- 
 
-// Sub-schema for menu items
-const menuItemSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  price: { type: Number, required: true }, // Storing price as Number (e.g., cents or a decimal type)
-  description: String,
-}, { _id: false }); // Don't create separate _id for menu items
-
 // Main Pin Schema
 const pinSchema = new mongoose.Schema({
   name: { 
@@ -89,8 +82,14 @@ const pinSchema = new mongoose.Schema({
       index: '2dsphere' // Create geospatial index for location queries
     }
   },
-  foodMenu: [menuItemSchema],
-  drinksMenu: [menuItemSchema]
+  foodMenu: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: []
+  },
+  drinksMenu: {
+      type: [mongoose.Schema.Types.Mixed],
+      default: []
+  }
 }, { timestamps: false, versionKey: false });
 
 const Pin = mongoose.model('Pin', pinSchema, 'pins'); // Use 'pins' collection
@@ -172,6 +171,84 @@ app.get('/pins', async (req, res) => {
   } catch (error) {
     console.error('Error fetching pins:', error);
     res.status(500).json({ message: 'Error fetching pins', error: error.message });
+  }
+});
+
+// GET /pins/:pinId/foodMenu
+app.get('/pins/:pinId/foodMenu', async (req, res) => {
+  try {
+    const pin = await Pin.findById(req.params.pinId).select('foodMenu'); // Select only the foodMenu field
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found' });
+    }
+    res.status(200).json(pin.foodMenu || []); // Return the menu or empty array
+  } catch (error) {
+    console.error('Error fetching food menu:', error);
+    if (error.kind === 'ObjectId') {
+        return res.status(400).json({ message: 'Invalid Pin ID format' });
+    }
+    res.status(500).json({ message: 'Error fetching food menu', error: error.message });
+  }
+});
+
+// GET /pins/:pinId/drinksMenu
+app.get('/pins/:pinId/drinksMenu', async (req, res) => {
+  try {
+    const pin = await Pin.findById(req.params.pinId).select('drinksMenu'); // Select only the drinksMenu field
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found' });
+    }
+    res.status(200).json(pin.drinksMenu || []); // Return the menu or empty array
+  } catch (error) {
+    console.error('Error fetching drinks menu:', error);
+     if (error.kind === 'ObjectId') {
+        return res.status(400).json({ message: 'Invalid Pin ID format' });
+    }
+    res.status(500).json({ message: 'Error fetching drinks menu', error: error.message });
+  }
+});
+
+// PUT /pins/:pinId/menu - Update food or drinks menu
+app.put('/pins/:pinId/menu', async (req, res) => {
+  const { pinId } = req.params;
+  const { menuType, menuData } = req.body; // Expecting { menuType: 'food' | 'drinks', menuData: [...] }
+
+  // Validation
+  if (!menuType || (menuType !== 'food' && menuType !== 'drinks')) {
+    return res.status(400).json({ message: 'Invalid or missing menuType (must be \'food\' or \'drinks\')' });
+  }
+  if (!Array.isArray(menuData)) {
+    return res.status(400).json({ message: 'Invalid or missing menuData (must be an array)' });
+  }
+
+  try {
+    const pin = await Pin.findById(pinId);
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found' });
+    }
+
+    // Update the correct menu
+    if (menuType === 'food') {
+      pin.foodMenu = menuData;
+    } else { // menuType === 'drinks'
+      pin.drinksMenu = menuData;
+    }
+
+    // Mark as modified if using Mixed type (sometimes needed)
+    pin.markModified(menuType === 'food' ? 'foodMenu' : 'drinksMenu'); 
+
+    const updatedPin = await pin.save();
+    
+    console.log(`${menuType} menu updated for pin ${pinId}`);
+    // Respond with just the updated menu array or the whole pin
+    res.status(200).json({ message: 'Menu updated successfully', menu: menuType === 'food' ? updatedPin.foodMenu : updatedPin.drinksMenu }); 
+
+  } catch (error) {
+    console.error(`Error updating ${menuType} menu for pin ${pinId}:`, error);
+    if (error.kind === 'ObjectId') {
+        return res.status(400).json({ message: 'Invalid Pin ID format' });
+    }
+    res.status(500).json({ message: `Error updating ${menuType} menu`, error: error.message });
   }
 });
 

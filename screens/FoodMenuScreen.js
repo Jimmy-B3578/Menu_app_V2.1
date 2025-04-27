@@ -11,11 +11,13 @@ import {
   KeyboardAvoidingView, // <<< Import
   Platform,             // <<< Import
   ActionSheetIOS,       // <<< Import (iOS only for now)
-  StyleSheet            // <<< Import (for local styles if needed)
+  StyleSheet,           // <<< Import (for local styles if needed)
+  ActivityIndicator
 } from 'react-native';
 import { styles } from '../styles/FoodMenuScreenStyles';
 import { colors } from '../styles/themes'; // Import colors
 import uuid from 'react-native-uuid'; // <<< Import uuid for unique IDs
+import axios from 'axios'; // Import axios for API calls
 
 // --- Add Item Modal Component ---
 const AddItemModal = ({ visible, onClose, onSave }) => {
@@ -147,7 +149,30 @@ export default function FoodMenuScreen({ route, navigation }) {
   const [itemModalSaveHandler, setItemModalSaveHandler] = useState(() => handleSaveNewItem);
   const [headerModalSaveHandler, setHeaderModalSaveHandler] = useState(() => handleSaveNewHeader);
 
-  // TODO: useEffect to fetch existing menu for businessId
+  // <<< Add useEffect to fetch existing menu >>>
+  useEffect(() => {
+    const fetchMenu = async () => {
+      if (!businessId) {
+        setError("No Business ID provided.");
+        return;
+      }
+      setIsLoading(true);
+      setError(null);
+      try {
+        const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/${businessId}/foodMenu`;
+        console.log("Fetching food menu from:", apiUrl);
+        const response = await axios.get(apiUrl);
+        setMenuStructure(response.data || []);
+      } catch (err) {
+        console.error("Failed to fetch food menu:", err.response ? err.response.data : err.message);
+        setError("Could not load menu.");
+        setMenuStructure([]); // Set to empty on error
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMenu();
+  }, [businessId]); // Fetch when businessId changes
 
   // --- Save Handlers (Regular Add to End) ---
   const handleSaveNewItem = (itemData) => {
@@ -158,39 +183,76 @@ export default function FoodMenuScreen({ route, navigation }) {
     handleSaveHeader(headerData); // Defaults to appending
   };
 
-  // --- Generalized Save/Insert Logic ---
-  const handleSaveItem = (itemData, index = null) => {
+  // --- Generalized Save/Insert Logic with API Call ---
+  const saveMenuToApi = async (updatedStructure) => {
+    if (!businessId) {
+      Alert.alert("Error", "Cannot save menu: Business ID is missing.");
+      return false; // Indicate failure
+    }
+    setIsLoading(true); // Indicate saving process
+    try {
+      const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/${businessId}/menu`;
+      await axios.put(apiUrl, {
+        menuType: 'food',
+        menuData: updatedStructure
+      });
+      console.log("Food menu saved successfully for pin:", businessId);
+      return true; // Indicate success
+    } catch (err) {
+      console.error("Failed to save food menu:", err.response ? err.response.data : err.message);
+      Alert.alert("Save Failed", "Could not save menu changes to the server.");
+      setError("Failed to save menu."); // Optionally show persistent error
+      return false; // Indicate failure
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveItem = async (itemData, index = null) => {
     const newItem = { id: uuid.v4(), type: 'item', ...itemData };
+    let optimisticStructure = [];
+
     setMenuStructure(prev => {
       const newStructure = [...prev];
       if (index !== null && index >= 0 && index <= newStructure.length) {
-        console.log(`Inserting item at index ${index}`);
-        newStructure.splice(index, 0, newItem); // Insert at index
+        newStructure.splice(index, 0, newItem);
       } else {
-        console.log("Appending item to end");
-        newStructure.push(newItem); // Append to end
+        newStructure.push(newItem);
       }
-      return newStructure;
+      optimisticStructure = newStructure; // Store the new structure for API call
+      return newStructure; // Update UI immediately
     });
-    // TODO: API call to save update (passing index if applicable)
-    resetModalSaveHandlers(); // Reset handlers after save
+    resetModalSaveHandlers();
+    
+    // Attempt to save the updated structure to the backend
+    const success = await saveMenuToApi(optimisticStructure);
+    if (!success) {
+      // Optional: Revert UI if save failed (more complex state management might be needed)
+      console.log("Save failed, UI might be out of sync with backend.");
+      // Consider refetching or implementing a revert mechanism
+    }
   };
 
-   const handleSaveHeader = (headerData, index = null) => {
+   const handleSaveHeader = async (headerData, index = null) => {
     const newHeader = { id: uuid.v4(), type: 'header', ...headerData };
+    let optimisticStructure = [];
+
      setMenuStructure(prev => {
       const newStructure = [...prev];
       if (index !== null && index >= 0 && index <= newStructure.length) {
-         console.log(`Inserting header at index ${index}`);
-        newStructure.splice(index, 0, newHeader); // Insert at index
+        newStructure.splice(index, 0, newHeader);
       } else {
-         console.log("Appending header to end");
-        newStructure.push(newHeader); // Append to end
+        newStructure.push(newHeader);
       }
+       optimisticStructure = newStructure;
       return newStructure;
     });
-    // TODO: API call to save update (passing index if applicable)
-    resetModalSaveHandlers(); // Reset handlers after save
+    resetModalSaveHandlers();
+
+    const success = await saveMenuToApi(optimisticStructure);
+     if (!success) {
+        console.log("Save failed, UI might be out of sync with backend.");
+    }
   };
 
   // --- Modal Opening / Context Menu ---
@@ -275,6 +337,25 @@ export default function FoodMenuScreen({ route, navigation }) {
     );
   };
 
+  // --- Main Render Logic ---
+  if (isLoading) {
+    return (
+        <View style={styles.loadingContainerFullScreen}> 
+            <ActivityIndicator size="large" color={colors.primary || '#0000ff'} />
+        </View>
+    );
+  }
+
+  // Basic error display (could be improved)
+  if (error && menuStructure.length === 0) { // Only show full screen error if list is empty
+     return (
+        <View style={styles.errorContainerFullScreen}> 
+            <Text style={styles.errorText}>{error}</Text>
+            {/* TODO: Add a retry button? */}
+        </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
         {/* Add Buttons Container */}
@@ -293,7 +374,10 @@ export default function FoodMenuScreen({ route, navigation }) {
             renderItem={renderMenuItem}
             keyExtractor={item => item.id}
             ListEmptyComponent={
-                <Text style={styles.placeholderText}>No menu items added yet.</Text>
+                // Show placeholder only if not loading and no error prevented initial load
+                !isLoading && !error ? (
+                     <Text style={styles.placeholderText}>No menu items added yet.</Text>
+                ) : null
             }
             contentContainerStyle={styles.listContentContainer}
         />

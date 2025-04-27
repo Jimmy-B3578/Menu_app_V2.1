@@ -11,11 +11,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActionSheetIOS,
-  StyleSheet
+  StyleSheet,
+  ActivityIndicator
 } from 'react-native';
 import { styles } from '../styles/DrinksMenuScreenStyles';
 import { colors } from '../styles/themes';
 import uuid from 'react-native-uuid';
+import axios from 'axios';
 
 // --- Add Item Modal Component ---
 const AddItemModal = ({ visible, onClose, onSave }) => {
@@ -148,6 +150,32 @@ export default function DrinksMenuScreen({ route, navigation }) {
 
   // TODO: useEffect to fetch existing menu for businessId
 
+  // Add useEffect to fetch existing menu
+  useEffect(() => {
+    const fetchMenu = async () => {
+      if (!businessId) {
+        setError("No Business ID provided.");
+        return;
+      }
+      setIsLoading(true);
+      setError(null);
+      try {
+        // Use drinksMenu endpoint
+        const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/${businessId}/drinksMenu`; 
+        console.log("Fetching drinks menu from:", apiUrl);
+        const response = await axios.get(apiUrl);
+        setMenuStructure(response.data || []);
+      } catch (err) {
+        console.error("Failed to fetch drinks menu:", err.response ? err.response.data : err.message);
+        setError("Could not load menu.");
+        setMenuStructure([]); 
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchMenu();
+  }, [businessId]);
+
   // --- Save Handlers (Regular Add to End) ---
   const handleSaveNewItem = (itemData) => {
     handleSaveItem(itemData);
@@ -157,37 +185,69 @@ export default function DrinksMenuScreen({ route, navigation }) {
     handleSaveHeader(headerData);
   };
 
-  // --- Generalized Save/Insert Logic ---
-  const handleSaveItem = (itemData, index = null) => {
+  // --- Generalized Save/Insert Logic with API Call ---
+  const saveMenuToApi = async (updatedStructure) => {
+    if (!businessId) {
+      Alert.alert("Error", "Cannot save menu: Business ID is missing.");
+      return false; 
+    }
+    setIsLoading(true); 
+    try {
+      const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/${businessId}/menu`;
+      await axios.put(apiUrl, {
+        menuType: 'drinks', // Set menuType to drinks
+        menuData: updatedStructure
+      });
+      console.log("Drinks menu saved successfully for pin:", businessId);
+      return true; 
+    } catch (err) {
+      console.error("Failed to save drinks menu:", err.response ? err.response.data : err.message);
+      Alert.alert("Save Failed", "Could not save menu changes to the server.");
+      setError("Failed to save menu."); 
+      return false; 
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSaveItem = async (itemData, index = null) => {
     const newItem = { id: uuid.v4(), type: 'item', ...itemData };
+    let optimisticStructure = [];
     setMenuStructure(prev => {
       const newStructure = [...prev];
       if (index !== null && index >= 0 && index <= newStructure.length) {
-        console.log(`Inserting item at index ${index}`);
         newStructure.splice(index, 0, newItem);
       } else {
-        console.log("Appending item to end");
         newStructure.push(newItem);
       }
+      optimisticStructure = newStructure; 
       return newStructure;
     });
     resetModalSaveHandlers();
+    const success = await saveMenuToApi(optimisticStructure);
+    if (!success) {
+      console.log("Save failed, UI might be out of sync with backend.");
+    }
   };
 
-   const handleSaveHeader = (headerData, index = null) => {
+   const handleSaveHeader = async (headerData, index = null) => {
     const newHeader = { id: uuid.v4(), type: 'header', ...headerData };
+    let optimisticStructure = [];
      setMenuStructure(prev => {
       const newStructure = [...prev];
       if (index !== null && index >= 0 && index <= newStructure.length) {
-         console.log(`Inserting header at index ${index}`);
         newStructure.splice(index, 0, newHeader);
       } else {
-         console.log("Appending header to end");
         newStructure.push(newHeader);
       }
+       optimisticStructure = newStructure;
       return newStructure;
     });
     resetModalSaveHandlers();
+    const success = await saveMenuToApi(optimisticStructure);
+     if (!success) {
+        console.log("Save failed, UI might be out of sync with backend.");
+    }
   };
 
   // --- Modal Opening / Context Menu ---
@@ -260,6 +320,23 @@ export default function DrinksMenuScreen({ route, navigation }) {
     );
   };
 
+  // --- Main Render Logic (including loading/error) ---
+  if (isLoading) {
+    return (
+        <View style={styles.loadingContainerFullScreen}> 
+            <ActivityIndicator size="large" color={colors.primary || '#0000ff'} />
+        </View>
+    );
+  }
+
+  if (error && menuStructure.length === 0) {
+     return (
+        <View style={styles.errorContainerFullScreen}> 
+            <Text style={styles.errorText}>{error}</Text>
+        </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
         {/* Add Buttons Container */}
@@ -278,7 +355,9 @@ export default function DrinksMenuScreen({ route, navigation }) {
             renderItem={renderMenuItem}
             keyExtractor={item => item.id}
             ListEmptyComponent={
-                <Text style={styles.placeholderText}>No menu items added yet.</Text>
+                !isLoading && !error ? (
+                     <Text style={styles.placeholderText}>No menu items added yet.</Text>
+                ) : null
             }
             contentContainerStyle={styles.listContentContainer}
         />
