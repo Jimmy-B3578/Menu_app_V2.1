@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform, StatusBar } from 'react-native';
 import { colors } from './themes';
 
 export const styles = StyleSheet.create({
@@ -8,20 +8,23 @@ export const styles = StyleSheet.create({
     // Removed justifyContent and alignItems to allow natural stacking
     backgroundColor: colors.background || '#f5f5f5', 
     // Padding is handled by SafeAreaView and list content container
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 
   },
   // Header container View that holds the static title
   headerContainer: {
-    paddingTop: 20, // Adjust top padding as needed (was title marginTop)
-    paddingBottom: 15, // Adjust bottom padding (was title marginBottom)
-    paddingHorizontal: 15, // Horizontal padding
-    backgroundColor: colors.background || '#f5f5f5', // Match container background or set a specific header color
-    // iOS Shadow
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 25,
+    paddingBottom: 20,
+    paddingHorizontal: 15,
+    backgroundColor: colors.background || '#f5f5f5',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
-    // Android Shadow
     elevation: 4,
+    position: 'relative',
   },
   // Style for the main title text (now inside headerContainer)
   title: {
@@ -29,10 +32,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.text || '#333', 
     textAlign: 'center',
-    // Removed marginTop and marginBottom, handled by headerContainer padding
-    // marginTop: 20, 
-    // marginBottom: 15, 
-    // paddingHorizontal: 15,
   },
   // --- List Styles ---
   // Style for the FlatList component itself
@@ -59,11 +58,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.text || '#333',
   },
-  cardDescription: { // Style for description (if added later)
-    fontSize: 14,
-    color: colors.textSecondary || '#666',
-    marginTop: 4,
-  },
   cardHeader: {
     flexDirection: 'row', // Arrange name and suburb horizontally
     justifyContent: 'space-between', // Push name to left, suburb to right
@@ -88,12 +82,6 @@ export const styles = StyleSheet.create({
     color: colors.warning || '#FFD700', // Gold color for stars
   },
   // --- Loading/Error/Empty Styles ---
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background || '#f5f5f5',
-  },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -117,5 +105,196 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.textSecondary || '#666',
   },
-  // Add other styles below as needed
+  // --- Detail View Specific Styles ---
+  detailScrollView: {
+    // flex: 1, // Removed: Should naturally fill space below header in a flex container
+  },
+  detailMapContainer: {
+    height: 200, // Fixed height for the map section
+    backgroundColor: colors.mapBackground || '#e0e0e0', // Placeholder color
+    position: 'relative', // Needed for absolute positioning of directions button
+  },
+  detailMap: {
+    ...StyleSheet.absoluteFillObject, // Make map fill container
+  },
+  detailMapPlaceholder: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.mapBackground || '#e0e0e0',
+  },
+  directionsButton: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    backgroundColor: colors.primary || '#007AFF',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    flexDirection: 'row', // Icon and text side-by-side
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  directionsButtonText: {
+    color: colors.buttonText || '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginLeft: 5, // Space between icon and text
+  },
+  infoCard: {
+    backgroundColor: colors.cardBackground || '#ffffff',
+    padding: 16,
+    margin: 15, // Margin around the card
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  detailBusinessName: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: colors.text || '#333',
+    marginBottom: 8,
+  },
+  detailRatingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  detailReviewCount: {
+    fontSize: 14,
+    color: colors.textSecondary || '#666',
+    marginLeft: 8,
+  },
+  detailDescription: {
+    fontSize: 16,
+    color: colors.text || '#555',
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  detailActionButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border || '#eee',
+  },
+  detailActionButton: {
+    alignItems: 'center',
+    padding: 5,
+  },
+  detailActionText: {
+    marginTop: 4,
+    fontSize: 12,
+    color: colors.primary || '#007AFF',
+  },
+  sectionCard: {
+    backgroundColor: colors.cardBackground || '#ffffff',
+    padding: 16,
+    marginHorizontal: 15,
+    marginBottom: 10,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.text || '#333',
+    marginBottom: 12,
+  },
+  hoursItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+  dayText: {
+    fontSize: 14,
+    color: colors.text || '#444',
+  },
+  hoursText: {
+    fontSize: 14,
+    color: colors.textSecondary || '#666',
+  },
+  amenitiesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  amenityTag: {
+    backgroundColor: colors.tagBackground || '#eef',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  amenityText: {
+    fontSize: 13,
+    color: colors.tagText || colors.primary || '#007AFF',
+  },
+  reviewItem: {
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border || '#eee',
+    paddingVertical: 10,
+    marginBottom: 10,
+  },
+  reviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  reviewAuthor: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    color: colors.text || '#333',
+  },
+  reviewText: {
+    fontSize: 14,
+    color: colors.text || '#555',
+    lineHeight: 18,
+  },
+  noReviewsText: {
+    fontSize: 14,
+    color: colors.textSecondary || '#888',
+    fontStyle: 'italic',
+  },
+  detailSpacer: {
+    height: 30, // Add space at the very bottom of the ScrollView
+  },
+  // --- Header adjustments ---
+  backButton: {
+    padding: 5, // Clickable area
+    position: 'absolute', // Position independently
+    left: 15, // Distance from left
+    top: 0, // Align with top of headerContainer padding
+    bottom: 0,
+    justifyContent: 'center',
+  },
+  headerSpacer: { // Empty view to help center title when back button is present
+    width: 34, // Approx width of back button + padding
+  },
+  // Add fullscreen versions of loading/error for when detail view fails
+  loadingContainerFullScreen: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.background || '#f5f5f5',
+  },
+  errorContainerFullScreen: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+      backgroundColor: colors.background || '#f5f5f5',
+  },
 });

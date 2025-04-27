@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import { colors } from './themes';
 
 export default StyleSheet.create({
@@ -90,6 +90,18 @@ export default StyleSheet.create({
   // Text style for the recenter button (e.g., the ⌖ symbol)
   recenterButtonText: {
     fontSize: 20,
+    color: colors.text || '#333', // Ensure color is set
+    // Add Android-specific adjustments for centering
+    ...Platform.select({
+      android: {
+        textAlign: 'center', // Explicitly center text horizontally
+        lineHeight: 22, // Adjust line height (slightly > fontSize) for vertical alignment
+      },
+      ios: {
+        // Potentially minor iOS adjustments if needed later
+        lineHeight: 20, // Match fontSize on iOS often works well
+      }
+    })
   },
 
   // --- Styles for Create Button in Modal ---
