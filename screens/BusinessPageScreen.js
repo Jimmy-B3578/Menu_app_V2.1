@@ -278,7 +278,7 @@ export default function BusinessPageScreen({ route, navigation }) {
           ListEmptyComponent={() => (
             <View style={styles.emptyListContainer}>
               <Text style={styles.emptyListText}>No businesses found.</Text>
-            </View>
+    </View>
           )}
         />
       )}

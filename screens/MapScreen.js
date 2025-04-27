@@ -178,15 +178,21 @@ export default function MapScreen({ user }) {
 
   // --- Add Marker Press Handler ---
   const handleMarkerPress = (marker) => {
-    setSelectedMarker(marker);
-    // Optionally animate map to center the marker slightly above the context box
-    if (mapRef.current) {
-      mapRef.current.animateToRegion({
-        ...marker.coordinate,
-        latitudeDelta: initialRegion?.latitudeDelta || 0.01,
-        longitudeDelta: initialRegion?.longitudeDelta || 0.01,
-      }, 300); // Animation duration 300ms
-    }
+    // Reset state first to ensure re-render of context box
+    setSelectedMarker(null); 
+    
+    // Use setTimeout to allow the null state to render before setting the new marker
+    setTimeout(() => {
+        setSelectedMarker(marker);
+        // Optionally animate map to center the marker slightly above the context box
+        if (mapRef.current && marker?.coordinate) {
+            mapRef.current.animateToRegion({
+                ...marker.coordinate,
+                latitudeDelta: initialRegion?.latitudeDelta || 0.01,
+                longitudeDelta: initialRegion?.longitudeDelta || 0.01,
+            }, 300); // Animation duration 300ms
+        }
+    }, 0); // Delay of 0ms often works, adjust slightly if needed (e.g., 10)
   };
   // ------------------------------
 
