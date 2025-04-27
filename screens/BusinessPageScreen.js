@@ -23,6 +23,7 @@ export default function BusinessPageScreen({ route, navigation }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [openedFromMap, setOpenedFromMap] = useState(false);
 
   useEffect(() => {
     if (selectedBusiness === null) {
@@ -46,13 +47,21 @@ export default function BusinessPageScreen({ route, navigation }) {
   }, [selectedBusiness]);
 
   useEffect(() => {
-    if (route.params?.businessData && !selectedBusiness) {
-      console.log("Received businessData from route params:", route.params.businessData);
-      handleSelectBusiness(route.params.businessData);
+    if (route.params?.businessData) {
+      console.log("Processing businessData from route params:", route.params.businessData);
+      handleSelectBusiness(route.params.businessData, true);
     }
-  }, [route.params?.businessData, selectedBusiness]);
+  }, [route.params?.businessData]);
 
-  const handleSelectBusiness = (business) => {
+  useEffect(() => {
+    if (route.params?.resetView) {
+      console.log("Resetting view due to tab press signal.");
+      setSelectedBusiness(null);
+      navigation.setParams({ resetView: undefined });
+    }
+  }, [route.params?.resetView, navigation]);
+
+  const handleSelectBusiness = (business, fromMap = false) => {
     const details = {
       id: business._id || business.id || '',
       name: business.name || business.title || 'Business Name',
@@ -76,6 +85,7 @@ export default function BusinessPageScreen({ route, navigation }) {
         { author: 'Mike T.', rating: 4, text: 'Nice place to work from with good Wi-Fi.' }
       ]
     };
+    setOpenedFromMap(fromMap);
     setSelectedBusiness(details);
   };
 
@@ -127,8 +137,19 @@ export default function BusinessPageScreen({ route, navigation }) {
     }
   };
 
+  const handleBackPress = () => {
+    if (openedFromMap) {
+      console.log("Going back to Map screen");
+      navigation.navigate('Map');
+    } else {
+      console.log("Going back to List view");
+      setSelectedBusiness(null);
+      setOpenedFromMap(false);
+    }
+  };
+
   const renderBusinessCard = ({ item }) => (
-    <TouchableOpacity onPress={() => handleSelectBusiness(item)}>
+    <TouchableOpacity onPress={() => handleSelectBusiness(item, false)}>
       <View style={styles.businessCard}>
         <View style={styles.cardHeader}>
           <Text style={styles.cardTitle} numberOfLines={1}>{item.name || 'Unnamed Business'}</Text>
@@ -249,7 +270,7 @@ export default function BusinessPageScreen({ route, navigation }) {
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
         {selectedBusiness ? (
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Map')}>
+          <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
             <Ionicons name="arrow-back" size={24} color={colors.text || '#333'} />
           </TouchableOpacity>
         ) : (

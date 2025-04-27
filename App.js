@@ -50,7 +50,17 @@ export default function App() {
         <Tab.Screen name="Map">
           {(props) => <MapScreen {...props} user={user} />}
         </Tab.Screen>
-        <Tab.Screen name="Business" component={BusinessPageScreen} />
+        <Tab.Screen 
+          name="Business" 
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              navigation.navigate('Business', { resetView: Date.now() });
+            },
+          })}
+        >
+          {(props) => <BusinessPageScreen {...props} />} 
+        </Tab.Screen>
         <Tab.Screen name="Profile">
           {(props) => <ProfileScreen {...props} user={user} setUser={setUser} />}
         </Tab.Screen>
