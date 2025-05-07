@@ -96,6 +96,47 @@ const Pin = mongoose.model('Pin', pinSchema, 'pins'); // Use 'pins' collection
 
 // -------------------------
 
+// UPDATED SEARCH ROUTE (using $regex, no text index needed, searches nested menu items)
+// GET /search/pins?q=<query> - Search pins by text using regex
+app.get('/search/pins', async (req, res) => {
+  const searchQuery = req.query.q;
+
+  if (!searchQuery || typeof searchQuery !== 'string' || searchQuery.trim() === '') {
+    return res.status(400).json({ message: 'Search query (q) is required and must be a non-empty string.' });
+  }
+
+  try {
+    const trimmedQuery = searchQuery.trim();
+    const escapedQuery = trimmedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape special regex characters
+    const queryRegex = new RegExp(escapedQuery, 'i'); // 'i' for case-insensitive
+
+    const pins = await Pin.find({
+      $or: [
+        { name: { $regex: queryRegex } },          // Pin's own name
+        { description: { $regex: queryRegex } },  // Pin's own description
+        { cuisine: { $regex: queryRegex } },        // Pin's cuisine type(s)
+        // Search within foodMenu items
+        { 'foodMenu.name': { $regex: queryRegex } },        // Name of a food item
+        { 'foodMenu.title': { $regex: queryRegex } },       // Title of a food menu header
+        { 'foodMenu.description': { $regex: queryRegex } },// Description of a food item
+        // Search within drinksMenu items (assuming similar structure)
+        { 'drinksMenu.name': { $regex: queryRegex } },       // Name of a drink item
+        { 'drinksMenu.title': { $regex: queryRegex } },      // Title of a drinks menu header
+        { 'drinksMenu.description': { $regex: queryRegex } } // Description of a drink item
+      ]
+    })
+    .populate('createdBy', 'name email')
+    .sort({ name: 1 }); // Default sort by pin name
+
+    res.status(200).json(pins);
+
+  } catch (error) {
+    console.error('Error searching pins (regex):', error);
+    res.status(500).json({ message: 'Error searching pins', error: error.message });
+  }
+});
+// --- END UPDATED SEARCH ROUTE ---
+
 // Routes
 app.post('/users', async (req, res) => {
     const { name, email, role } = req.body;
