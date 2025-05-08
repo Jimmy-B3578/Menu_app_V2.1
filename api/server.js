@@ -96,7 +96,7 @@ const Pin = mongoose.model('Pin', pinSchema, 'pins'); // Use 'pins' collection
 
 // -------------------------
 
-// UPDATED SEARCH ROUTE (using $regex, no text index needed, searches nested menu items)
+// UPDATED SEARCH ROUTE (using $regex, searches specific menu item fields)
 // GET /search/pins?q=<query> - Search pins by text using regex
 app.get('/search/pins', async (req, res) => {
   const searchQuery = req.query.q;
@@ -107,22 +107,20 @@ app.get('/search/pins', async (req, res) => {
 
   try {
     const trimmedQuery = searchQuery.trim();
-    const escapedQuery = trimmedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // Escape special regex characters
+    const escapedQuery = trimmedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const queryRegex = new RegExp(escapedQuery, 'i'); // 'i' for case-insensitive
 
     const pins = await Pin.find({
       $or: [
-        { name: { $regex: queryRegex } },          // Pin's own name
-        { description: { $regex: queryRegex } },  // Pin's own description
-        { cuisine: { $regex: queryRegex } },        // Pin's cuisine type(s)
-        // Search within foodMenu items
-        { 'foodMenu.name': { $regex: queryRegex } },        // Name of a food item
-        { 'foodMenu.title': { $regex: queryRegex } },       // Title of a food menu header
-        { 'foodMenu.description': { $regex: queryRegex } },// Description of a food item
-        // Search within drinksMenu items (assuming similar structure)
-        { 'drinksMenu.name': { $regex: queryRegex } },       // Name of a drink item
-        { 'drinksMenu.title': { $regex: queryRegex } },      // Title of a drinks menu header
-        { 'drinksMenu.description': { $regex: queryRegex } } // Description of a drink item
+        { name: { $regex: queryRegex } },              // Pin's own name
+        { description: { $regex: queryRegex } },      // Pin's own description
+        { cuisine: { $regex: queryRegex } },            // Pin's cuisine type(s)
+        // Search within foodMenu items (name and description only)
+        { 'foodMenu.name': { $regex: queryRegex } },
+        { 'foodMenu.description': { $regex: queryRegex } },
+        // Search within drinksMenu items (name and description only)
+        { 'drinksMenu.name': { $regex: queryRegex } },
+        { 'drinksMenu.description': { $regex: queryRegex } }
       ]
     })
     .populate('createdBy', 'name email')

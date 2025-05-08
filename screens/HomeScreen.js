@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   TextInput,
@@ -10,84 +10,148 @@ import {
   SafeAreaView
 } from 'react-native';
 import axios from 'axios';
-import styles from '../styles/HomeScreenStyles'; // Import styles
-import { colors } from '../styles/themes'; // For direct color usage if needed
+import styles from '../styles/HomeScreenStyles';
+import { colors } from '../styles/themes';
+import uuid from 'react-native-uuid';
 
-export default function HomeScreen({ navigation }) { // Added navigation prop
+export default function HomeScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  const [processedResults, setProcessedResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searchActive, setSearchActive] = useState(false); // To control search bar position
+  const [searchActive, setSearchActive] = useState(false);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      setSearchResults([]);
-      setSearchActive(false); // No query, remain centered or revert
+      setProcessedResults([]);
+      setSearchActive(false);
       setError(null);
       return;
     }
 
-    Keyboard.dismiss(); // Dismiss keyboard before search
+    Keyboard.dismiss();
     setIsLoading(true);
     setError(null);
-    setSearchActive(true); // Activate search mode, move bar up
+    setSearchActive(true);
 
     try {
-      // const response = await axios.get(`http://localhost:3000/search/pins?q=${searchQuery}`); // FOR LOCAL DEV
       const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/search/pins?q=${encodeURIComponent(searchQuery)}`);
-      setSearchResults(response.data || []);
-      if (response.data.length === 0) {
-        setError('No results found.');
+      const pins = response.data || [];
+      const newProcessedResults = [];
+      const queryRegex = new RegExp(searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+
+      pins.forEach(pin => {
+        let pinLevelMatch = false;
+        if (queryRegex.test(pin.name) || queryRegex.test(pin.description) || (pin.cuisine && pin.cuisine.some(c => queryRegex.test(c)))) {
+          pinLevelMatch = true;
+        }
+
+        let itemMatchFoundInPin = false;
+        (pin.foodMenu || []).forEach(item => {
+          if (item.type === 'item' && (queryRegex.test(item.name) || queryRegex.test(item.description))) {
+            newProcessedResults.push({
+              id: uuid.v4(),
+              type: 'menuItem',
+              menuName: 'Food Menu',
+              pinName: pin.name,
+              itemName: item.name,
+              itemDescription: item.description,
+              originalPin: pin
+            });
+            itemMatchFoundInPin = true;
+          }
+        });
+
+        (pin.drinksMenu || []).forEach(item => {
+          if (item.type === 'item' && (queryRegex.test(item.name) || queryRegex.test(item.description))) {
+            newProcessedResults.push({
+              id: uuid.v4(),
+              type: 'menuItem',
+              menuName: 'Drinks Menu',
+              pinName: pin.name,
+              itemName: item.name,
+              itemDescription: item.description,
+              originalPin: pin
+            });
+            itemMatchFoundInPin = true;
+          }
+        });
+
+        if (pinLevelMatch && !itemMatchFoundInPin) {
+          newProcessedResults.push({
+            id: uuid.v4(),
+            type: 'pinMatch',
+            pin: pin
+          });
+        }
+      });
+
+      setProcessedResults(newProcessedResults);
+      if (newProcessedResults.length === 0) {
+        setError('No relevant items or businesses found.');
       }
+
     } catch (err) {
       console.error('Search API error:', err.response ? err.response.data : err.message);
-      setError(err.response?.data?.message || 'Failed to fetch results. Please ensure the API is running and the text index is configured if necessary.');
-      setSearchResults([]);
+      setError(err.response?.data?.message || 'Failed to fetch results.');
+      setProcessedResults([]);
     }
     setIsLoading(false);
   };
 
   const clearSearch = () => {
     setSearchQuery('');
-    setSearchResults([]);
+    setProcessedResults([]);
     setError(null);
-    setSearchActive(false); // Deactivate search mode, center bar
+    setSearchActive(false);
     Keyboard.dismiss();
   };
 
-  const renderResultItem = ({ item }) => (
-    <TouchableOpacity 
-      style={styles.resultItem}
-      onPress={() => {
-        // Navigate to BusinessPageScreen with the pin data
-        // Assuming businessData expects an object similar to a pin from GET /pins
-        // You might need to adjust this based on what BusinessPageScreen expects
-        // For now, we pass the whole item, assuming it contains coordinate info etc.
-        navigation.navigate('Business', { businessData: item });
-      }}
-    >
-      <Text style={styles.resultItemName}>{item.name}</Text>
-      {item.description && <Text style={styles.resultItemDescription}>{item.description}</Text>}
-      {item.cuisine && item.cuisine.length > 0 && (
-        <Text style={styles.resultItemCuisine}>Cuisine: {item.cuisine.join(', ')}</Text>
-      )}
-    </TouchableOpacity>
-  );
+  const renderResultItem = ({ item }) => {
+    if (item.type === 'menuItem') {
+      return (
+        <TouchableOpacity
+          style={styles.resultItem}
+          onPress={() => navigation.navigate('Business', { businessData: item.originalPin })}
+        >
+          <Text style={styles.resultItemPinName}>{item.pinName}</Text>
+          <Text style={styles.resultItemMenuContext}>Found in {item.menuName}:</Text>
+          <Text style={styles.resultItemName}>{item.itemName}</Text>
+          {item.itemDescription && <Text style={styles.resultItemDescription}>{item.itemDescription}</Text>}
+        </TouchableOpacity>
+      );
+    }
+
+    if (item.type === 'pinMatch') {
+      return (
+        <TouchableOpacity
+          style={styles.resultItem}
+          onPress={() => navigation.navigate('Business', { businessData: item.pin })}
+        >
+          <Text style={styles.resultItemName}>{item.pin.name}</Text>
+          {item.pin.description && <Text style={styles.resultItemDescription}>{item.pin.description}</Text>}
+          {item.pin.cuisine && item.pin.cuisine.length > 0 && (
+            <Text style={styles.resultItemCuisine}>Cuisine: {item.pin.cuisine.join(', ')}</Text>
+          )}
+        </TouchableOpacity>
+      );
+    }
+    return null;
+  };
 
   return (
     <SafeAreaView style={styles.fullScreenContainer}>
       <View style={[styles.searchAreaContainer, searchActive ? styles.searchAreaTop : styles.searchAreaCenter]}>
         {!searchActive && (
-          <Text style={styles.title}>Search Businesses</Text> // Title shown only when search is not active
+          <Text style={styles.title}>Search Businesses & Items</Text>
         )}
         <TextInput
           style={styles.searchBar}
-          placeholder="Search by name, description, cuisine..."
+          placeholder="Search by name, description, cuisine, items..."
           placeholderTextColor="#808080"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          onSubmitEditing={handleSearch} // Search on keyboard submit
+          onSubmitEditing={handleSearch}
           returnKeyType="search"
         />
         {searchActive ? (
@@ -116,18 +180,17 @@ export default function HomeScreen({ navigation }) { // Added navigation prop
         <Text style={styles.errorText}>{error}</Text>
       )}
 
-      {!isLoading && !error && searchActive && searchResults.length === 0 && searchQuery.trim() !== '' && (
-         // This handles the case where search was performed but returned no results, different from initial state
-        <Text style={styles.noResultsText}>No businesses found matching "{searchQuery}".</Text>
+      {!isLoading && !error && searchActive && processedResults.length === 0 && searchQuery.trim() !== '' && (
+        <Text style={styles.noResultsText}>No relevant items or businesses found for "{searchQuery}".</Text>
       )}
 
-      {searchActive && searchResults.length > 0 && (
+      {searchActive && processedResults.length > 0 && (
         <FlatList
-          data={searchResults}
+          data={processedResults}
           renderItem={renderResultItem}
-          keyExtractor={(item) => item._id}
+          keyExtractor={(item) => item.id}
           style={styles.resultsContainer}
-          keyboardShouldPersistTaps="handled" // So users can tap results without keyboard issues
+          keyboardShouldPersistTaps="handled"
         />
       )}
     </SafeAreaView>

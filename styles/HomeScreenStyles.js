@@ -73,6 +73,18 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: colors.text,
   },
+  resultItemPinName: { // Style for Pin Name when showing a matched item
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.primary, // Or another distinct color
+    marginBottom: 2,
+  },
+  resultItemMenuContext: { // Style for "Found in Food/Drinks Menu:"
+    fontSize: 12,
+    fontStyle: 'italic',
+    color: colors.textMuted || '#888',
+    marginBottom: 4,
+  },
   resultItemDescription: {
     fontSize: 14,
     color: colors.textMuted || '#666', // Use a muted theme color or default
