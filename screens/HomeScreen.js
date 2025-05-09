@@ -145,8 +145,8 @@ export default function HomeScreen({ navigation }) {
         {!searchActive && (
           <Text style={styles.title}>Search Businesses & Items</Text>
         )}
-        <TextInput
-          style={styles.searchBar}
+      <TextInput
+        style={styles.searchBar}
           placeholder="Search by name, description, cuisine, items..."
           placeholderTextColor="#808080"
           value={searchQuery}
@@ -173,7 +173,7 @@ export default function HomeScreen({ navigation }) {
       {isLoading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+    </View>
       )}
 
       {!isLoading && error && searchActive && (
