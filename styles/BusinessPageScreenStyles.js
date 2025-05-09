@@ -103,7 +103,8 @@ export const styles = StyleSheet.create({
   },
   emptyListText: {
     fontSize: 16,
-    color: colors.textSecondary || '#666',
+    color: colors.textMuted || '#6c757d',
+    textAlign: 'center',
   },
   // --- Detail View Specific Styles ---
   detailScrollView: {
@@ -296,5 +297,23 @@ export const styles = StyleSheet.create({
       alignItems: 'center',
       padding: 20,
       backgroundColor: colors.background || '#f5f5f5',
+  },
+  deleteButton: {
+    backgroundColor: colors.error || '#dc3545', // Destructive action color
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 10, // Margin within its section card
+    marginHorizontal: 15, // Match sectionCard padding
+  },
+  deleteButtonDisabled: {
+    backgroundColor: colors.errorMuted || '#efa6ad', // Lighter red when disabled
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

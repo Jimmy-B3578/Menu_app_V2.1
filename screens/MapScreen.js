@@ -19,7 +19,7 @@ import { colors } from '../styles/themes'; // <<< Import colors
 
 const { height: screenHeight } = Dimensions.get('window'); // Get screen height
 
-export default function MapScreen({ user, navigation }) {
+export default function MapScreen({ route, user, navigation }) {
   const [initialRegion, setInitialRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -61,8 +61,28 @@ export default function MapScreen({ user, navigation }) {
 
   // --- Separate useEffect for fetching pins AND setting loading state ---
   useEffect(() => {
-    fetchPins();
+    // Check for refresh flag from navigation params
+    if (route?.params?.refresh) {
+      console.log('[MapScreen] Refresh true, fetching pins.');
+      fetchPins();
+      // Clear the refresh flag to prevent re-fetching on subsequent renders
+      navigation.setParams({ refresh: undefined });
+    }
+    // If not a refresh from delete, then do initial fetch (if it wasn't done by refresh)
+    // This condition ensures fetchPins() is called once on initial mount if not refreshing.
+    else if (!pinsInitiallyLoaded && !route?.params?.refresh) { 
+      fetchPins();
+    }
+
+    // Check for clearSelection flag
+    if (route?.params?.clearSelection) {
+      console.log('[MapScreen] clearSelection true, clearing selected marker.');
+      setSelectedMarker(null);
+      navigation.setParams({ clearSelection: undefined });
+    }
+
     // Set a timeout to hide loading indicator after 0.5 seconds
+    // This might need adjustment if fetchPins itself indicates loading
     const timer = setTimeout(() => {
       setIsMapLoading(false);
     }, 500); // 500 milliseconds
@@ -70,7 +90,7 @@ export default function MapScreen({ user, navigation }) {
     // Clear the timer if the component unmounts before it fires
     return () => clearTimeout(timer);
 
-  }, [fetchPins]); // Depends only on fetchPins
+  }, [fetchPins, route?.params?.refresh, route?.params?.clearSelection, navigation, pinsInitiallyLoaded]); // Added clearSelection and pinsInitiallyLoaded
 
   // --- Initial load effect FOR LOCATION ONLY ---
   useEffect(() => {

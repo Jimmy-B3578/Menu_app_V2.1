@@ -291,6 +291,34 @@ app.put('/pins/:pinId/menu', async (req, res) => {
   }
 });
 
+// DELETE /pins/:pinId - Delete a specific pin
+app.delete('/pins/:pinId', async (req, res) => {
+  const { pinId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(pinId)) {
+    return res.status(400).json({ message: 'Invalid Pin ID format.' });
+  }
+
+  try {
+    const pin = await Pin.findById(pinId);
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found.' });
+    }
+
+    // TODO: Add backend authorization check here in a real application
+    // For example, verify req.user.id === pin.createdBy.toString() || req.user.role === 'admin'
+
+    await Pin.findByIdAndDelete(pinId);
+    
+    // console.log(`Pin deleted: ${pinId}`);
+    res.status(200).json({ message: 'Pin deleted successfully.' });
+
+  } catch (error) {
+    console.error('Error deleting pin:', error);
+    res.status(500).json({ message: 'Error deleting pin.', error: error.message });
+  }
+});
+
 // -----------------
 
 app.listen(PORT, () => {

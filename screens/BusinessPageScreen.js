@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -17,13 +17,16 @@ import { colors } from '../styles/themes';
 import axios from 'axios';
 import MapView, { Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
+import { useUser } from '../context/UserContext';
 
 export default function BusinessPageScreen({ route, navigation }) {
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [openedFromMap, setOpenedFromMap] = useState(false);
+  const currentUser = useUser();
 
   useEffect(() => {
     if (selectedBusiness === null) {
@@ -70,6 +73,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       phone: business.phone || '+61 3 1234 5678',
       website: business.website || 'https://example.com',
       coordinate: business.coordinate || (business.location?.coordinates ? { latitude: business.location.coordinates[1], longitude: business.location.coordinates[0] } : null),
+      creatorId: typeof business.createdBy === 'object' ? business.createdBy?._id : business.createdBy,
       hours: business.hours || [
         { day: 'Monday - Friday', hours: '7:00 AM - 6:00 PM' },
         { day: 'Saturday', hours: '8:00 AM - 5:00 PM' },
@@ -87,6 +91,8 @@ export default function BusinessPageScreen({ route, navigation }) {
     };
     setOpenedFromMap(fromMap);
     setSelectedBusiness(details);
+    console.log("Selected Business with creatorId:", details.creatorId);
+    console.log("Current User ID:", currentUser?._id);
   };
 
   const handleShare = async () => {
@@ -147,6 +153,48 @@ export default function BusinessPageScreen({ route, navigation }) {
       setOpenedFromMap(false);
     }
   };
+
+  const handleDeleteBusiness = async () => {
+    if (!selectedBusiness || !selectedBusiness.id) return;
+
+    Alert.alert(
+      "Delete Business",
+      `Are you sure you want to delete "${selectedBusiness.name}"? This action cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel", onPress: () => setDeleting(false) },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              console.log('[BusinessPageScreen] Attempting to delete pin with ID:', selectedBusiness.id);
+              await axios.delete(`${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}`);
+              
+              if (openedFromMap) {
+                navigation.navigate('Map', { refresh: true, clearSelection: true });
+              } else {
+                setSelectedBusiness(null);
+              }
+            } catch (err) {
+              console.error("Failed to delete business:", err.response ? err.response.data : err.message);
+              Alert.alert("Error", "Could not delete the business. Please try again.");
+            } finally {
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+      { cancelable: true, onDismiss: () => setDeleting(false) }
+    );
+  };
+
+  const canDelete = useMemo(() => {
+    if (!currentUser || !selectedBusiness || !selectedBusiness.creatorId) {
+      return false;
+    }
+    return currentUser._id === selectedBusiness.creatorId;
+  }, [currentUser, selectedBusiness]);
 
   const renderBusinessCard = ({ item }) => (
     <TouchableOpacity onPress={() => handleSelectBusiness(item, false)}>
@@ -261,6 +309,22 @@ export default function BusinessPageScreen({ route, navigation }) {
           )}
         </View>
 
+        {canDelete && (
+          <View style={styles.sectionCard}>
+            <TouchableOpacity
+              style={[styles.deleteButton, deleting ? styles.deleteButtonDisabled : {}]}
+              onPress={handleDeleteBusiness}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.deleteButtonText}>Delete Business</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+
         <View style={styles.detailSpacer} />
       </ScrollView>
     );
@@ -302,7 +366,7 @@ export default function BusinessPageScreen({ route, navigation }) {
           ListEmptyComponent={() => (
             <View style={styles.emptyListContainer}>
               <Text style={styles.emptyListText}>No businesses found.</Text>
-    </View>
+            </View>
           )}
         />
       )}
