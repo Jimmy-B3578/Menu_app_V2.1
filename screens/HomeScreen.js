@@ -112,7 +112,18 @@ export default function HomeScreen({ navigation }) {
       return (
         <TouchableOpacity
           style={styles.resultItem}
-          onPress={() => navigation.navigate('Business', { businessData: item.originalPin })}
+          onPress={() => {
+            const menuScreen = item.menuName === 'Food Menu' ? 'FoodMenu' : 'DrinksMenu';
+            navigation.navigate(menuScreen, {
+              businessId: item.originalPin._id,
+              businessName: item.originalPin.name,
+              pinCreatorId: item.originalPin.createdBy,
+              selectedItem: {
+                name: item.itemName,
+                description: item.itemDescription
+              }
+            });
+          }}
         >
           <Text style={styles.resultItemPinName}>{item.pinName}</Text>
           <Text style={styles.resultItemMenuContext}>Found in {item.menuName}:</Text>

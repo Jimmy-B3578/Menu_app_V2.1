@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -134,13 +134,14 @@ const AddHeaderModal = ({ visible, onClose, onSave }) => {
 
 // --- Main Screen Component ---
 export default function DrinksMenuScreen({ route, navigation }) {
-  const { businessId, businessName, pinCreatorId } = route.params || {};
+  const { businessId, businessName, pinCreatorId, selectedItem } = route.params || {};
   const currentUser = useUser();
 
   // State for the menu structure
   const [menuStructure, setMenuStructure] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [highlightedItemId, setHighlightedItemId] = useState(null);
 
   // State for modals
   const [isAddItemModalVisible, setIsAddItemModalVisible] = useState(false);
@@ -180,6 +181,30 @@ export default function DrinksMenuScreen({ route, navigation }) {
     };
     fetchMenu();
   }, [businessId]);
+
+  // Add useEffect to find and highlight the selected item
+  useEffect(() => {
+    if (selectedItem && menuStructure.length > 0) {
+      const itemToHighlight = menuStructure.find(item => 
+        item.type === 'item' && 
+        item.name === selectedItem.name && 
+        item.description === selectedItem.description
+      );
+      if (itemToHighlight) {
+        setHighlightedItemId(itemToHighlight.id);
+        // Scroll to the item after a short delay to ensure the list is rendered
+        setTimeout(() => {
+          const index = menuStructure.findIndex(item => item.id === itemToHighlight.id);
+          if (index !== -1) {
+            listRef.current?.scrollToIndex({ index, animated: true });
+          }
+        }, 100);
+      }
+    }
+  }, [selectedItem, menuStructure]);
+
+  // Add ref for the FlatList
+  const listRef = useRef(null);
 
   // --- Save Handlers (Regular Add to End) ---
   const handleSaveNewItem = (itemData) => {
@@ -306,6 +331,7 @@ export default function DrinksMenuScreen({ route, navigation }) {
 
   // --- Render Function for FlatList ---
   const renderMenuItem = ({ item, index }) => {
+    const isHighlighted = item.id === highlightedItemId;
     return (
       <TouchableOpacity 
         onLongPress={canEdit ? () => showContextMenu(item, index) : null} 
@@ -316,12 +342,26 @@ export default function DrinksMenuScreen({ route, navigation }) {
             <Text style={styles.headerText}>{item.title}</Text>
           </View>
         ) : item.type === 'item' ? (
-          <View style={styles.menuItem}>
+          <View style={[
+            styles.menuItem,
+            isHighlighted && styles.highlightedMenuItem
+          ]}>
             <View style={styles.menuItemMain}>
-              <Text style={styles.menuItemName}>{item.name}</Text>
-              {item.description ? <Text style={styles.menuItemDescription}>{item.description}</Text> : null}
+              <Text style={[
+                styles.menuItemName,
+                isHighlighted && styles.highlightedMenuItemText
+              ]}>{item.name}</Text>
+              {item.description ? (
+                <Text style={[
+                  styles.menuItemDescription,
+                  isHighlighted && styles.highlightedMenuItemText
+                ]}>{item.description}</Text>
+              ) : null}
             </View>
-            <Text style={styles.menuItemPrice}>${parseFloat(item.price).toFixed(2)}</Text>
+            <Text style={[
+              styles.menuItemPrice,
+              isHighlighted && styles.highlightedMenuItemText
+            ]}>${parseFloat(item.price).toFixed(2)}</Text>
           </View>
         ) : null}
       </TouchableOpacity>
@@ -361,6 +401,7 @@ export default function DrinksMenuScreen({ route, navigation }) {
 
         {/* Menu List */}
         <FlatList
+            ref={listRef}
             data={menuStructure}
             renderItem={renderMenuItem}
             keyExtractor={item => item.id}

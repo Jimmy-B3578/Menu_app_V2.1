@@ -83,6 +83,16 @@ export const styles = StyleSheet.create({
     textAlign: 'right',
   },
 
+  // Highlight styles
+  highlightedMenuItem: {
+    backgroundColor: colors.primary + '20', // 20 is hex for 12.5% opacity
+    borderLeftWidth: 4,
+    borderLeftColor: colors.primary,
+  },
+  highlightedMenuItemText: {
+    color: colors.primary,
+  },
+
   // --- Modal Styles ---
   // Style for the KAV wrapper
   keyboardAvoidingContainer: {

@@ -71,7 +71,7 @@ export default function MapScreen({ route, user, navigation }) {
     // If not a refresh from delete, then do initial fetch (if it wasn't done by refresh)
     // This condition ensures fetchPins() is called once on initial mount if not refreshing.
     else if (!pinsInitiallyLoaded && !route?.params?.refresh) { 
-      fetchPins();
+    fetchPins();
     }
 
     // Check for clearSelection flag

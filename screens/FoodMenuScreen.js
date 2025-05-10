@@ -151,13 +151,40 @@ const AddHeaderModal = ({ visible, onClose, onSave }) => {
 
 // --- Main Screen Component ---
 export default function FoodMenuScreen({ route, navigation }) {
-  const { businessId, businessName, pinCreatorId } = route.params || {}; // <<< Get pinCreatorId
-  const currentUser = useUser(); // <<< Get current user from context
+  const { businessId, businessName, pinCreatorId, selectedItem } = route.params || {};
+  const currentUser = useUser();
 
   // State for the menu structure
-  const [menuStructure, setMenuStructure] = useState([]); // Array of {id, type, ...data}
-  const [isLoading, setIsLoading] = useState(false); // For fetching existing menu later
+  const [menuStructure, setMenuStructure] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [highlightedItemId, setHighlightedItemId] = useState(null);
+
+  // Add useEffect to find and highlight the selected item
+  useEffect(() => {
+    if (selectedItem && menuStructure.length > 0) {
+      const itemToHighlight = menuStructure.find(item => 
+        item.type === 'item' && 
+        item.name === selectedItem.name && 
+        item.description === selectedItem.description
+      );
+      if (itemToHighlight) {
+        setHighlightedItemId(itemToHighlight.id);
+        // Scroll to the item after a short delay to ensure the list is rendered
+        setTimeout(() => {
+          const index = menuStructure.findIndex(item => item.id === itemToHighlight.id);
+          if (index !== -1) {
+            listRef.current?.scrollToIndex({ index, animated: true });
+          }
+        }, 100);
+      }
+    }
+  }, [selectedItem, menuStructure]);
+
+  // Add ref for the FlatList
+  const listRef = useRef(null);
+  // Add ref for tracking insertion index
+  const insertionIndexRef = useRef(null);
 
   // State for modals
   const [isAddItemModalVisible, setIsAddItemModalVisible] = useState(false);
@@ -249,15 +276,13 @@ export default function FoodMenuScreen({ route, navigation }) {
       optimisticStructure = newStructure; // Store the new structure for API call
       return newStructure; // Update UI immediately
     });
-    setIsAddItemModalVisible(false); // <<< ADD THIS to close modal after initiating save
-    resetModalSaveHandlers(); // <<< ENSURE this is called to clear any edit state/handler
+    setIsAddItemModalVisible(false); // Close modal after initiating save
+    resetModalSaveHandlers(); // Reset modal handlers
     
     // Attempt to save the updated structure to the backend
     const success = await saveMenuToApi(optimisticStructure);
     if (!success) {
-      // Optional: Revert UI if save failed (more complex state management might be needed)
       console.log("Save failed, UI might be out of sync with backend.");
-      // Consider refetching or implementing a revert mechanism
     }
   };
 
@@ -299,7 +324,7 @@ export default function FoodMenuScreen({ route, navigation }) {
   // Reset modal handlers to default (append)
   const resetModalSaveHandlers = () => {
     setItemModalSaveHandler(() => handleSaveNewItem); // Default to adding new item
-    setHeaderModalSaveHandler(() => handleSaveNewHeader);
+      setHeaderModalSaveHandler(() => handleSaveNewHeader);
     setEditingItemData(null); // <<< Clear editing item data when modals are reset
   };
 
@@ -433,7 +458,7 @@ export default function FoodMenuScreen({ route, navigation }) {
               handlePressEditItem(item, index);
             } else if (buttonIndex === 5) { // Delete Item
               handlePressDeleteItem(item, index);
-            }
+          }
           } else { // Header actions
             if (buttonIndex === headerCancelButtonIndex) return; // Cancel
             // ... existing header actions, ensure indices match
@@ -476,7 +501,7 @@ export default function FoodMenuScreen({ route, navigation }) {
         item.type === 'item' ? item.name : item.title,
         item.type === 'item' ? `Price: ${item.price}` : 'Menu Header',
         androidActions,
-        { cancelable: true }
+           { cancelable: true }
       );
       // TODO: For Android, fully implement the modal opening logic for Add Above/Below as done for iOS.
       // For brevity, the detailed setup of setItemModalSaveHandler and setIsAddItemModalVisible is omitted here
@@ -494,25 +519,39 @@ export default function FoodMenuScreen({ route, navigation }) {
   // --- Render Function for FlatList ---
   const renderMenuItem = ({ item, index }) => {
     const itemSpecificStyle = item.type === 'header' ? styles.headerItem : styles.menuItem;
-    // Only allow long press if user can edit
+    const isHighlighted = item.id === highlightedItemId;
     const longPressHandler = canEdit ? () => showContextMenu(item, index) : undefined;
 
     return (
       <TouchableOpacity 
         onLongPress={longPressHandler} 
-        disabled={!canEdit} // Disable long press feedback if not editable
+        disabled={!canEdit}
       >
         {item.type === 'header' ? (
           <View style={itemSpecificStyle}>
             <Text style={styles.headerText}>{item.title}</Text>
           </View>
         ) : item.type === 'item' ? (
-          <View style={itemSpecificStyle}>
+          <View style={[
+            itemSpecificStyle,
+            isHighlighted && styles.highlightedMenuItem
+          ]}>
             <View style={styles.menuItemMain}>
-              <Text style={styles.menuItemName}>{item.name}</Text>
-              {item.description ? <Text style={styles.menuItemDescription}>{item.description}</Text> : null}
+              <Text style={[
+                styles.menuItemName,
+                isHighlighted && styles.highlightedMenuItemText
+              ]}>{item.name}</Text>
+              {item.description ? (
+                <Text style={[
+                  styles.menuItemDescription,
+                  isHighlighted && styles.highlightedMenuItemText
+                ]}>{item.description}</Text>
+              ) : null}
             </View>
-            <Text style={styles.menuItemPrice}>${parseFloat(item.price).toFixed(2)}</Text>
+            <Text style={[
+              styles.menuItemPrice,
+              isHighlighted && styles.highlightedMenuItemText
+            ]}>${parseFloat(item.price).toFixed(2)}</Text>
           </View>
         ) : null}
       </TouchableOpacity>
@@ -554,6 +593,7 @@ export default function FoodMenuScreen({ route, navigation }) {
 
         {/* Menu List */}
         <FlatList
+            ref={listRef}
             data={menuStructure}
             renderItem={renderMenuItem}
             keyExtractor={item => item.id}
