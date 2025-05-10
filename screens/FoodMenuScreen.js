@@ -409,8 +409,8 @@ export default function FoodMenuScreen({ route, navigation }) {
       'Add Item Below',
       'Add Header Above',
       'Add Header Below',
-      'Edit Item',         // <<< New Option
-      'Delete Item',       // <<< New Option
+      'Edit Item',         
+      'Delete Item',       
       'Cancel',
     ];
     const itemCancelButtonIndex = itemOptions.length - 1;
@@ -432,64 +432,78 @@ export default function FoodMenuScreen({ route, navigation }) {
           options: item.type === 'item' ? itemOptions : headerOptions,
           cancelButtonIndex: item.type === 'item' ? itemCancelButtonIndex : headerCancelButtonIndex,
           destructiveButtonIndex: item.type === 'item' ? itemDestructiveButtonIndex : undefined,
-          title: item.type === 'item' ? item.name : item.title, // Show item/header name as title
+          title: item.type === 'item' ? item.name : item.title,
           message: item.type === 'item' ? `Price: ${item.price}` : 'Menu Header'
         },
         (buttonIndex) => {
           if (item.type === 'item') {
             if (buttonIndex === itemCancelButtonIndex) return; // Cancel
             if (buttonIndex === 0) { // Add Item Above
-              resetModalSaveHandlers();
-              setItemModalSaveHandler(() => (itemData) => handleSaveItem(itemData, index));
-              setIsAddItemModalVisible(true);
+              insertionIndexRef.current = index;
+              openAddItemModal();
             } else if (buttonIndex === 1) { // Add Item Below
-              resetModalSaveHandlers();
-              setItemModalSaveHandler(() => (itemData) => handleSaveItem(itemData, index + 1));
-              setIsAddItemModalVisible(true);
+              insertionIndexRef.current = index + 1;
+              openAddItemModal();
             } else if (buttonIndex === 2) { // Add Header Above
-              resetModalSaveHandlers();
-              setHeaderModalSaveHandler(() => (headerData) => handleSaveHeader(headerData, index));
-              setIsAddHeaderModalVisible(true);
+              insertionIndexRef.current = index;
+              openAddHeaderModal();
             } else if (buttonIndex === 3) { // Add Header Below
-              resetModalSaveHandlers();
-              setHeaderModalSaveHandler(() => (headerData) => handleSaveHeader(headerData, index + 1));
-              setIsAddHeaderModalVisible(true);
+              insertionIndexRef.current = index + 1;
+              openAddHeaderModal();
             } else if (buttonIndex === 4) { // Edit Item
               handlePressEditItem(item, index);
             } else if (buttonIndex === 5) { // Delete Item
               handlePressDeleteItem(item, index);
-          }
+            }
           } else { // Header actions
             if (buttonIndex === headerCancelButtonIndex) return; // Cancel
-            // ... existing header actions, ensure indices match
             if (buttonIndex === 0) { // Add Item Above Header
-                resetModalSaveHandlers();
-                setItemModalSaveHandler(() => (itemData) => handleSaveItem(itemData, index));
-                setIsAddItemModalVisible(true);
+              insertionIndexRef.current = index;
+              openAddItemModal();
             } else if (buttonIndex === 1) { // Add Item Below Header
-                resetModalSaveHandlers();
-                setItemModalSaveHandler(() => (itemData) => handleSaveItem(itemData, index + 1));
-                setIsAddItemModalVisible(true);
+              insertionIndexRef.current = index + 1;
+              openAddItemModal();
             } else if (buttonIndex === 2) { // Add Header Above Header
-                resetModalSaveHandlers();
-                setHeaderModalSaveHandler(() => (headerData) => handleSaveHeader(headerData, index));
-                setIsAddHeaderModalVisible(true);
+              insertionIndexRef.current = index;
+              openAddHeaderModal();
             } else if (buttonIndex === 3) { // Add Header Below Header
-                resetModalSaveHandlers();
-                setHeaderModalSaveHandler(() => (headerData) => handleSaveHeader(headerData, index + 1));
-                setIsAddHeaderModalVisible(true);
+              insertionIndexRef.current = index + 1;
+              openAddHeaderModal();
             }
           }
         }
       );
     } else {
       // Android: Basic Alert for now, can be replaced with a custom modal later
-      // For items, include Edit/Delete
       let androidActions = [
-        { text: "Add Item Above", onPress: () => { /* ... setup and open modal ... */ } },
-        { text: "Add Item Below", onPress: () => { /* ... setup and open modal ... */ } },
-        { text: "Add Header Above", onPress: () => { /* ... setup and open modal ... */ } },
-        { text: "Add Header Below", onPress: () => { /* ... setup and open modal ... */ } },
+        { 
+          text: "Add Item Above", 
+          onPress: () => {
+            insertionIndexRef.current = index;
+            openAddItemModal();
+          }
+        },
+        { 
+          text: "Add Item Below", 
+          onPress: () => {
+            insertionIndexRef.current = index + 1;
+            openAddItemModal();
+          }
+        },
+        { 
+          text: "Add Header Above", 
+          onPress: () => {
+            insertionIndexRef.current = index;
+            openAddHeaderModal();
+          }
+        },
+        { 
+          text: "Add Header Below", 
+          onPress: () => {
+            insertionIndexRef.current = index + 1;
+            openAddHeaderModal();
+          }
+        },
       ];
       if (item.type === 'item') {
         androidActions.push({ text: "Edit Item", onPress: () => handlePressEditItem(item, index) });
@@ -501,18 +515,8 @@ export default function FoodMenuScreen({ route, navigation }) {
         item.type === 'item' ? item.name : item.title,
         item.type === 'item' ? `Price: ${item.price}` : 'Menu Header',
         androidActions,
-           { cancelable: true }
+        { cancelable: true }
       );
-      // TODO: For Android, fully implement the modal opening logic for Add Above/Below as done for iOS.
-      // For brevity, the detailed setup of setItemModalSaveHandler and setIsAddItemModalVisible is omitted here
-      // but should mirror the iOS implementation for each "Add..." action.
-      // Example for "Add Item Above" on Android:
-      // { text: "Add Item Above", onPress: () => { 
-      //     resetModalSaveHandlers(); 
-      //     setItemModalSaveHandler(() => (itemData) => handleSaveItem(itemData, index)); 
-      //     setIsAddItemModalVisible(true); 
-      //   }
-      // },
     }
   };
 
