@@ -7,12 +7,23 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Keyboard,
-  SafeAreaView
+  SafeAreaView,
+  LayoutAnimation,
+  Platform,
+  UIManager
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import styles from '../styles/HomeScreenStyles';
 import { colors } from '../styles/themes';
 import uuid from 'react-native-uuid';
+
+// Enable LayoutAnimation for Android
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+  }
+}
 
 export default function HomeScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,19 +34,34 @@ export default function HomeScreen({ navigation }) {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
+      setSearchQuery('');
       setProcessedResults([]);
-      setSearchActive(false);
       setError(null);
+      if (searchActive) {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setSearchActive(false);
+      }
+      Keyboard.dismiss();
       return;
     }
 
     Keyboard.dismiss();
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    
+    setSearchActive(true);
     setIsLoading(true);
     setError(null);
-    setSearchActive(true);
+    setProcessedResults([]);
+
+    const animationDuration = 300;
 
     try {
-      const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/search/pins?q=${encodeURIComponent(searchQuery)}`);
+      const animationDelayPromise = new Promise(resolve => setTimeout(resolve, animationDuration));
+      
+      const fetchDataPromise = axios.get(`${process.env.EXPO_PUBLIC_API_URL}/search/pins?q=${encodeURIComponent(searchQuery)}`);
+
+      const [_, response] = await Promise.all([animationDelayPromise, fetchDataPromise]);
+
       const pins = response.data || [];
       const groupedResults = {};
       const queryRegex = new RegExp(searchQuery.trim().replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'i');
@@ -99,8 +125,8 @@ export default function HomeScreen({ navigation }) {
       });
 
       const newProcessedResults = Object.values(groupedResults);
-
       setProcessedResults(newProcessedResults);
+
       if (newProcessedResults.length === 0) {
         setError('No relevant items or businesses found.');
       }
@@ -109,14 +135,16 @@ export default function HomeScreen({ navigation }) {
       console.error('Search API error:', err.response ? err.response.data : err.message);
       setError(err.response?.data?.message || 'Failed to fetch results.');
       setProcessedResults([]);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const clearSearch = () => {
     setSearchQuery('');
     setProcessedResults([]);
     setError(null);
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setSearchActive(false);
     Keyboard.dismiss();
   };
@@ -182,26 +210,32 @@ export default function HomeScreen({ navigation }) {
         {!searchActive && (
           <Text style={styles.title}>Search Businesses & Items</Text>
         )}
-      <TextInput
-        style={styles.searchBar}
-          placeholder="Search by name, description, cuisine, items..."
-          placeholderTextColor="#808080"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmitEditing={handleSearch}
-          returnKeyType="search"
-        />
+        <View style={styles.searchBarContainer}>
+          <TextInput
+            style={styles.searchBar}
+            placeholder="Search by name, description, cuisine, items..."
+            placeholderTextColor="#808080"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={clearSearch} style={styles.clearIcon}>
+              <Ionicons name="close-circle" size={24} color="#808080" />
+            </TouchableOpacity>
+          )}
+        </View>
         {searchActive ? (
-          <View style={styles.searchButtonContainer}>
-            <TouchableOpacity style={[styles.searchButton, {backgroundColor: colors.primary, flex: 1, marginRight: 5}]} onPress={handleSearch}>
-              <Text style={styles.searchButtonText}>Search</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.searchButton, {backgroundColor: colors.secondary || '#6c757d', flex: 1, marginLeft: 5}]} onPress={clearSearch}>
-              <Text style={styles.searchButtonText}>Clear</Text>
-            </TouchableOpacity>
-          </View>
+          !isLoading && processedResults.length === 0 && (
+            <View style={styles.searchButtonContainer}>
+              <TouchableOpacity style={[styles.searchButton, {backgroundColor: colors.primary, flex: 1}]} onPress={handleSearch}>
+                <Text style={styles.searchButtonText}>Search</Text>
+              </TouchableOpacity>
+            </View>
+          )
         ) : (
-          <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+          <TouchableOpacity style={[styles.searchButton, styles.singleSearchButton]} onPress={handleSearch}>
             <Text style={styles.searchButtonText}>Search</Text>
           </TouchableOpacity>
         )}
@@ -210,7 +244,7 @@ export default function HomeScreen({ navigation }) {
       {isLoading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-    </View>
+        </View>
       )}
 
       {!isLoading && error && searchActive && (

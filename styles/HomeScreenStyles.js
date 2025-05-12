@@ -25,15 +25,14 @@ export default StyleSheet.create({
     paddingTop: 20, // Status bar height approx + some margin
     // No flex: 1 here, content below will push it
   },
-  searchBar: {
-    height: 50,
-    width: '90%', // Make it slightly wider
+  searchBarContainer: { // New style for the container of TextInput and ClearIcon
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '90%',
     borderColor: '#dfe1e5',
     borderWidth: 1,
     borderRadius: 25,
-    paddingHorizontal: 20, // Use paddingHorizontal
-    fontSize: 16,
-    backgroundColor: '#fff', // Keep white background
+    backgroundColor: '#fff',
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -41,14 +40,42 @@ export default StyleSheet.create({
     },
     shadowOpacity: 0.20,
     shadowRadius: 1.41,
-    elevation: 3, // Slightly increased elevation
-    marginBottom: 10, // Add some margin below search bar
+    elevation: 3,
+    marginBottom: 10, // Keep existing margin
+    paddingHorizontal: 5, // Add some padding so icon isn't flush
   },
-  searchButtonContainer: { // New container for buttons to apply margin easily
+  searchBar: {
+    height: 50,
+    // width: '90%', // Width is now controlled by searchBarContainer
+    flex: 1, // Allow TextInput to take up available space
+    // borderColor: '#dfe1e5', // Border is now on searchBarContainer
+    // borderWidth: 1, // Border is now on searchBarContainer
+    // borderRadius: 25, // Border is now on searchBarContainer
+    paddingHorizontal: 15, // Adjusted padding since container has some
+    fontSize: 16,
+    // backgroundColor: '#fff', // Background is now on searchBarContainer
+    // shadowColor: "#000", // Shadow is now on searchBarContainer
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 1,
+    // },
+    // shadowOpacity: 0.20,
+    // shadowRadius: 1.41,
+    // elevation: 3, // Elevation is now on searchBarContainer
+    // marginBottom: 10, // Margin is now on searchBarContainer
+  },
+  clearIcon: { // Style for the 'X' clear icon
+    padding: 10, // Make it easier to tap
+    position: 'absolute',
+    right: 5,
+    height: '100%', // Make it vertically centered
+    justifyContent: 'center',
+  },
+  searchButtonContainer: { // Container for the single search button when active
     flexDirection: 'row',
-    justifyContent: 'space-around',
     width: '90%',
-    marginBottom: 15, // Added padding under the search and clear buttons
+    marginTop: 10, // Add margin if it appears after search bar
+    marginBottom: 15,
   },
   searchButton: {
     backgroundColor: colors.primary, // Use theme color for button
@@ -58,6 +85,12 @@ export default StyleSheet.create({
     marginTop: 10, // Space between input and button if search isn't active
     elevation: 2,
     fontWeight: 'bold',
+    alignItems: 'center', // Center text horizontally
+    justifyContent: 'center', // Center text vertically
+  },
+  singleSearchButton: { // Specific style for the search button when it's the only one
+    width: '90%', // Make it take the full width of the container it would be in
+    alignSelf: 'center',
   },
   searchButtonText: {
     color: '#fff', // White text for button
