@@ -44,6 +44,12 @@ export default StyleSheet.create({
     elevation: 3, // Slightly increased elevation
     marginBottom: 10, // Add some margin below search bar
   },
+  searchButtonContainer: { // New container for buttons to apply margin easily
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '90%',
+    marginBottom: 15, // Added padding under the search and clear buttons
+  },
   searchButton: {
     backgroundColor: colors.primary, // Use theme color for button
     paddingVertical: 12,
@@ -51,6 +57,7 @@ export default StyleSheet.create({
     borderRadius: 25,
     marginTop: 10, // Space between input and button if search isn't active
     elevation: 2,
+    fontWeight: 'bold',
   },
   searchButtonText: {
     color: '#fff', // White text for button
@@ -73,11 +80,12 @@ export default StyleSheet.create({
     fontWeight: 'bold',
     color: colors.text,
   },
-  resultItemPinName: { // Style for Pin Name when showing a matched item
+  resultItemPinName: { // Style for Pin Name when showing a matched item (might be deprecated or reused for restaurant header)
     fontSize: 16,
     fontWeight: 'bold',
     color: colors.primary, // Or another distinct color
     marginBottom: 2,
+    marginTop: 4,
   },
   resultItemMenuContext: { // Style for "Found in Food/Drinks Menu:"
     fontSize: 12,
@@ -120,4 +128,53 @@ export default StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20, // Space below title if search bar is at top
   },
+  // New Styles for Grouped Results
+  restaurantGroupContainer: {
+    marginBottom: 15, // Space between restaurant groups
+    borderColor: colors.border || '#ddd',
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: colors.cardBackground || '#fff',
+    overflow: 'hidden', // Ensures border radius is respected by children
+  },
+  restaurantNameHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.primary, // Use a prominent color for the restaurant name
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    backgroundColor: colors.primaryMuted || '#e9ecef', // A light background for the header
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border || '#ddd',
+  },
+  menuItemContainer: {
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight || '#f0f0f0',
+    backgroundColor: '#fff', // White background for items
+  },
+  menuItemHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  menuItemName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text,
+    flex: 1, // Allow text to take available space and wrap if necessary
+  },
+  menuItemPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text, // Or a specific price color e.g. colors.success
+    marginLeft: 10, // Space between name and price
+  },
+  menuItemDescription: {
+    fontSize: 14,
+    color: colors.textMuted || '#666',
+    marginTop: 4,
+  },
+  // End of New Styles for Grouped Results
 }); 

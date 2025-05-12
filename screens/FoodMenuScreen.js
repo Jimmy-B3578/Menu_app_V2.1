@@ -515,7 +515,7 @@ export default function FoodMenuScreen({ route, navigation }) {
         item.type === 'item' ? item.name : item.title,
         item.type === 'item' ? `Price: ${item.price}` : 'Menu Header',
         androidActions,
-        { cancelable: true }
+           { cancelable: true }
       );
     }
   };

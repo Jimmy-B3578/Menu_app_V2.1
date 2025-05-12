@@ -37,8 +37,8 @@ export default function HomeScreen({ navigation }) {
     try {
       const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/search/pins?q=${encodeURIComponent(searchQuery)}`);
       const pins = response.data || [];
-      const newProcessedResults = [];
-      const queryRegex = new RegExp(searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+      const groupedResults = {};
+      const queryRegex = new RegExp(searchQuery.trim().replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'i');
 
       pins.forEach(pin => {
         let pinLevelMatch = false;
@@ -47,44 +47,58 @@ export default function HomeScreen({ navigation }) {
         }
 
         let itemMatchFoundInPin = false;
+        const addItemToGroup = (item, menuType) => {
+          if (!groupedResults[pin.name]) {
+            groupedResults[pin.name] = {
+              id: pin._id || uuid.v4(),
+              type: 'restaurantGroup',
+              pinName: pin.name,
+              originalPin: pin,
+              items: []
+            };
+          }
+          groupedResults[pin.name].items.push({
+            id: uuid.v4(),
+            type: 'menuItem',
+            menuName: menuType,
+            itemName: item.name,
+            itemPrice: item.price,
+            itemDescription: item.description,
+          });
+          itemMatchFoundInPin = true;
+        };
+
         (pin.foodMenu || []).forEach(item => {
           if (item.type === 'item' && (queryRegex.test(item.name) || queryRegex.test(item.description))) {
-            newProcessedResults.push({
-              id: uuid.v4(),
-              type: 'menuItem',
-              menuName: 'Food Menu',
-              pinName: pin.name,
-              itemName: item.name,
-              itemDescription: item.description,
-              originalPin: pin
-            });
-            itemMatchFoundInPin = true;
+            addItemToGroup(item, 'Food Menu');
           }
         });
 
         (pin.drinksMenu || []).forEach(item => {
           if (item.type === 'item' && (queryRegex.test(item.name) || queryRegex.test(item.description))) {
-            newProcessedResults.push({
-              id: uuid.v4(),
-              type: 'menuItem',
-              menuName: 'Drinks Menu',
-              pinName: pin.name,
-              itemName: item.name,
-              itemDescription: item.description,
-              originalPin: pin
-            });
-            itemMatchFoundInPin = true;
+            addItemToGroup(item, 'Drinks Menu');
           }
         });
 
         if (pinLevelMatch && !itemMatchFoundInPin) {
-          newProcessedResults.push({
-            id: uuid.v4(),
-            type: 'pinMatch',
-            pin: pin
-          });
+          if (!groupedResults[pin.name]) {
+            groupedResults[pin.name] = {
+              id: pin._id || uuid.v4(),
+              type: 'restaurantGroup',
+              pinName: pin.name,
+              originalPin: pin,
+              items: [{
+                id: uuid.v4(),
+                type: 'pinDetails',
+                pinDescription: pin.description,
+                pinCuisine: pin.cuisine
+              }]
+            };
+          }
         }
       });
+
+      const newProcessedResults = Object.values(groupedResults);
 
       setProcessedResults(newProcessedResults);
       if (newProcessedResults.length === 0) {
@@ -108,43 +122,55 @@ export default function HomeScreen({ navigation }) {
   };
 
   const renderResultItem = ({ item }) => {
-    if (item.type === 'menuItem') {
+    if (item.type === 'restaurantGroup') {
       return (
-        <TouchableOpacity
-          style={styles.resultItem}
-          onPress={() => {
-            const menuScreen = item.menuName === 'Food Menu' ? 'FoodMenu' : 'DrinksMenu';
-            navigation.navigate(menuScreen, {
-              businessId: item.originalPin._id,
-              businessName: item.originalPin.name,
-              pinCreatorId: item.originalPin.createdBy,
-              selectedItem: {
-                name: item.itemName,
-                description: item.itemDescription
-              }
-            });
-          }}
-        >
-          <Text style={styles.resultItemPinName}>{item.pinName}</Text>
-          <Text style={styles.resultItemMenuContext}>Found in {item.menuName}:</Text>
-          <Text style={styles.resultItemName}>{item.itemName}</Text>
-          {item.itemDescription && <Text style={styles.resultItemDescription}>{item.itemDescription}</Text>}
-        </TouchableOpacity>
-      );
-    }
+        <View style={styles.restaurantGroupContainer}>
+          <Text style={styles.restaurantNameHeader}>{item.pinName}</Text>
+          {item.items.map(menuItem => {
+            if (menuItem.type === 'pinDetails') {
+              return (
+                <TouchableOpacity
+                  key={menuItem.id}
+                  style={styles.resultItem}
+                  onPress={() => navigation.navigate('Business', { businessData: item.originalPin })}
+                >
+                  <Text style={styles.resultItemName}>{item.pinName} (Details)</Text>
+                  {menuItem.pinDescription && <Text style={styles.resultItemDescription}>{menuItem.pinDescription}</Text>}
+                  {menuItem.pinCuisine && menuItem.pinCuisine.length > 0 && (
+                    <Text style={styles.resultItemCuisine}>Cuisine: {menuItem.pinCuisine.join(', ')}</Text>
+                  )}
+                </TouchableOpacity>
+              );
+            }
 
-    if (item.type === 'pinMatch') {
-      return (
-        <TouchableOpacity
-          style={styles.resultItem}
-          onPress={() => navigation.navigate('Business', { businessData: item.pin })}
-        >
-          <Text style={styles.resultItemName}>{item.pin.name}</Text>
-          {item.pin.description && <Text style={styles.resultItemDescription}>{item.pin.description}</Text>}
-          {item.pin.cuisine && item.pin.cuisine.length > 0 && (
-            <Text style={styles.resultItemCuisine}>Cuisine: {item.pin.cuisine.join(', ')}</Text>
-          )}
-        </TouchableOpacity>
+            return (
+              <TouchableOpacity
+                key={menuItem.id}
+                style={styles.menuItemContainer}
+                onPress={() => {
+                  const menuScreen = menuItem.menuName === 'Food Menu' ? 'FoodMenu' : 'DrinksMenu';
+                  navigation.navigate(menuScreen, {
+                    businessId: item.originalPin._id,
+                    businessName: item.originalPin.name,
+                    pinCreatorId: item.originalPin.createdBy,
+                    selectedItem: {
+                      name: menuItem.itemName,
+                      description: menuItem.itemDescription,
+                    }
+                  });
+                }}
+              >
+                <View style={styles.menuItemHeader}>
+                  <Text style={styles.menuItemName}>{menuItem.itemName}</Text>
+                  {menuItem.itemPrice !== undefined && (
+                    <Text style={styles.menuItemPrice}>{`$${parseFloat(menuItem.itemPrice).toFixed(2)}`}</Text>
+                  )}
+                </View>
+                {menuItem.itemDescription && <Text style={styles.menuItemDescription}>{menuItem.itemDescription}</Text>}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       );
     }
     return null;
@@ -166,7 +192,7 @@ export default function HomeScreen({ navigation }) {
           returnKeyType="search"
         />
         {searchActive ? (
-          <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '90%' }}>
+          <View style={styles.searchButtonContainer}>
             <TouchableOpacity style={[styles.searchButton, {backgroundColor: colors.primary, flex: 1, marginRight: 5}]} onPress={handleSearch}>
               <Text style={styles.searchButtonText}>Search</Text>
             </TouchableOpacity>
