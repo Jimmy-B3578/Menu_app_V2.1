@@ -114,7 +114,7 @@ export default function HomeScreen({ navigation }) {
               pinName: pin.name,
               originalPin: pin,
               items: [{
-                id: uuid.v4(),
+            id: uuid.v4(),
                 type: 'pinDetails',
                 pinDescription: pin.description,
                 pinCuisine: pin.cuisine
@@ -156,10 +156,10 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.restaurantNameHeader}>{item.pinName}</Text>
           {item.items.map(menuItem => {
             if (menuItem.type === 'pinDetails') {
-              return (
-                <TouchableOpacity
+      return (
+        <TouchableOpacity
                   key={menuItem.id}
-                  style={styles.resultItem}
+          style={styles.resultItem}
                   onPress={() => navigation.navigate('Business', { businessData: item.originalPin })}
                 >
                   <Text style={styles.resultItemName}>{item.pinName} (Details)</Text>
@@ -176,15 +176,19 @@ export default function HomeScreen({ navigation }) {
                 key={menuItem.id}
                 style={styles.menuItemContainer}
                 onPress={() => {
-                  const menuScreen = menuItem.menuName === 'Food Menu' ? 'FoodMenu' : 'DrinksMenu';
-                  navigation.navigate(menuScreen, {
+                  // Determine the target tab name for UnifiedMenuScreen
+                  const targetInitialRoute = menuItem.menuName === 'Food Menu' ? 'Food' : 'Drinks';
+                  
+                  navigation.navigate('UnifiedMenu', {
                     businessId: item.originalPin._id,
                     businessName: item.originalPin.name,
                     pinCreatorId: item.originalPin.createdBy,
-                    selectedItem: {
+                    selectedItem: { // Pass the item details for highlighting
                       name: menuItem.itemName,
                       description: menuItem.itemDescription,
-                    }
+                      // price: menuItem.itemPrice // You might want to pass price if Food/DrinksMenuScreen use it for highlighting
+                    },
+                    initialRouteName: targetInitialRoute // Tell UnifiedMenuScreen which tab to open
                   });
                 }}
               >
@@ -211,15 +215,15 @@ export default function HomeScreen({ navigation }) {
           <Text style={styles.title}>Search Businesses & Items</Text>
         )}
         <View style={styles.searchBarContainer}>
-          <TextInput
-            style={styles.searchBar}
-            placeholder="Search by name, description, cuisine, items..."
-            placeholderTextColor="#808080"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
-            returnKeyType="search"
-          />
+      <TextInput
+        style={styles.searchBar}
+          placeholder="Search by name, description, cuisine, items..."
+          placeholderTextColor="#808080"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearch}
+          returnKeyType="search"
+        />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={clearSearch} style={styles.clearIcon}>
               <Ionicons name="close-circle" size={24} color="#808080" />
@@ -230,9 +234,9 @@ export default function HomeScreen({ navigation }) {
           !isLoading && processedResults.length === 0 && (
             <View style={styles.searchButtonContainer}>
               <TouchableOpacity style={[styles.searchButton, {backgroundColor: colors.primary, flex: 1}]} onPress={handleSearch}>
-                <Text style={styles.searchButtonText}>Search</Text>
-              </TouchableOpacity>
-            </View>
+              <Text style={styles.searchButtonText}>Search</Text>
+            </TouchableOpacity>
+          </View>
           )
         ) : (
           <TouchableOpacity style={[styles.searchButton, styles.singleSearchButton]} onPress={handleSearch}>
@@ -244,7 +248,7 @@ export default function HomeScreen({ navigation }) {
       {isLoading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+    </View>
       )}
 
       {!isLoading && error && searchActive && (

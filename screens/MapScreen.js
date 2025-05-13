@@ -316,38 +316,22 @@ export default function MapScreen({ route, user, navigation }) {
           >
             <Text style={styles.contextButtonText}>View Business Page</Text>
           </Pressable>
-          <View style={styles.contextButtonRow}>
-            {/* Food Menu Button */}
-            <Pressable 
-              style={styles.contextButtonHalf} 
-              onPress={() => {
-                if (selectedMarker) {
-                  navigation.push('FoodMenu', { 
-                    businessId: selectedMarker.id, 
-                    businessName: selectedMarker.title, 
-                    pinCreatorId: selectedMarker.createdBy 
-                  });
-                }
-              }}
-            >
-              <Text style={styles.contextButtonText}>Food Menu</Text>
-            </Pressable>
-            {/* Drinks Menu Button */}
-            <Pressable 
-              style={styles.contextButtonHalf} 
-              onPress={() => {
-                if (selectedMarker) {
-                  navigation.push('DrinksMenu', { 
-                    businessId: selectedMarker.id,
-                    businessName: selectedMarker.title, 
-                    pinCreatorId: selectedMarker.createdBy 
-                  });
-                }
-              }}
-            >
-              <Text style={styles.contextButtonText}>Drinks Menu</Text>
-            </Pressable>
-          </View>
+          {/* Single Menu Button */}
+          <Pressable 
+            style={styles.contextButtonFull} // Use full width style for the single menu button
+            onPress={() => {
+              if (selectedMarker) {
+                navigation.navigate('UnifiedMenu', { 
+                  businessId: selectedMarker.id, 
+                  businessName: selectedMarker.title, 
+                  pinCreatorId: selectedMarker.createdBy 
+                  // No selectedItem or initialRouteName needed here for general menu access
+                });
+              }
+            }}
+          >
+            <Text style={styles.contextButtonText}>View Menu</Text>
+          </Pressable>
           {/* Add a drag handle or other controls to adjust height later if needed */}
         </View>
       )}
