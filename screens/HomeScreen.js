@@ -153,7 +153,23 @@ export default function HomeScreen({ navigation }) {
     if (item.type === 'restaurantGroup') {
       return (
         <View style={styles.restaurantGroupContainer}>
-          <Text style={styles.restaurantNameHeader}>{item.pinName}</Text>
+          <View style={styles.restaurantNameHeaderContainer}>
+            <Text style={styles.restaurantNameHeaderText}>{item.pinName}</Text>
+            {item.originalPin?.location?.coordinates && (
+              <TouchableOpacity 
+                style={styles.viewOnMapButton}
+                onPress={() => {
+                  navigation.navigate('Map', { 
+                    targetPinId: item.originalPin._id,
+                    targetCoordinates: item.originalPin.location.coordinates, 
+                    fromSearch: true 
+                  });
+                }}
+              >
+                <Text style={styles.viewOnMapButtonText}>View on Map</Text>
+              </TouchableOpacity>
+            )}
+          </View>
           {item.items.map(menuItem => {
             if (menuItem.type === 'pinDetails') {
       return (

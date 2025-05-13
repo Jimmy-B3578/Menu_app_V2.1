@@ -170,15 +170,34 @@ export default StyleSheet.create({
     backgroundColor: colors.cardBackground || '#fff',
     overflow: 'hidden', // Ensures border radius is respected by children
   },
-  restaurantNameHeader: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: colors.primary, // Use a prominent color for the restaurant name
-    paddingVertical: 12,
+  restaurantNameHeaderContainer: { // Renamed from restaurantNameHeader to be a container
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
     paddingHorizontal: 15,
-    backgroundColor: colors.primaryMuted || '#e9ecef', // A light background for the header
+    backgroundColor: colors.primaryMuted || '#e9ecef',
     borderBottomWidth: 1,
     borderBottomColor: colors.border || '#ddd',
+  },
+  restaurantNameHeaderText: { // Style for the text part of the header
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.primary,
+    flexShrink: 1, // Allow text to shrink if button takes space
+    marginRight: 10, // Add some space between text and button
+  },
+  viewOnMapButton: {
+    backgroundColor: colors.secondary || '#6c757d',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    elevation: 1,
+  },
+  viewOnMapButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
   },
   menuItemContainer: {
     padding: 15,

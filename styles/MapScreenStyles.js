@@ -200,4 +200,19 @@ export default StyleSheet.create({
     padding: 20,
     backgroundColor: colors.background || '#f0f0f0', // Use theme background or fallback
   },
+  backToSearchButton: {
+    position: 'absolute',
+    top: Platform.OS === 'ios' ? 60 : 20, // Adjust for status bar
+    left: 15,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    zIndex: 10, // Ensure it's above map elements
+  },
+  backToSearchButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
 }); 

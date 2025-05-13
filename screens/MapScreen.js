@@ -144,6 +144,43 @@ export default function MapScreen({ route, user, navigation }) {
   }, []); // <<< EMPTY dependency array for location effect
   // ---------------------------------------------------
 
+  // --- Effect to handle navigation from HomeScreen search results ---
+  useEffect(() => {
+    const { targetPinId, targetCoordinates, fromSearch } = route.params || {};
+
+    if (fromSearch && targetPinId && targetCoordinates && markers.length > 0) {
+      const coordsArray = targetCoordinates; // Assuming it's [longitude, latitude]
+      const targetLat = parseFloat(coordsArray[1]);
+      const targetLng = parseFloat(coordsArray[0]);
+
+      if (!isNaN(targetLat) && !isNaN(targetLng)) {
+        const region = {
+          latitude: targetLat,
+          longitude: targetLng,
+          latitudeDelta: 0.005, // Zoom in a bit closer
+          longitudeDelta: 0.005,
+        };
+        mapRef.current?.animateToRegion(region, 1000);
+
+        const foundMarker = markers.find(marker => marker.id === targetPinId);
+        if (foundMarker) {
+          // Delay marker selection slightly to allow map animation to start
+          setTimeout(() => {
+            handleMarkerPress(foundMarker);
+          }, 500); // Adjust delay as needed
+        }
+      } else {
+        console.warn('Invalid targetCoordinates received:', targetCoordinates);
+      }
+      
+      // Important: Clear the params so this doesn't re-run on subsequent focuses of the MapScreen
+      // unless explicitly navigated with these params again.
+      // navigation.setParams({ targetPinId: undefined, targetCoordinates: undefined, fromSearch: undefined }); 
+      // ^ Let's defer clearing `fromSearch` until the custom back button is pressed, so it remains visible.
+      navigation.setParams({ targetPinId: undefined, targetCoordinates: undefined });
+    }
+  }, [route.params, markers, navigation]); // Rerun if route.params or markers change
+
   // --- Restore handlers ---
   const handleLongPress = (event) => {
     const coordinate = event.nativeEvent.coordinate;
@@ -294,6 +331,20 @@ export default function MapScreen({ route, user, navigation }) {
       )}
       {/* ----------------------------------- */}
       
+      {/* --- Custom Back to Search Button --- */}
+      {route.params?.fromSearch && (
+        <Pressable 
+          style={styles.backToSearchButton} 
+          onPress={() => {
+            setSelectedMarker(null); // Deselect the marker
+            navigation.setParams({ fromSearch: undefined, targetPinId: undefined, targetCoordinates: undefined }); // Clear all relevant params
+            navigation.navigate('Home');
+          }}
+        >
+          <Text style={styles.backToSearchButtonText}>← Back to Search Results</Text>
+        </Pressable>
+      )}
+
       {/* --- Buttons and Modal (Rendered separately, potentially overlaying) --- */}
       {/* Custom Recenter Button - Conditionally render based on map readiness */}
       {!isMapLoading && initialRegion && (
