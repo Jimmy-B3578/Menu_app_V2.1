@@ -344,7 +344,7 @@ export default function MapScreen({ route, user, navigation }) {
           <Text style={styles.backToSearchButtonText}>← Back to Search Results</Text>
         </Pressable>
       )}
-
+      
       {/* --- Buttons and Modal (Rendered separately, potentially overlaying) --- */}
       {/* Custom Recenter Button - Conditionally render based on map readiness */}
       {!isMapLoading && initialRegion && (
@@ -368,21 +368,21 @@ export default function MapScreen({ route, user, navigation }) {
             <Text style={styles.contextButtonText}>View Business Page</Text>
           </Pressable>
           {/* Single Menu Button */}
-          <Pressable 
+            <Pressable 
             style={styles.contextButtonFull} // Use full width style for the single menu button
-            onPress={() => {
-              if (selectedMarker) {
+              onPress={() => {
+                if (selectedMarker) {
                 navigation.navigate('UnifiedMenu', { 
-                  businessId: selectedMarker.id, 
-                  businessName: selectedMarker.title, 
-                  pinCreatorId: selectedMarker.createdBy 
+                    businessId: selectedMarker.id, 
+                    businessName: selectedMarker.title, 
+                    pinCreatorId: selectedMarker.createdBy 
                   // No selectedItem or initialRouteName needed here for general menu access
-                });
-              }
-            }}
-          >
+                  });
+                }
+              }}
+            >
             <Text style={styles.contextButtonText}>View Menu</Text>
-          </Pressable>
+            </Pressable>
           {/* Add a drag handle or other controls to adjust height later if needed */}
         </View>
       )}

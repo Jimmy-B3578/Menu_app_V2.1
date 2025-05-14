@@ -1,0 +1,252 @@
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  Platform,
+  ActivityIndicator
+} from 'react-native';
+import { Picker } from '@react-native-picker/picker'; // Import Picker
+import axios from 'axios';
+import { colors } from '../styles/themes';
+import styles from '../styles/EditBusinessScreenStyles'; // We will create this file
+import { Ionicons } from '@expo/vector-icons';
+
+// Helper to generate time slots for pickers
+const generateTimeSlots = () => {
+  const slots = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 30) { // 30-minute intervals
+      const hour = h.toString().padStart(2, '0');
+      const minute = m.toString().padStart(2, '0');
+      slots.push(`${hour}:${minute}`);
+    }
+  }
+  return slots;
+};
+const TIME_SLOTS = generateTimeSlots();
+const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+export default function EditBusinessScreen({ route, navigation }) {
+  const { businessData } = route.params;
+  
+  const [name, setName] = useState(businessData?.name || '');
+  const [description, setDescription] = useState(businessData?.description || '');
+  const [phone, setPhone] = useState(businessData?.phone || '');
+  const [website, setWebsite] = useState(businessData?.website || '');
+  
+  const [hours, setHours] = useState(() => {
+    // Ensure hours are structured correctly with all days, defaulting if necessary
+    const initialHours = DAYS_OF_WEEK.map(dayName => {
+      const existingDay = businessData?.hours?.find(h => h.day === dayName);
+      return {
+        day: dayName,
+        isOpen: existingDay ? existingDay.isOpen : true, // Default to open
+        open: existingDay ? existingDay.open : '09:00',
+        close: existingDay ? existingDay.close : '17:00'
+      };
+    });
+    return initialHours;
+  });
+
+  const [amenities, setAmenities] = useState(businessData?.amenities ? [...businessData.amenities] : []);
+  const [currentAmenity, setCurrentAmenity] = useState('');
+  
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: `Edit ${businessData?.name || 'Business'}`,
+      headerBackTitle: 'Cancel', // Or simply 'Back'
+    });
+  }, [navigation, businessData?.name]);
+
+  const handleHourChange = (dayIndex, field, value) => {
+    const updatedHours = hours.map((h, i) => {
+      if (i === dayIndex) {
+        return { ...h, [field]: value };
+      }
+      return h;
+    });
+    setHours(updatedHours);
+  };
+
+  const handleToggleOpen = (dayIndex) => {
+    const updatedHours = hours.map((h, i) => {
+      if (i === dayIndex) {
+        return { ...h, isOpen: !h.isOpen };
+      }
+      return h;
+    });
+    setHours(updatedHours);
+  };
+
+  const handleAddAmenity = () => {
+    if (currentAmenity.trim() && !amenities.includes(currentAmenity.trim())) {
+      setAmenities([...amenities, currentAmenity.trim()]);
+      setCurrentAmenity('');
+    }
+  };
+
+  const handleRemoveAmenity = (amenityToRemove) => {
+    setAmenities(amenities.filter(amenity => amenity !== amenityToRemove));
+  };
+
+  const handleSaveChanges = async () => {
+    if (!name.trim()) {
+      Alert.alert('Validation Error', 'Business name cannot be empty.');
+      return;
+    }
+    setIsSaving(true);
+    const updatedData = {
+      name,
+      description,
+      phone,
+      website,
+      hours, 
+      amenities,
+      // Include any other fields that are part of the Pin schema and are NOT auto-managed (like createdBy, location)
+      // e.g., if 'cuisine' was editable here, you'd include it.
+      // cuisine: businessData.cuisine // Assuming cuisine is not edited on this screen for now
+    };
+
+    try {
+      await axios.put(`${process.env.EXPO_PUBLIC_API_URL}/pins/${businessData._id}`, updatedData);
+      navigation.navigate('Tabs', { screen: 'Business', params: { refreshBusiness: true, businessIdToRefresh: businessData._id } });
+    } catch (error) {
+      console.error('Error updating business details:', error.response ? error.response.data : error.message);
+      Alert.alert('Error', error.response?.data?.message || 'Failed to update details. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const renderHourPickers = (dayIndex) => {
+    const daySchedule = hours[dayIndex];
+    return (
+      <View style={styles.dayHoursContainer}>
+        <TouchableOpacity onPress={() => handleToggleOpen(dayIndex)} style={styles.isOpenButton}>
+          <Text style={styles.isOpenButtonText}>{daySchedule.isOpen ? 'Open' : 'Closed'}</Text>
+        </TouchableOpacity>
+        {daySchedule.isOpen && (
+          <View style={styles.timePickersRowContainer}> 
+            <View style={styles.pickerContainer}>
+              <Text style={styles.pickerLabel}>Open:</Text>
+              <Picker
+                selectedValue={daySchedule.open}
+                style={Platform.OS === 'ios' ? styles.iosPicker : styles.pickerStyle} // Apply platform-specific picker style for height
+                itemStyle={Platform.OS === 'ios' ? styles.iosPickerItem : {}} // iOS specific item style for text color
+                onValueChange={(itemValue) => handleHourChange(dayIndex, 'open', itemValue)}
+              >
+                {TIME_SLOTS.map(time => (
+                  <Picker.Item key={`${daySchedule.day}-open-${time}`} label={time} value={time} />
+                ))}
+              </Picker>
+            </View>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.pickerLabel}>Close:</Text>
+              <Picker
+                selectedValue={daySchedule.close}
+                style={Platform.OS === 'ios' ? styles.iosPicker : styles.pickerStyle}
+                itemStyle={Platform.OS === 'ios' ? styles.iosPickerItem : {}}
+                onValueChange={(itemValue) => handleHourChange(dayIndex, 'close', itemValue)}
+              >
+                {TIME_SLOTS.map(time => (
+                  <Picker.Item key={`${daySchedule.day}-close-${time}`} label={time} value={time} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <Text style={styles.label}>Business Name</Text>
+      <TextInput
+        style={styles.input}
+        value={name}
+        onChangeText={setName}
+        placeholder="Enter business name"
+      />
+
+      <Text style={styles.label}>Description</Text>
+      <TextInput
+        style={[styles.input, styles.textArea]}
+        value={description}
+        onChangeText={setDescription}
+        placeholder="Enter business description"
+        multiline
+        numberOfLines={4}
+      />
+
+      <Text style={styles.label}>Phone Number</Text>
+      <TextInput
+        style={styles.input}
+        value={phone}
+        onChangeText={setPhone}
+        placeholder="Enter phone number"
+        keyboardType="phone-pad"
+      />
+
+      <Text style={styles.label}>Website</Text>
+      <TextInput
+        style={styles.input}
+        value={website}
+        onChangeText={setWebsite}
+        placeholder="Enter website URL"
+        keyboardType="url"
+        autoCapitalize="none"
+      />
+
+      <Text style={styles.sectionTitle}>Opening Hours</Text>
+      {DAYS_OF_WEEK.map((dayName, index) => (
+        <View key={dayName} style={styles.dayContainer}>
+          <Text style={styles.dayLabel}>{dayName}</Text>
+          {renderHourPickers(index)} 
+        </View>
+      ))}
+
+      <Text style={styles.sectionTitle}>Amenities</Text>
+      <View style={styles.amenityInputContainer}>
+        <TextInput
+          style={styles.amenityInput}
+          value={currentAmenity}
+          onChangeText={setCurrentAmenity}
+          placeholder="Add an amenity (e.g., WiFi)"
+        />
+        <TouchableOpacity style={styles.addAmenityButton} onPress={handleAddAmenity}>
+          <Text style={styles.addAmenityButtonText}>Add</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.amenitiesListContainer}>
+        {amenities.map((amenity, index) => (
+          <View key={index} style={styles.amenityTagContainer}>
+            <Text style={styles.amenityTagText}>{amenity}</Text>
+            <TouchableOpacity onPress={() => handleRemoveAmenity(amenity)} style={styles.removeAmenityButton}>
+              <Ionicons name="close-circle" size={20} color={colors.danger || '#dc3545'} />
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+
+      <TouchableOpacity 
+        style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
+        onPress={handleSaveChanges} 
+        disabled={isSaving}
+      >
+        {isSaving ? (
+          <ActivityIndicator color={colors.white || '#fff'} />
+        ) : (
+          <Text style={styles.saveButtonText}>Save Changes</Text>
+        )}
+      </TouchableOpacity>
+    </ScrollView>
+  );
+} 

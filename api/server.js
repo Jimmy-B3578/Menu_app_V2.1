@@ -61,6 +61,24 @@ const pinSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  phone: { // New field
+    type: String, 
+    default: ''
+  },
+  website: { // New field
+    type: String, 
+    default: ''
+  },
+  hours: [{ // New field for opening hours
+    day: String,    // e.g., 'Monday', 'Tuesday'
+    open: String,   // e.g., '09:00'
+    close: String,  // e.g., '17:00'
+    isOpen: Boolean // To indicate if the business is open on this day
+  }],
+  amenities: { // New field for amenities
+    type: [String], 
+    default: []
+  },
   cuisine: {
     type: [String], // Array of strings
     default: []
@@ -90,7 +108,7 @@ const pinSchema = new mongoose.Schema({
       type: [mongoose.Schema.Types.Mixed],
       default: []
   }
-}, { timestamps: false, versionKey: false });
+}, { timestamps: true, versionKey: false }); // Changed timestamps to true
 
 const Pin = mongoose.model('Pin', pinSchema, 'pins'); // Use 'pins' collection
 
@@ -288,6 +306,80 @@ app.put('/pins/:pinId/menu', async (req, res) => {
         return res.status(400).json({ message: 'Invalid Pin ID format' });
     }
     res.status(500).json({ message: `Error updating ${menuType} menu`, error: error.message });
+  }
+});
+
+// GET /pins/:pinId - Fetch a single pin by ID
+app.get('/pins/:pinId', async (req, res) => {
+  const { pinId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(pinId)) {
+    return res.status(400).json({ message: 'Invalid Pin ID format.' });
+  }
+
+  try {
+    const pin = await Pin.findById(pinId).populate('createdBy', 'name email'); // Optionally populate createdBy
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found.' });
+    }
+    res.status(200).json(pin);
+  } catch (error) {
+    console.error('Error fetching pin by ID:', error);
+    res.status(500).json({ message: 'Error fetching pin.', error: error.message });
+  }
+});
+
+// PUT /pins/:pinId - Update a specific pin's details
+app.put('/pins/:pinId', async (req, res) => {
+  const { pinId } = req.params;
+  // IMPORTANT: In a real application, the user ID for authorization
+  // should come from an authenticated session (e.g., req.user.id derived from a JWT token).
+  // Passing userId in the request body for authorization is NOT secure for production.
+
+  if (!mongoose.Types.ObjectId.isValid(pinId)) {
+    return res.status(400).json({ message: 'Invalid Pin ID format.' });
+  }
+
+  try {
+    const pin = await Pin.findById(pinId);
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found.' });
+    }
+
+    // TODO: Add backend authorization check here in a real application.
+    // This check should verify that the currently authenticated user (e.g., from req.user.id)
+    // is the creator of the pin (pin.createdBy.toString()) or has an admin role.
+    // Example:
+    // if (req.user.id !== pin.createdBy.toString() && req.user.role !== 'admin') {
+    //   return res.status(403).json({ message: 'User not authorized to edit this pin.' });
+    // }
+
+    const { name, description, phone, website, hours, amenities } = req.body;
+    
+    // Update only fields that are present in the request body
+    if (name !== undefined) pin.name = name;
+    if (description !== undefined) pin.description = description;
+    if (phone !== undefined) pin.phone = phone;
+    if (website !== undefined) pin.website = website;
+    if (hours !== undefined) {
+        // TODO: Add validation for the structure of each item in the 'hours' array
+        pin.hours = hours;
+    }
+    if (amenities !== undefined) {
+        // TODO: Add validation for the 'amenities' array (e.g., check for string types)
+        pin.amenities = amenities;
+    }
+
+    const updatedPin = await pin.save();
+    res.status(200).json(updatedPin);
+
+  } catch (error) {
+    console.error('Error updating pin:', error);
+    if (error.name === 'ValidationError') {
+        // Mongoose validation errors (e.g., required fields missing, type mismatches)
+        return res.status(400).json({ message: 'Validation Error updating pin.', errors: error.errors });
+    }
+    res.status(500).json({ message: 'Error updating pin.', error: error.message });
   }
 });
 

@@ -156,18 +156,18 @@ export default function HomeScreen({ navigation }) {
           <View style={styles.restaurantNameHeaderContainer}>
             <Text style={styles.restaurantNameHeaderText}>{item.pinName}</Text>
             {item.originalPin?.location?.coordinates && (
-              <TouchableOpacity 
+        <TouchableOpacity
                 style={styles.viewOnMapButton}
-                onPress={() => {
+          onPress={() => {
                   navigation.navigate('Map', { 
                     targetPinId: item.originalPin._id,
                     targetCoordinates: item.originalPin.location.coordinates, 
                     fromSearch: true 
-                  });
-                }}
-              >
+            });
+          }}
+        >
                 <Text style={styles.viewOnMapButtonText}>View on Map</Text>
-              </TouchableOpacity>
+        </TouchableOpacity>
             )}
           </View>
           {item.items.map(menuItem => {
@@ -177,13 +177,13 @@ export default function HomeScreen({ navigation }) {
                   key={menuItem.id}
           style={styles.resultItem}
                   onPress={() => navigation.navigate('Business', { businessData: item.originalPin })}
-                >
+        >
                   <Text style={styles.resultItemName}>{item.pinName} (Details)</Text>
                   {menuItem.pinDescription && <Text style={styles.resultItemDescription}>{menuItem.pinDescription}</Text>}
                   {menuItem.pinCuisine && menuItem.pinCuisine.length > 0 && (
                     <Text style={styles.resultItemCuisine}>Cuisine: {menuItem.pinCuisine.join(', ')}</Text>
-                  )}
-                </TouchableOpacity>
+          )}
+        </TouchableOpacity>
               );
             }
 

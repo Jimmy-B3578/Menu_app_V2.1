@@ -29,7 +29,7 @@ export default function BusinessPageScreen({ route, navigation }) {
   const currentUser = useUser();
 
   useEffect(() => {
-    if (selectedBusiness === null) {
+    if (selectedBusiness === null && !route.params?.refreshBusiness) {
       const fetchBusinesses = async () => {
         try {
           setLoading(true);
@@ -47,7 +47,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       };
       fetchBusinesses();
     }
-  }, [selectedBusiness]);
+  }, [selectedBusiness, route.params?.refreshBusiness]);
 
   useEffect(() => {
     if (route.params?.businessData) {
@@ -64,35 +64,57 @@ export default function BusinessPageScreen({ route, navigation }) {
     }
   }, [route.params?.resetView, navigation]);
 
-  const handleSelectBusiness = (business, fromMap = false) => {
+  useEffect(() => {
+    if (route.params?.refreshBusiness) {
+      const idToRefresh = route.params?.businessIdToRefresh || selectedBusiness?.id;
+      if (idToRefresh) {
+        const fetchUpdatedBusiness = async () => {
+          setLoading(true);
+          try {
+            console.log(`[BusinessPageScreen] Refreshing business with ID: ${idToRefresh}`);
+            const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/pins/${idToRefresh}`);
+            const businessData = response.data;
+            if (businessData) {
+              handleSelectBusiness(businessData, openedFromMap, true);
+            }
+          } catch (err) {
+            console.error("Failed to fetch updated business details:", err.response ? err.response.data : err.message, err.config);
+            setError('Could not load updated details. Please try again.');
+          } finally {
+            setLoading(false);
+            navigation.setParams({ refreshBusiness: undefined, businessIdToRefresh: undefined });
+          }
+        };
+        fetchUpdatedBusiness();
+      } else {
+         console.warn("[BusinessPageScreen] refreshBusiness was true but no ID found to refresh.");
+         navigation.setParams({ refreshBusiness: undefined, businessIdToRefresh: undefined });
+      }
+    }
+  }, [route.params?.refreshBusiness, route.params?.businessIdToRefresh, selectedBusiness?.id, navigation, openedFromMap]);
+
+  const handleSelectBusiness = (business, fromMap = false, isRefresh = false) => {
     const details = {
       id: business._id || business.id || '',
       name: business.name || business.title || 'Business Name',
-      description: business.description || 'A cozy place to enjoy coffee and pastries with friends and family.',
-      address: business.address || '123 Coffee Street, Melbourne',
-      phone: business.phone || '+61 3 1234 5678',
-      website: business.website || 'https://example.com',
+      description: business.description || 'No description available.',
+      address: business.address || 'Address not available',
+      phone: business.phone || '',
+      website: business.website || '',
       coordinate: business.coordinate || (business.location?.coordinates ? { latitude: business.location.coordinates[1], longitude: business.location.coordinates[0] } : null),
       creatorId: typeof business.createdBy === 'object' ? business.createdBy?._id : business.createdBy,
-      hours: business.hours || [
-        { day: 'Monday - Friday', hours: '7:00 AM - 6:00 PM' },
-        { day: 'Saturday', hours: '8:00 AM - 5:00 PM' },
-        { day: 'Sunday', hours: '9:00 AM - 4:00 PM' }
-      ],
-      rating: business.rating || 4.5,
-      reviewCount: business.reviewCount || 123,
+      hours: Array.isArray(business.hours) && business.hours.length > 0 ? business.hours : [],
+      rating: business.rating || 0,
+      reviewCount: business.reviewCount || 0,
       photos: business.photos || [],
-      amenities: business.amenities || ['Wi-Fi', 'Power Outlets', 'Outdoor Seating', 'Wheelchair Accessible'],
-      reviews: business.reviews || [
-        { author: 'John D.', rating: 5, text: 'Great coffee and atmosphere!' },
-        { author: 'Sarah M.', rating: 4, text: 'Love the pastries here. Good service too.' },
-        { author: 'Mike T.', rating: 4, text: 'Nice place to work from with good Wi-Fi.' }
-      ]
+      amenities: Array.isArray(business.amenities) && business.amenities.length > 0 ? business.amenities : [],
+      reviews: business.reviews || [],
+      ...business
     };
-    setOpenedFromMap(fromMap);
+    if (!isRefresh) {
+      setOpenedFromMap(fromMap);
+    }
     setSelectedBusiness(details);
-    console.log("Selected Business with creatorId:", details.creatorId);
-    console.log("Current User ID:", currentUser?._id);
   };
 
   const handleShare = async () => {
@@ -196,6 +218,13 @@ export default function BusinessPageScreen({ route, navigation }) {
     return currentUser._id === selectedBusiness.creatorId;
   }, [currentUser, selectedBusiness]);
 
+  const canEdit = useMemo(() => {
+    if (!currentUser || !selectedBusiness || !selectedBusiness.creatorId) {
+      return false;
+    }
+    return currentUser._id === selectedBusiness.creatorId;
+  }, [currentUser, selectedBusiness]);
+
   const renderBusinessCard = ({ item }) => (
     <TouchableOpacity onPress={() => handleSelectBusiness(item, false)}>
       <View style={styles.businessCard}>
@@ -256,16 +285,24 @@ export default function BusinessPageScreen({ route, navigation }) {
             <Text style={styles.starText}>{renderStars(selectedBusiness.rating)}</Text>
             <Text style={styles.detailReviewCount}>{selectedBusiness.reviewCount} reviews</Text>
           </View>
-          <Text style={styles.detailDescription}>{selectedBusiness.description}</Text>
+          {selectedBusiness.description ? (
+            <Text style={styles.detailDescription}>{selectedBusiness.description}</Text>
+          ) : (
+            <Text style={styles.detailDescription}>No description available.</Text>
+          )}
           <View style={styles.detailActionButtons}>
-            <TouchableOpacity style={styles.detailActionButton} onPress={handleCall}>
-              <Ionicons name="call-outline" size={24} color={colors.primary} />
-              <Text style={styles.detailActionText}>Call</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.detailActionButton} onPress={handleWebsite}>
-              <Ionicons name="globe-outline" size={24} color={colors.primary} />
-              <Text style={styles.detailActionText}>Website</Text>
-            </TouchableOpacity>
+            {selectedBusiness.phone ? (
+              <TouchableOpacity style={styles.detailActionButton} onPress={handleCall}>
+                <Ionicons name="call-outline" size={24} color={colors.primary} />
+                <Text style={styles.detailActionText}>Call</Text>
+              </TouchableOpacity>
+            ) : null}
+            {selectedBusiness.website ? (
+              <TouchableOpacity style={styles.detailActionButton} onPress={handleWebsite}>
+                <Ionicons name="globe-outline" size={24} color={colors.primary} />
+                <Text style={styles.detailActionText}>Website</Text>
+              </TouchableOpacity>
+            ) : null}
             <TouchableOpacity style={styles.detailActionButton} onPress={handleShare}>
               <Ionicons name="share-outline" size={24} color={colors.primary} />
               <Text style={styles.detailActionText}>Share</Text>
@@ -273,58 +310,77 @@ export default function BusinessPageScreen({ route, navigation }) {
           </View>
         </View>
 
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Hours</Text>
-          {selectedBusiness.hours.map((item, index) => (
-            <View key={index} style={styles.hoursItem}>
-              <Text style={styles.dayText}>{item.day}</Text>
-              <Text style={styles.hoursText}>{item.hours}</Text>
-            </View>
-          ))}
-        </View>
-
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Amenities</Text>
-          <View style={styles.amenitiesContainer}>
-            {selectedBusiness.amenities.map((item, index) => (
-              <View key={index} style={styles.amenityTag}>
-                <Text style={styles.amenityText}>{item}</Text>
+        {selectedBusiness.hours && selectedBusiness.hours.length > 0 && (
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionTitle}>Hours</Text>
+            {selectedBusiness.hours.map((item, index) => (
+              <View key={index} style={styles.hoursItem}>
+                <Text style={styles.dayText}>{item.day}</Text>
+                <Text style={styles.hoursText}>{item.isOpen ? `${item.open} - ${item.close}` : 'Closed'}</Text>
               </View>
             ))}
           </View>
-        </View>
+        )}
 
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Reviews</Text>
-          {selectedBusiness.reviews.length > 0 ? selectedBusiness.reviews.map((review, index) => (
-            <View key={index} style={styles.reviewItem}>
-              <View style={styles.reviewHeader}>
-                <Text style={styles.reviewAuthor}>{review.author}</Text>
-                <Text style={styles.starText}>{renderStars(review.rating)}</Text>
-              </View>
-              <Text style={styles.reviewText}>{review.text}</Text>
-            </View>
-          )) : (
-            <Text style={styles.noReviewsText}>No reviews yet.</Text>
-          )}
-        </View>
-
-        {canDelete && (
+        {selectedBusiness.amenities && selectedBusiness.amenities.length > 0 && (
           <View style={styles.sectionCard}>
-            <TouchableOpacity
-              style={[styles.deleteButton, deleting ? styles.deleteButtonDisabled : {}]}
-              onPress={handleDeleteBusiness}
-              disabled={deleting}
-            >
-              {deleting ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <Text style={styles.deleteButtonText}>Delete Business</Text>
-              )}
-            </TouchableOpacity>
+            <Text style={styles.sectionTitle}>Amenities</Text>
+            <View style={styles.amenitiesContainer}>
+              {selectedBusiness.amenities.map((item, index) => (
+                <View key={index} style={styles.amenityTag}>
+                  <Text style={styles.amenityText}>{item}</Text>
+                </View>
+              ))}
+            </View>
           </View>
         )}
 
+        {selectedBusiness.reviews && selectedBusiness.reviews.length > 0 && (
+          <View style={styles.sectionCard}>
+            <Text style={styles.sectionTitle}>Reviews</Text>
+            {selectedBusiness.reviews.map((review, index) => (
+              <View key={index} style={styles.reviewItem}>
+                <View style={styles.reviewHeader}>
+                  <Text style={styles.reviewAuthor}>{review.author}</Text>
+                  <Text style={styles.starText}>{renderStars(review.rating)}</Text>
+                </View>
+                <Text style={styles.reviewText}>{review.text}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {(canEdit || canDelete) && (
+          <View style={styles.adminActionsCard}>
+            <Text style={styles.sectionTitle}>Admin Actions</Text>
+            {canEdit && (
+              <TouchableOpacity
+                style={[styles.adminButton, styles.editButton]}
+                onPress={() => navigation.navigate('EditBusiness', { businessData: selectedBusiness })}
+              >
+                <Ionicons name="pencil-outline" size={20} color={colors.white || '#fff'} style={styles.adminButtonIcon} />
+                <Text style={styles.adminButtonText}>Edit Business Details</Text>
+              </TouchableOpacity>
+            )}
+            {canDelete && (
+              <TouchableOpacity
+                style={[styles.adminButton, styles.deleteButton, deleting ? styles.deleteButtonDisabled : {}]}
+                onPress={handleDeleteBusiness}
+                disabled={deleting}
+              >
+                {deleting ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="trash-outline" size={20} color={colors.white || '#fff'} style={styles.adminButtonIcon} />
+                    <Text style={styles.adminButtonText}>Delete Business</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
+        
         <View style={styles.detailSpacer} />
       </ScrollView>
     );
@@ -366,7 +422,7 @@ export default function BusinessPageScreen({ route, navigation }) {
           ListEmptyComponent={() => (
             <View style={styles.emptyListContainer}>
               <Text style={styles.emptyListText}>No businesses found.</Text>
-    </View>
+            </View>
           )}
         />
       )}

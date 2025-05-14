@@ -299,7 +299,7 @@ export const styles = StyleSheet.create({
       backgroundColor: colors.background || '#f5f5f5',
   },
   deleteButton: {
-    backgroundColor: colors.error || '#dc3545', // Destructive action color
+    backgroundColor: colors.danger || '#dc3545', // Standard delete color
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -315,5 +315,39 @@ export const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  // New styles for Admin Actions section
+  adminActionsCard: {
+    backgroundColor: colors.cardBackground || '#ffffff',
+    padding: 16,
+    marginHorizontal: 15,
+    marginBottom: 10,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  adminButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 10, // Space between admin buttons
+    elevation: 2,
+  },
+  adminButtonIcon: {
+    marginRight: 10,
+  },
+  adminButtonText: {
+    color: colors.white || '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  editButton: {
+    backgroundColor: colors.info || '#17a2b8', // A distinct color for edit
   },
 });

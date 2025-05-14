@@ -13,6 +13,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import FoodMenuScreen from './screens/FoodMenuScreen';
 import DrinksMenuScreen from './screens/DrinksMenuScreen';
 import UnifiedMenuScreen from './screens/UnifiedMenuScreen';
+import EditBusinessScreen from './screens/EditBusinessScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -87,6 +88,7 @@ export default function App() {
           <Stack.Screen name="UnifiedMenu" component={UnifiedMenuScreen} />
           <Stack.Screen name="FoodMenu" component={FoodMenuScreen} options={{ title: 'Food Menu' }} />
           <Stack.Screen name="DrinksMenu" component={DrinksMenuScreen} options={{ title: 'Drinks Menu' }} />
+          <Stack.Screen name="EditBusiness" component={EditBusinessScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </UserProvider>
