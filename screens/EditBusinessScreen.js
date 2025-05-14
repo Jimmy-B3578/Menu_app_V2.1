@@ -101,6 +101,17 @@ export default function EditBusinessScreen({ route, navigation }) {
       Alert.alert('Validation Error', 'Business name cannot be empty.');
       return;
     }
+
+    // Check if businessData and businessData._id are valid
+    if (!businessData || !businessData._id || (typeof businessData._id === 'string' && businessData._id.length !== 24)) { // Basic check for ObjectId-like string length
+      Alert.alert(
+        'Error',
+        'Cannot save changes: Business ID is missing or invalid. This might happen if you are editing a newly created pin that wasn\'t properly initialized. Please try creating the pin again.'
+      );
+      setIsSaving(false); // Reset loading state
+      return;
+    }
+
     setIsSaving(true);
     const updatedData = {
       name,
