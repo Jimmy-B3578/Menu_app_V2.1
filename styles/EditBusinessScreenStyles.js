@@ -43,71 +43,72 @@ export default StyleSheet.create({
   },
   // Hours Styling
   dayContainer: {
-    marginBottom: 15,
-    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Platform.OS === 'ios' ? 5 : 8,
+    paddingVertical: Platform.OS === 'ios' ? 5 : 8,
+    paddingHorizontal: 10,
     backgroundColor: colors.cardBackground || '#fff',
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.borderLight || '#eee',
   },
   dayLabel: {
-    fontSize: 16,
+    fontSize: Platform.OS === 'ios' ? 14 : 15,
     fontWeight: '600',
     color: colors.textSecondary || '#555',
-    marginBottom: 10,
+    flex: Platform.OS === 'ios' ? 2 : 1,
+    marginRight: 5,
   },
-  dayHoursContainer: {
-    // Styles for the container of toggle and pickers
+  dayHoursControlsContainer: {
+    flex: Platform.OS === 'ios' ? 3 : 2,
+    flexDirection: 'column',
+    alignItems: 'stretch',
   },
   isOpenButton: {
     backgroundColor: colors.secondary || '#6c757d',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 15,
     alignSelf: 'flex-start',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   isOpenButtonText: {
     color: colors.white || '#fff',
     fontWeight: 'bold',
+    fontSize: 12,
   },
-  timePickersContainer: {
-    // Styles for the container of open and close time pickers if needed
+  timePickersRowContainer: {
+    flexDirection: Platform.OS === 'ios' ? 'column' : 'row',
+    alignItems: 'stretch',
   },
-  timePickersRowContainer: { // New style for horizontal layout of pickers
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: Platform.OS === 'ios' ? 'center' : 'flex-start', // iOS Pickers are taller
-  },
-  pickerContainer: { // New style to wrap label and picker vertically
+  pickerContainer: {
     flex: 1,
-    marginHorizontal: Platform.OS === 'ios' ? 0 : 5, // No horizontal margin for iOS pickers as they are full width
+    marginBottom: Platform.OS === 'ios' ? 5 : 0,
   },
   pickerLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: colors.textMuted || '#666',
-    marginBottom: Platform.OS === 'ios' ? -10 : 5, // Adjust for iOS picker item visibility
-    marginLeft: Platform.OS === 'ios' ? 10 : 0, // Indent label slightly for iOS default picker style
+    marginBottom: Platform.OS === 'ios' ? -15 : 2,
+    marginLeft: Platform.OS === 'ios' ? 5 : 0,
     textAlign: Platform.OS === 'ios' ? 'left' : 'center',
   },
-  pickerStyle: { // Basic style for Picker, might need platform adjustments
-    height: 50, // Standard height for Android
+  pickerStyle: {
+    height: Platform.OS === 'ios' ? 100 : 40,
     width: '100%',
-    backgroundColor: colors.white || '#fff',
-    borderRadius: Platform.OS === 'android' ? 8 : 0, // Android can have rounded Picker
-    borderWidth: Platform.OS === 'android' ? 1 : 0, // Android can have border
+    backgroundColor: colors.inputBackground || colors.white || '#fff',
+    borderRadius: Platform.OS === 'android' ? 4 : 0,
+    borderWidth: Platform.OS === 'android' ? 1 : 0,
     borderColor: Platform.OS === 'android' ? (colors.border || '#ccc') : undefined,
-    marginBottom: 10,
   },
-  iosPicker: { // Specific style for iOS Picker container/wrapper if needed for height
-    height: 120, // iOS pickers need more height to show the wheel
-    width: '100%', // Take full width within its flex container
-    // backgroundColor: 'transparent', // Often set to transparent
+  iosPicker: {
+    height: 100,
+    width: '100%',
   },
-  iosPickerItem: { // Specific style for iOS Picker Items for text color etc.
-    height: 120, // Should match the picker height
-    // color: colors.text, // Uncomment and set if default color is not good
-    fontSize: 16, // Example size
+  iosPickerItem: {
+    height: 100,
+    fontSize: Platform.OS === 'ios' ? 18 : 16,
   },
   // Amenities Styling
   amenityInputContainer: {
@@ -179,4 +180,84 @@ export default StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
+  // --- New Hours Styling (Single Editor) ---
+  hoursEditingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    backgroundColor: colors.cardBackground || '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.borderLight || '#eee',
+    marginBottom: 20,
+  },
+  daySelectorContainer: {
+    flex: Platform.OS === 'ios' ? 2 : 1.5,
+    marginRight: 10,
+    justifyContent: 'center',
+  },
+  dayOfWeekPicker: {
+    height: Platform.OS === 'ios' ? 120 : 50,
+    width: '100%',
+  },
+  dayOfWeekPickerItem: {
+    height: Platform.OS === 'ios' ? 120 : undefined, 
+    fontSize: Platform.OS === 'ios' ? 18 : undefined,
+  },
+  selectedDayEditorContainer: {
+    flex: 3,
+    flexDirection: 'column',
+  },
+
+  // --- Styles for controls within selectedDayEditorContainer (adapted for compactness) ---
+  // dayContainer, dayLabel, dayHoursControlsContainer are no longer used as top-level repeated items
+
+  isOpenButton: {
+    backgroundColor: colors.secondary || '#6c757d',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 18,
+    alignSelf: 'flex-start', 
+    marginBottom: 8,
+  },
+  isOpenButtonText: {
+    color: colors.white || '#fff',
+    fontWeight: 'bold',
+    fontSize: 13,
+  },
+  timePickersRowContainer: { 
+    flexDirection: Platform.OS === 'ios' ? 'column' : 'row', 
+    alignItems: 'stretch', 
+  },
+  pickerContainer: { 
+    flex: 1, 
+    marginBottom: Platform.OS === 'ios' ? 8 : 0,
+    marginHorizontal: Platform.OS === 'android' && Platform.Version > 20 ? 2 : 0,
+  },
+  pickerLabel: {
+    fontSize: 12,
+    color: colors.textMuted || '#666',
+    marginBottom: Platform.OS === 'ios' ? -15 : 3, 
+    marginLeft: Platform.OS === 'ios' ? 5 : (Platform.OS === 'android' ? 5 : 0),
+    textAlign: Platform.OS === 'ios' ? 'left' : 'left',
+  },
+  pickerStyle: {
+    height: 45, 
+    width: '100%',
+    backgroundColor: colors.inputBackground || colors.white || '#fff',
+    borderRadius: 4, 
+    borderWidth: 1, 
+    borderColor: colors.border || '#ccc',
+    fontSize: 15,
+  },
+  iosPicker: {
+    height: 100, 
+    width: '100%',
+  },
+  iosPickerItem: {
+    height: 100, 
+    fontSize: 18,
+  },
+  // --- End of Hours Styling ---
 }); 

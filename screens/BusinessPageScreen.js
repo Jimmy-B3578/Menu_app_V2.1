@@ -28,6 +28,60 @@ export default function BusinessPageScreen({ route, navigation }) {
   const [openedFromMap, setOpenedFromMap] = useState(false);
   const currentUser = useUser();
 
+  const formatTime = (timeStr) => {
+    if (!timeStr || typeof timeStr !== 'string' || !timeStr.includes(':')) return 'N/A';
+    const [hours, minutes] = timeStr.split(':');
+    const h = parseInt(hours, 10);
+    const m = parseInt(minutes, 10);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const formattedHours = h % 12 === 0 ? 12 : h % 12;
+    const formattedMinutes = m < 10 ? `0${m}` : m;
+    return `${formattedHours}:${formattedMinutes} ${ampm}`;
+  };
+
+  const groupAndFormatHours = (hoursArray) => {
+    if (!hoursArray || hoursArray.length === 0) return [];
+
+    const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    // Ensure hours are sorted according to dayOrder, in case they are not already
+    const sortedHours = [...hoursArray].sort((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day));
+
+    const grouped = [];
+    let currentGroup = null;
+
+    for (const item of sortedHours) {
+      const displayTimes = item.isOpen ? `${formatTime(item.open)} - ${formatTime(item.close)}` : 'Closed';
+      const itemSignature = `${item.isOpen}-${item.open}-${item.close}`;
+
+      if (currentGroup && currentGroup.signature === itemSignature) {
+        currentGroup.endDay = item.day;
+      } else {
+        if (currentGroup) {
+          grouped.push({
+            days: currentGroup.startDay === currentGroup.endDay ? currentGroup.startDay : `${currentGroup.startDay} - ${currentGroup.endDay}`,
+            times: currentGroup.times,
+            key: `${currentGroup.startDay}-${currentGroup.signature}`
+          });
+        }
+        currentGroup = {
+          startDay: item.day,
+          endDay: item.day,
+          times: displayTimes,
+          signature: itemSignature,
+        };
+      }
+    }
+
+    if (currentGroup) {
+      grouped.push({
+        days: currentGroup.startDay === currentGroup.endDay ? currentGroup.startDay : `${currentGroup.startDay} - ${currentGroup.endDay}`,
+        times: currentGroup.times,
+        key: `${currentGroup.startDay}-${currentGroup.signature}`
+      });
+    }
+    return grouped;
+  };
+
   useEffect(() => {
     if (selectedBusiness === null && !route.params?.refreshBusiness) {
       const fetchBusinesses = async () => {
@@ -225,6 +279,13 @@ export default function BusinessPageScreen({ route, navigation }) {
     return currentUser._id === selectedBusiness.creatorId;
   }, [currentUser, selectedBusiness]);
 
+  const formattedHours = useMemo(() => {
+    if (selectedBusiness?.hours) {
+      return groupAndFormatHours(selectedBusiness.hours);
+    }
+    return [];
+  }, [selectedBusiness?.hours]);
+
   const renderBusinessCard = ({ item }) => (
     <TouchableOpacity onPress={() => handleSelectBusiness(item, false)}>
       <View style={styles.businessCard}>
@@ -310,13 +371,13 @@ export default function BusinessPageScreen({ route, navigation }) {
           </View>
         </View>
 
-        {selectedBusiness.hours && selectedBusiness.hours.length > 0 && (
+        {formattedHours.length > 0 && (
           <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>Hours</Text>
-            {selectedBusiness.hours.map((item, index) => (
-              <View key={index} style={styles.hoursItem}>
-                <Text style={styles.dayText}>{item.day}</Text>
-                <Text style={styles.hoursText}>{item.isOpen ? `${item.open} - ${item.close}` : 'Closed'}</Text>
+            {formattedHours.map((group) => (
+              <View key={group.key} style={styles.hoursItem}>
+                <Text style={styles.dayText}>{group.days}</Text>
+                <Text style={styles.hoursText}>{group.times}</Text>
               </View>
             ))}
           </View>

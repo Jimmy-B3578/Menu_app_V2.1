@@ -53,6 +53,8 @@ export default function EditBusinessScreen({ route, navigation }) {
     return initialHours;
   });
 
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0); // New state for selected day index
+
   const [amenities, setAmenities] = useState(businessData?.amenities ? [...businessData.amenities] : []);
   const [currentAmenity, setCurrentAmenity] = useState('');
   
@@ -65,9 +67,10 @@ export default function EditBusinessScreen({ route, navigation }) {
     });
   }, [navigation, businessData?.name]);
 
-  const handleHourChange = (dayIndex, field, value) => {
+  // Modified to use selectedDayIndex from state
+  const handleHourChange = (field, value) => {
     const updatedHours = hours.map((h, i) => {
-      if (i === dayIndex) {
+      if (i === selectedDayIndex) {
         return { ...h, [field]: value };
       }
       return h;
@@ -75,9 +78,10 @@ export default function EditBusinessScreen({ route, navigation }) {
     setHours(updatedHours);
   };
 
-  const handleToggleOpen = (dayIndex) => {
+  // Modified to use selectedDayIndex from state
+  const handleToggleOpen = () => {
     const updatedHours = hours.map((h, i) => {
-      if (i === dayIndex) {
+      if (i === selectedDayIndex) {
         return { ...h, isOpen: !h.isOpen };
       }
       return h;
@@ -136,11 +140,16 @@ export default function EditBusinessScreen({ route, navigation }) {
     }
   };
 
-  const renderHourPickers = (dayIndex) => {
-    const daySchedule = hours[dayIndex];
+  // This function now renders controls for the currently selected day (hours[selectedDayIndex])
+  const renderSelectedDayEditor = () => {
+    if (selectedDayIndex < 0 || selectedDayIndex >= hours.length) return null; // Guard clause
+    
+    const daySchedule = hours[selectedDayIndex];
+    if (!daySchedule) return null; // Should not happen if selectedDayIndex is valid
+
     return (
-      <View style={styles.dayHoursContainer}>
-        <TouchableOpacity onPress={() => handleToggleOpen(dayIndex)} style={styles.isOpenButton}>
+      <>
+        <TouchableOpacity onPress={handleToggleOpen} style={styles.isOpenButton}>
           <Text style={styles.isOpenButtonText}>{daySchedule.isOpen ? 'Open' : 'Closed'}</Text>
         </TouchableOpacity>
         {daySchedule.isOpen && (
@@ -149,9 +158,9 @@ export default function EditBusinessScreen({ route, navigation }) {
               <Text style={styles.pickerLabel}>Open:</Text>
               <Picker
                 selectedValue={daySchedule.open}
-                style={Platform.OS === 'ios' ? styles.iosPicker : styles.pickerStyle} // Apply platform-specific picker style for height
-                itemStyle={Platform.OS === 'ios' ? styles.iosPickerItem : {}} // iOS specific item style for text color
-                onValueChange={(itemValue) => handleHourChange(dayIndex, 'open', itemValue)}
+                style={Platform.OS === 'ios' ? styles.iosPicker : styles.pickerStyle}
+                itemStyle={Platform.OS === 'ios' ? styles.iosPickerItem : {}}
+                onValueChange={(itemValue) => handleHourChange('open', itemValue)}
               >
                 {TIME_SLOTS.map(time => (
                   <Picker.Item key={`${daySchedule.day}-open-${time}`} label={time} value={time} />
@@ -164,7 +173,7 @@ export default function EditBusinessScreen({ route, navigation }) {
                 selectedValue={daySchedule.close}
                 style={Platform.OS === 'ios' ? styles.iosPicker : styles.pickerStyle}
                 itemStyle={Platform.OS === 'ios' ? styles.iosPickerItem : {}}
-                onValueChange={(itemValue) => handleHourChange(dayIndex, 'close', itemValue)}
+                onValueChange={(itemValue) => handleHourChange('close', itemValue)}
               >
                 {TIME_SLOTS.map(time => (
                   <Picker.Item key={`${daySchedule.day}-close-${time}`} label={time} value={time} />
@@ -173,7 +182,7 @@ export default function EditBusinessScreen({ route, navigation }) {
             </View>
           </View>
         )}
-      </View>
+      </>
     );
   };
 
@@ -217,12 +226,24 @@ export default function EditBusinessScreen({ route, navigation }) {
       />
 
       <Text style={styles.sectionTitle}>Opening Hours</Text>
-      {DAYS_OF_WEEK.map((dayName, index) => (
-        <View key={dayName} style={styles.dayContainer}>
-          <Text style={styles.dayLabel}>{dayName}</Text>
-          {renderHourPickers(index)} 
+      <View style={styles.hoursEditingContainer}>
+        <View style={styles.daySelectorContainer}>
+          <Picker
+            selectedValue={DAYS_OF_WEEK[selectedDayIndex]}
+            onValueChange={(itemValue, itemIndex) => setSelectedDayIndex(itemIndex)}
+            style={styles.dayOfWeekPicker}
+            itemStyle={styles.dayOfWeekPickerItem} // itemStyle is iOS only
+            mode="dropdown" // Android specific to ensure it's a dropdown
+          >
+            {DAYS_OF_WEEK.map((day, index) => (
+              <Picker.Item key={index} label={day} value={day} />
+            ))}
+          </Picker>
         </View>
-      ))}
+        <View style={styles.selectedDayEditorContainer}>
+          {renderSelectedDayEditor()}
+        </View>
+      </View>
 
       <Text style={styles.sectionTitle}>Amenities</Text>
       <View style={styles.amenityInputContainer}>
