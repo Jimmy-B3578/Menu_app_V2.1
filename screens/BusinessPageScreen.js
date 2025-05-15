@@ -153,6 +153,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       name: business.name || business.title || 'Business Name',
       description: business.description || 'No description available.',
       address: business.address || 'Address not available',
+      suburb: business.suburb || '',
       phone: business.phone || '',
       website: business.website || '',
       coordinate: business.coordinate || (business.location?.coordinates ? { latitude: business.location.coordinates[1], longitude: business.location.coordinates[0] } : null),
@@ -342,12 +343,15 @@ export default function BusinessPageScreen({ route, navigation }) {
 
         <View style={styles.infoCard}>
           <Text style={styles.detailBusinessName}>{selectedBusiness.name}</Text>
+          {selectedBusiness.suburb ? (
+            <Text style={styles.detailSuburb}>{selectedBusiness.suburb}</Text>
+          ) : null}
           <View style={styles.detailRatingContainer}>
             <Text style={styles.starText}>{renderStars(selectedBusiness.rating)}</Text>
             <Text style={styles.detailReviewCount}>{selectedBusiness.reviewCount} reviews</Text>
           </View>
           {selectedBusiness.description ? (
-          <Text style={styles.detailDescription}>{selectedBusiness.description}</Text>
+            <Text style={styles.detailDescription}>{selectedBusiness.description}</Text>
           ) : (
             <Text style={styles.detailDescription}>No description available.</Text>
           )}

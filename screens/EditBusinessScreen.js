@@ -108,6 +108,7 @@ export default function EditBusinessScreen({ route, navigation }) {
       Alert.alert('Validation Error', 'Business name cannot be empty.');
       return;
     }
+
     if (!suburb.trim()) {
       Alert.alert('Validation Error', 'Suburb cannot be empty.');
       return;

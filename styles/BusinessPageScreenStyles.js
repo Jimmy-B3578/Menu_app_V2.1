@@ -163,6 +163,12 @@ export const styles = StyleSheet.create({
     color: colors.text || '#333',
     marginBottom: 8,
   },
+  detailSuburb: {
+    fontSize: 16,
+    color: colors.textSecondary || '#666',
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
   detailRatingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
