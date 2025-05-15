@@ -76,6 +76,13 @@ export const styles = StyleSheet.create({
   },
   cardRatingContainer: {
     // Container for stars, already pushed right by cardDetailsRow
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cardReviewCount: {
+    fontSize: 12,
+    color: colors.textSecondary || '#666',
+    marginLeft: 5,
   },
   starText: {
     fontSize: 16,
@@ -270,16 +277,206 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.text || '#333',
   },
+  reviewDate: {
+    fontSize: 12,
+    color: colors.textMuted || '#888',
+    marginBottom: 5,
+  },
   reviewText: {
     fontSize: 14,
     color: colors.text || '#555',
     lineHeight: 18,
   },
+  reviewActionButtons: {
+    flexDirection: 'row',
+    marginTop: 8,
+    justifyContent: 'flex-end',
+  },
+  reviewActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 15,
+    padding: 3,
+  },
+  reviewActionText: {
+    fontSize: 12,
+    color: colors.primary || '#007bff',
+    marginLeft: 3,
+  },
   noReviewsText: {
     fontSize: 14,
     color: colors.textSecondary || '#888',
     fontStyle: 'italic',
+    textAlign: 'center',
+    marginVertical: 15,
   },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  reviewCount: {
+    fontSize: 14,
+    color: colors.textSecondary || '#666',
+  },
+  ratingFilterContainer: {
+    marginBottom: 12,
+  },
+  filterLabel: {
+    fontSize: 14,
+    color: colors.textSecondary || '#555',
+    marginBottom: 5,
+  },
+  ratingFilterScroll: {
+    flexDirection: 'row',
+    marginBottom: 5,
+  },
+  filterButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    marginRight: 8,
+    borderRadius: 15,
+    backgroundColor: colors.background || '#f0f0f0',
+    borderWidth: 1,
+    borderColor: colors.border || '#ddd',
+  },
+  filterButtonActive: {
+    backgroundColor: colors.primaryMuted || '#e6f7ff',
+    borderColor: colors.primary || '#007bff',
+  },
+  filterButtonText: {
+    fontSize: 12,
+    color: colors.text || '#333',
+  },
+  seeAllReviewsButton: {
+    alignItems: 'center',
+    paddingVertical: 10,
+    marginTop: 5,
+  },
+  seeAllReviewsText: {
+    fontSize: 14,
+    color: colors.primary || '#007bff',
+    fontWeight: '500',
+  },
+  showLessButton: {
+    alignItems: 'center',
+    paddingVertical: 10,
+    marginTop: 5,
+  },
+  showLessText: {
+    fontSize: 14,
+    color: colors.textSecondary || '#666',
+  },
+  reviewsLoader: {
+    marginVertical: 20,
+  },
+  addReviewButton: {
+    backgroundColor: colors.primary || '#007bff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 15,
+  },
+  addReviewIcon: {
+    marginRight: 8,
+  },
+  addReviewText: {
+    color: colors.white || '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  signInToReviewButton: {
+    backgroundColor: colors.background || '#f0f0f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 15,
+    borderWidth: 1,
+    borderColor: colors.border || '#ddd',
+  },
+  signInToReviewText: {
+    color: colors.textSecondary || '#666',
+    fontSize: 14,
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: colors.white || '#fff',
+    borderRadius: 12,
+    padding: 20,
+    width: '100%',
+    maxWidth: 400,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: colors.text || '#333',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  modalLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.text || '#333',
+    marginBottom: 8,
+  },
+  ratingSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 15,
+  },
+  ratingStar: {
+    padding: 5,
+  },
+  reviewInput: {
+    backgroundColor: colors.background || '#f5f5f5',
+    borderRadius: 8,
+    padding: 12,
+    height: 120,
+    textAlignVertical: 'top',
+    marginBottom: 20,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: colors.border || '#ddd',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  modalCancelButton: {
+    backgroundColor: colors.grey || '#aaa',
+  },
+  modalSubmitButton: {
+    backgroundColor: colors.primary || '#007bff',
+  },
+  modalButtonText: {
+    color: colors.white || '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  // End of review styles
   detailSpacer: {
     height: 30, // Add space at the very bottom of the ScrollView
   },

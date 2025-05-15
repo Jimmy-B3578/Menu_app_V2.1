@@ -10,7 +10,9 @@ import {
   Linking,
   Platform,
   Share,
-  Alert
+  Alert,
+  Modal,
+  TextInput
 } from 'react-native';
 import { styles } from '../styles/BusinessPageScreenStyles.js';
 import { colors } from '../styles/themes';
@@ -26,6 +28,16 @@ export default function BusinessPageScreen({ route, navigation }) {
   const [error, setError] = useState(null);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
   const [openedFromMap, setOpenedFromMap] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [showAllReviews, setShowAllReviews] = useState(false);
+  const [filterRating, setFilterRating] = useState(null);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [addReviewVisible, setAddReviewVisible] = useState(false);
+  const [editReviewVisible, setEditReviewVisible] = useState(false);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewRating, setReviewRating] = useState(5);
+  const [editingReview, setEditingReview] = useState(null);
+  
   const currentUser = useUser();
 
   const formatTime = (timeStr) => {
@@ -147,6 +159,31 @@ export default function BusinessPageScreen({ route, navigation }) {
     }
   }, [route.params?.refreshBusiness, route.params?.businessIdToRefresh, selectedBusiness?.id, navigation, openedFromMap]);
 
+  useEffect(() => {
+    if (selectedBusiness) {
+      fetchReviews();
+    }
+  }, [selectedBusiness?.id, filterRating]);
+
+  const fetchReviews = async () => {
+    if (!selectedBusiness?.id) return;
+    
+    setReviewsLoading(true);
+    try {
+      let url = `${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews`;
+      if (filterRating) {
+        url += `?rating=${filterRating}`;
+      }
+      
+      const response = await axios.get(url);
+      setReviews(response.data);
+    } catch (err) {
+      console.error("Failed to fetch reviews:", err.response ? err.response.data : err.message);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
   const handleSelectBusiness = (business, fromMap = false, isRefresh = false) => {
     const details = {
       id: business._id || business.id || '',
@@ -159,7 +196,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       coordinate: business.coordinate || (business.location?.coordinates ? { latitude: business.location.coordinates[1], longitude: business.location.coordinates[0] } : null),
       creatorId: typeof business.createdBy === 'object' ? business.createdBy?._id : business.createdBy,
       hours: Array.isArray(business.hours) && business.hours.length > 0 ? business.hours : [],
-      rating: business.rating || 0,
+      averageRating: business.averageRating || 0,
       reviewCount: business.reviewCount || 0,
       photos: business.photos || [],
       amenities: Array.isArray(business.amenities) && business.amenities.length > 0 ? business.amenities : [],
@@ -170,6 +207,8 @@ export default function BusinessPageScreen({ route, navigation }) {
     setOpenedFromMap(fromMap);
     }
     setSelectedBusiness(details);
+    setShowAllReviews(false);
+    setFilterRating(null);
   };
 
   const handleShare = async () => {
@@ -287,6 +326,181 @@ export default function BusinessPageScreen({ route, navigation }) {
     return [];
   }, [selectedBusiness?.hours]);
 
+  // Move renderStars outside of renderDetailView so it can be reused
+  const renderStars = (rating) => {
+    const totalStars = 5;
+    let stars = '';
+    for (let i = 1; i <= totalStars; i++) {
+      stars += i <= rating ? '★' : '☆';
+    }
+    return stars;
+  };
+
+  const renderReviewItem = ({ item, isPreview = false }) => {
+    const isCurrentUserReview = currentUser && item.userId === currentUser._id;
+    
+    return (
+      <View style={styles.reviewItem}>
+        <View style={styles.reviewHeader}>
+          <Text style={styles.reviewAuthor}>{item.userName}</Text>
+          <Text style={styles.starText}>{renderStars(item.rating)}</Text>
+        </View>
+        <Text style={styles.reviewDate}>
+          {new Date(item.date).toLocaleDateString()}
+        </Text>
+        <Text style={styles.reviewText}>{item.text}</Text>
+        
+        {isCurrentUserReview && !isPreview && (
+          <View style={styles.reviewActionButtons}>
+            <TouchableOpacity 
+              style={styles.reviewActionButton} 
+              onPress={() => handleEditReview(item)}
+            >
+              <Ionicons name="pencil-outline" size={18} color={colors.primary} />
+              <Text style={styles.reviewActionText}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.reviewActionButton} 
+              onPress={() => handleDeleteReview(item._id)}
+            >
+              <Ionicons name="trash-outline" size={18} color={colors.danger} />
+              <Text style={[styles.reviewActionText, { color: colors.danger }]}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
+  };
+
+  const renderAddReviewModal = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={addReviewVisible}
+      onRequestClose={() => setAddReviewVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Write a Review</Text>
+          
+          <Text style={styles.modalLabel}>Rating</Text>
+          <View style={styles.ratingSelector}>
+            {[1, 2, 3, 4, 5].map(star => (
+              <TouchableOpacity 
+                key={star} 
+                onPress={() => setReviewRating(star)}
+                style={styles.ratingStar}
+              >
+                <Text style={[styles.starText, { fontSize: 30 }]}>
+                  {star <= reviewRating ? '★' : '☆'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          
+          <Text style={styles.modalLabel}>Review</Text>
+          <TextInput
+            style={styles.reviewInput}
+            value={reviewText}
+            onChangeText={setReviewText}
+            placeholder="Share your experience with this business..."
+            multiline
+            numberOfLines={5}
+          />
+          
+          <View style={styles.modalButtons}>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.modalCancelButton]} 
+              onPress={() => {
+                setAddReviewVisible(false);
+                setReviewText('');
+                setReviewRating(5);
+              }}
+            >
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.modalSubmitButton]} 
+              onPress={handleSubmitReview}
+              disabled={reviewsLoading}
+            >
+              {reviewsLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.modalButtonText}>Submit</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
+  const renderEditReviewModal = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={editReviewVisible}
+      onRequestClose={() => setEditReviewVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Edit Your Review</Text>
+          
+          <Text style={styles.modalLabel}>Rating</Text>
+          <View style={styles.ratingSelector}>
+            {[1, 2, 3, 4, 5].map(star => (
+              <TouchableOpacity 
+                key={star} 
+                onPress={() => setReviewRating(star)}
+                style={styles.ratingStar}
+              >
+                <Text style={[styles.starText, { fontSize: 30 }]}>
+                  {star <= reviewRating ? '★' : '☆'}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          
+          <Text style={styles.modalLabel}>Review</Text>
+          <TextInput
+            style={styles.reviewInput}
+            value={reviewText}
+            onChangeText={setReviewText}
+            placeholder="Share your experience with this business..."
+            multiline
+            numberOfLines={5}
+          />
+          
+          <View style={styles.modalButtons}>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.modalCancelButton]} 
+              onPress={() => {
+                setEditReviewVisible(false);
+                setEditingReview(null);
+                setReviewText('');
+                setReviewRating(5);
+              }}
+            >
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.modalButton, styles.modalSubmitButton]} 
+              onPress={handleSubmitReview}
+              disabled={reviewsLoading}
+            >
+              {reviewsLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.modalButtonText}>Save Changes</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+
   const renderBusinessCard = ({ item }) => (
     <TouchableOpacity onPress={() => handleSelectBusiness(item, false)}>
       <View style={styles.businessCard}>
@@ -296,7 +510,10 @@ export default function BusinessPageScreen({ route, navigation }) {
         </View>
         <View style={styles.cardDetailsRow}>
           <View style={styles.cardRatingContainer}>
-            <Text style={styles.starText}>★☆☆☆☆</Text>
+            <Text style={styles.starText}>{renderStars(item.averageRating || 0)}</Text>
+            {item.reviewCount > 0 && (
+              <Text style={styles.cardReviewCount}>{item.reviewCount} reviews</Text>
+            )}
           </View>
         </View>
       </View>
@@ -306,14 +523,10 @@ export default function BusinessPageScreen({ route, navigation }) {
   const renderDetailView = () => {
     if (!selectedBusiness) return null;
 
-    const renderStars = (rating) => {
-      const totalStars = 5;
-      let stars = '';
-      for (let i = 1; i <= totalStars; i++) {
-        stars += i <= rating ? '★' : '☆';
-      }
-      return stars;
-    };
+    // Show only the 3 most recent reviews in preview mode
+    const previewReviews = reviews.slice(0, 3);
+    const displayedReviews = showAllReviews ? reviews : previewReviews;
+    const hasMoreReviews = reviews.length > previewReviews.length;
 
     return (
       <ScrollView style={styles.detailScrollView}>
@@ -345,7 +558,7 @@ export default function BusinessPageScreen({ route, navigation }) {
           <View style={styles.businessHeaderRow}>
             <Text style={styles.detailBusinessName}>{selectedBusiness.name}</Text>
             <View style={styles.detailRatingContainer}>
-              <Text style={styles.starText}>{renderStars(selectedBusiness.rating)}</Text>
+              <Text style={styles.starText}>{renderStars(selectedBusiness.averageRating)}</Text>
               <Text style={styles.detailReviewCount}>{selectedBusiness.reviewCount} reviews</Text>
             </View>
           </View>
@@ -402,20 +615,93 @@ export default function BusinessPageScreen({ route, navigation }) {
         </View>
         )}
 
-        {selectedBusiness.reviews && selectedBusiness.reviews.length > 0 && (
+        {/* Reviews Section */}
         <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Reviews</Text>
-            {selectedBusiness.reviews.map((review, index) => (
-            <View key={index} style={styles.reviewItem}>
-              <View style={styles.reviewHeader}>
-                <Text style={styles.reviewAuthor}>{review.author}</Text>
-                <Text style={styles.starText}>{renderStars(review.rating)}</Text>
-              </View>
-              <Text style={styles.reviewText}>{review.text}</Text>
-            </View>
-            ))}
+          <View style={styles.sectionTitleRow}>
+            <Text style={styles.sectionTitle}>Reviews</Text>
+            <Text style={styles.reviewCount}>{selectedBusiness.reviewCount || 0} reviews</Text>
           </View>
-        )}
+          
+          {/* Filter by rating buttons */}
+          <View style={styles.ratingFilterContainer}>
+            <Text style={styles.filterLabel}>Filter by rating:</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.ratingFilterScroll}>
+              <TouchableOpacity 
+                style={[
+                  styles.filterButton, 
+                  filterRating === null && styles.filterButtonActive
+                ]}
+                onPress={() => setFilterRating(null)}
+              >
+                <Text style={styles.filterButtonText}>All</Text>
+              </TouchableOpacity>
+              {[5, 4, 3, 2, 1].map(rating => (
+                <TouchableOpacity 
+                  key={rating}
+                  style={[
+                    styles.filterButton, 
+                    filterRating === rating && styles.filterButtonActive
+                  ]}
+                  onPress={() => setFilterRating(rating)}
+                >
+                  <Text style={styles.filterButtonText}>{rating} ★</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+          
+          {reviewsLoading ? (
+            <ActivityIndicator style={styles.reviewsLoader} color={colors.primary} />
+          ) : reviews.length === 0 ? (
+            <Text style={styles.noReviewsText}>No reviews yet. Be the first to leave a review!</Text>
+          ) : (
+            <>
+              {displayedReviews.map((review, index) => (
+                <View key={review._id || index}>
+                  {renderReviewItem({ item: review, isPreview: !showAllReviews })}
+                </View>
+              ))}
+              
+              {!showAllReviews && hasMoreReviews && (
+                <TouchableOpacity 
+                  style={styles.seeAllReviewsButton}
+                  onPress={() => setShowAllReviews(true)}
+                >
+                  <Text style={styles.seeAllReviewsText}>
+                    See All {selectedBusiness.reviewCount} Reviews
+                  </Text>
+                </TouchableOpacity>
+              )}
+              
+              {showAllReviews && (
+                <TouchableOpacity 
+                  style={styles.showLessButton}
+                  onPress={() => setShowAllReviews(false)}
+                >
+                  <Text style={styles.showLessText}>Show Less</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          )}
+          
+          {/* Add Review Button */}
+          {currentUser ? (
+            <TouchableOpacity 
+              style={styles.addReviewButton}
+              onPress={() => setAddReviewVisible(true)}
+            >
+              <Ionicons name="add-circle-outline" size={20} color="#fff" style={styles.addReviewIcon} />
+              <Text style={styles.addReviewText}>Add Your Review</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity 
+              style={styles.signInToReviewButton}
+              onPress={() => navigation.navigate('Account')}
+            >
+              <Text style={styles.signInToReviewText}>Sign in to leave a review</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
         {(canEdit || canDelete) && (
           <View style={styles.adminActionsCard}>
@@ -449,8 +735,120 @@ export default function BusinessPageScreen({ route, navigation }) {
         )}
 
         <View style={styles.detailSpacer} />
+        
+        {renderAddReviewModal()}
+        {renderEditReviewModal()}
       </ScrollView>
     );
+  };
+
+  // Add or edit a review
+  const handleSubmitReview = async () => {
+    if (!currentUser) {
+      Alert.alert("Sign In Required", "You must be signed in to leave a review.");
+      return;
+    }
+
+    if (!reviewText.trim()) {
+      Alert.alert("Review Required", "Please enter your review text.");
+      return;
+    }
+
+    try {
+      setReviewsLoading(true);
+      
+      // Check if we're editing or adding a new review
+      if (editingReview) {
+        // Update existing review
+        await axios.put(
+          `${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews/${editingReview._id}`,
+          {
+            userId: currentUser._id,
+            rating: reviewRating,
+            text: reviewText.trim()
+          }
+        );
+      } else {
+        // Add new review
+        await axios.post(
+          `${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews`,
+          {
+            userId: currentUser._id,
+            userName: currentUser.name || 'Anonymous',
+            rating: reviewRating,
+            text: reviewText.trim()
+          }
+        );
+      }
+      
+      // Clear form and close modal
+      setReviewText('');
+      setReviewRating(5);
+      setAddReviewVisible(false);
+      setEditReviewVisible(false);
+      setEditingReview(null);
+      
+      // Refresh reviews
+      fetchReviews();
+      
+      // Refresh business details to update rating
+      const refreshResponse = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}`);
+      handleSelectBusiness(refreshResponse.data, openedFromMap, true);
+      
+    } catch (err) {
+      console.error("Failed to submit review:", err.response ? err.response.data : err.message);
+      Alert.alert("Error", err.response?.data?.message || "Failed to submit review. Please try again.");
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (!currentUser) {
+      return;
+    }
+
+    Alert.alert(
+      "Delete Review",
+      "Are you sure you want to delete your review?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setReviewsLoading(true);
+              
+              await axios.delete(
+                `${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews/${reviewId}`,
+                { data: { userId: currentUser._id } }
+              );
+              
+              // Refresh reviews
+              fetchReviews();
+              
+              // Refresh business details to update rating
+              const refreshResponse = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}`);
+              handleSelectBusiness(refreshResponse.data, openedFromMap, true);
+              
+            } catch (err) {
+              console.error("Failed to delete review:", err.response ? err.response.data : err.message);
+              Alert.alert("Error", err.response?.data?.message || "Failed to delete review. Please try again.");
+            } finally {
+              setReviewsLoading(false);
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const handleEditReview = (review) => {
+    setEditingReview(review);
+    setReviewText(review.text);
+    setReviewRating(review.rating);
+    setEditReviewVisible(true);
   };
 
   return (

@@ -84,6 +84,40 @@ const pinSchema = new mongoose.Schema({
     type: [String], 
     default: []
   },
+  reviews: [{ // New field for reviews
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    userName: {
+      type: String,
+      required: true
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5
+    },
+    text: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    date: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  averageRating: {
+    type: Number,
+    default: 0
+  },
+  reviewCount: {
+    type: Number,
+    default: 0
+  },
   cuisine: {
     type: [String], // Array of strings
     default: []
@@ -157,6 +191,13 @@ app.get('/search/pins', async (req, res) => {
   }
 });
 // --- END UPDATED SEARCH ROUTE ---
+
+// Helper function to calculate average rating
+const calculateAverageRating = (reviews) => {
+  if (!reviews || reviews.length === 0) return 0;
+  const sum = reviews.reduce((total, review) => total + review.rating, 0);
+  return parseFloat((sum / reviews.length).toFixed(1)); // One decimal place
+};
 
 // Routes
 app.post('/users', async (req, res) => {
@@ -423,6 +464,221 @@ app.delete('/pins/:pinId', async (req, res) => {
     res.status(500).json({ message: 'Error deleting pin.', error: error.message });
   }
 });
+
+// --- Review Routes ---
+
+// GET /pins/:pinId/reviews - Get all reviews for a pin
+app.get('/pins/:pinId/reviews', async (req, res) => {
+  const { pinId } = req.params;
+  const { rating } = req.query; // Optional query param to filter by rating
+  
+  if (!mongoose.Types.ObjectId.isValid(pinId)) {
+    return res.status(400).json({ message: 'Invalid Pin ID format.' });
+  }
+
+  try {
+    const pin = await Pin.findById(pinId);
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found.' });
+    }
+
+    let reviews = pin.reviews || [];
+    
+    // Filter by rating if specified
+    if (rating && !isNaN(parseInt(rating))) {
+      const ratingValue = parseInt(rating);
+      reviews = reviews.filter(review => review.rating === ratingValue);
+    }
+    
+    // Sort by date descending (newest first)
+    reviews.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    res.status(200).json(reviews);
+  } catch (error) {
+    console.error('Error fetching reviews:', error);
+    res.status(500).json({ message: 'Error fetching reviews', error: error.message });
+  }
+});
+
+// POST /pins/:pinId/reviews - Add a new review
+app.post('/pins/:pinId/reviews', async (req, res) => {
+  const { pinId } = req.params;
+  const { userId, userName, rating, text } = req.body;
+  
+  // Validate inputs
+  if (!mongoose.Types.ObjectId.isValid(pinId)) {
+    return res.status(400).json({ message: 'Invalid Pin ID format.' });
+  }
+  
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: 'Invalid User ID format.' });
+  }
+  
+  if (!userName || typeof userName !== 'string') {
+    return res.status(400).json({ message: 'User name is required.' });
+  }
+  
+  if (!rating || isNaN(rating) || rating < 1 || rating > 5) {
+    return res.status(400).json({ message: 'Rating must be a number between 1 and 5.' });
+  }
+  
+  if (!text || typeof text !== 'string' || text.trim() === '') {
+    return res.status(400).json({ message: 'Review text is required.' });
+  }
+
+  try {
+    // Find the pin
+    const pin = await Pin.findById(pinId);
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found.' });
+    }
+    
+    // Check if user already left a review for this pin
+    const existingReviewIndex = pin.reviews.findIndex(review => 
+      review.userId.toString() === userId
+    );
+    
+    if (existingReviewIndex !== -1) {
+      return res.status(400).json({ 
+        message: 'You have already reviewed this business. You can edit your existing review instead.'
+      });
+    }
+    
+    // Create new review
+    const newReview = {
+      userId,
+      userName,
+      rating: Number(rating),
+      text,
+      date: new Date()
+    };
+    
+    // Add to reviews array
+    pin.reviews.push(newReview);
+    
+    // Update averageRating and reviewCount
+    pin.reviewCount = pin.reviews.length;
+    pin.averageRating = calculateAverageRating(pin.reviews);
+    
+    // Save the updated pin
+    await pin.save();
+    
+    res.status(201).json(newReview);
+  } catch (error) {
+    console.error('Error adding review:', error);
+    res.status(500).json({ message: 'Error adding review', error: error.message });
+  }
+});
+
+// PUT /pins/:pinId/reviews/:reviewId - Update a review
+app.put('/pins/:pinId/reviews/:reviewId', async (req, res) => {
+  const { pinId, reviewId } = req.params;
+  const { userId, rating, text } = req.body;
+  
+  // Validate inputs
+  if (!mongoose.Types.ObjectId.isValid(pinId)) {
+    return res.status(400).json({ message: 'Invalid Pin ID format.' });
+  }
+  
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: 'Invalid User ID format.' });
+  }
+  
+  if (!rating || isNaN(rating) || rating < 1 || rating > 5) {
+    return res.status(400).json({ message: 'Rating must be a number between 1 and 5.' });
+  }
+  
+  if (!text || typeof text !== 'string' || text.trim() === '') {
+    return res.status(400).json({ message: 'Review text is required.' });
+  }
+
+  try {
+    // Find the pin
+    const pin = await Pin.findById(pinId);
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found.' });
+    }
+    
+    // Find the review
+    const reviewIndex = pin.reviews.findIndex(review => review._id.toString() === reviewId);
+    
+    if (reviewIndex === -1) {
+      return res.status(404).json({ message: 'Review not found.' });
+    }
+    
+    // Check if user is the author of the review
+    if (pin.reviews[reviewIndex].userId.toString() !== userId) {
+      return res.status(403).json({ message: 'You can only edit your own reviews.' });
+    }
+    
+    // Update the review
+    pin.reviews[reviewIndex].rating = Number(rating);
+    pin.reviews[reviewIndex].text = text;
+    pin.reviews[reviewIndex].date = new Date(); // Update date to reflect edit time
+    
+    // Recalculate average rating
+    pin.averageRating = calculateAverageRating(pin.reviews);
+    
+    // Save the updated pin
+    await pin.save();
+    
+    res.status(200).json(pin.reviews[reviewIndex]);
+  } catch (error) {
+    console.error('Error updating review:', error);
+    res.status(500).json({ message: 'Error updating review', error: error.message });
+  }
+});
+
+// DELETE /pins/:pinId/reviews/:reviewId - Delete a review
+app.delete('/pins/:pinId/reviews/:reviewId', async (req, res) => {
+  const { pinId, reviewId } = req.params;
+  const { userId } = req.body;
+  
+  if (!mongoose.Types.ObjectId.isValid(pinId)) {
+    return res.status(400).json({ message: 'Invalid Pin ID format.' });
+  }
+  
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(400).json({ message: 'Invalid User ID format.' });
+  }
+
+  try {
+    // Find the pin
+    const pin = await Pin.findById(pinId);
+    if (!pin) {
+      return res.status(404).json({ message: 'Pin not found.' });
+    }
+    
+    // Find the review
+    const reviewIndex = pin.reviews.findIndex(review => review._id.toString() === reviewId);
+    
+    if (reviewIndex === -1) {
+      return res.status(404).json({ message: 'Review not found.' });
+    }
+    
+    // Check if user is the author of the review
+    if (pin.reviews[reviewIndex].userId.toString() !== userId) {
+      return res.status(403).json({ message: 'You can only delete your own reviews.' });
+    }
+    
+    // Remove the review
+    pin.reviews.splice(reviewIndex, 1);
+    
+    // Update reviewCount and recalculate average rating
+    pin.reviewCount = pin.reviews.length;
+    pin.averageRating = calculateAverageRating(pin.reviews);
+    
+    // Save the updated pin
+    await pin.save();
+    
+    res.status(200).json({ message: 'Review deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting review:', error);
+    res.status(500).json({ message: 'Error deleting review', error: error.message });
+  }
+});
+
+// --- End of Review Routes ---
 
 // -----------------
 
