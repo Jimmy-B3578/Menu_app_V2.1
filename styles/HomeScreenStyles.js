@@ -180,12 +180,21 @@ export default StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border || '#ddd',
   },
+  restaurantNameInfoContainer: {
+    flex: 1,
+    flexDirection: 'column', // Stack name and distance vertically
+  },
   restaurantNameHeaderText: { // Style for the text part of the header
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.primary,
     flexShrink: 1, // Allow text to shrink if button takes space
     marginRight: 10, // Add some space between text and button
+  },
+  distanceText: {
+    fontSize: 14,
+    color: colors.textSecondary || '#666', // Use a muted color for distance
+    marginTop: 2, // Small gap between name and distance
   },
   viewOnMapButton: {
     backgroundColor: colors.secondary || '#6c757d',

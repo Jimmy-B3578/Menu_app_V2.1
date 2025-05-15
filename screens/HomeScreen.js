@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   TextInput,
@@ -10,13 +10,15 @@ import {
   SafeAreaView,
   LayoutAnimation,
   Platform,
-  UIManager
+  UIManager,
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import styles from '../styles/HomeScreenStyles';
 import { colors } from '../styles/themes';
 import uuid from 'react-native-uuid';
+import * as Location from 'expo-location';
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android') {
@@ -25,12 +27,69 @@ if (Platform.OS === 'android') {
   }
 }
 
+// Function to calculate distance between two coordinates (in kilometers)
+const calculateDistance = (lat1, lon1, lat2, lon2) => {
+  const R = 6371; // Radius of the earth in km
+  const dLat = deg2rad(lat2 - lat1);
+  const dLon = deg2rad(lon2 - lon1);
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2); 
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  const distance = R * c; // Distance in km
+  return distance;
+};
+
+// Helper function for calculateDistance
+const deg2rad = (deg) => {
+  return deg * (Math.PI/180);
+};
+
+// Format distance for display
+const formatDistance = (distance) => {
+  if (distance < 1) {
+    // Convert to meters for distances less than 1km
+    return `${Math.round(distance * 1000)}m`;
+  } else if (distance < 10) {
+    // Show one decimal place for distances between 1-10km
+    return `${distance.toFixed(1)}km`;
+  } else {
+    // Round to nearest km for distances over 10km
+    return `${Math.round(distance)}km`;
+  }
+};
+
 export default function HomeScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [processedResults, setProcessedResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchActive, setSearchActive] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
+
+  // Request location permission and get user's location
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.log('Permission to access location was denied');
+        setLocationPermissionDenied(true);
+        return;
+      }
+
+      try {
+        const location = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude
+        });
+      } catch (err) {
+        console.error('Error getting location:', err);
+      }
+    })();
+  }, []);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
@@ -67,6 +126,19 @@ export default function HomeScreen({ navigation }) {
       const queryRegex = new RegExp(searchQuery.trim().replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'), 'i');
 
       pins.forEach(pin => {
+        // Calculate distance if user location is available and pin has coordinates
+        let distance = null;
+        if (userLocation && pin.location?.coordinates?.length === 2) {
+          const pinLat = pin.location.coordinates[1]; // GeoJSON format: [longitude, latitude]
+          const pinLng = pin.location.coordinates[0];
+          distance = calculateDistance(
+            userLocation.latitude, 
+            userLocation.longitude, 
+            pinLat, 
+            pinLng
+          );
+        }
+
         let pinLevelMatch = false;
         if (queryRegex.test(pin.name) || queryRegex.test(pin.description) || (pin.cuisine && pin.cuisine.some(c => queryRegex.test(c)))) {
           pinLevelMatch = true;
@@ -80,6 +152,7 @@ export default function HomeScreen({ navigation }) {
               type: 'restaurantGroup',
               pinName: pin.name,
               originalPin: pin,
+              distance: distance, // Add distance to the group
               items: []
             };
           }
@@ -113,8 +186,9 @@ export default function HomeScreen({ navigation }) {
               type: 'restaurantGroup',
               pinName: pin.name,
               originalPin: pin,
+              distance: distance, // Add distance to the group
               items: [{
-            id: uuid.v4(),
+                id: uuid.v4(),
                 type: 'pinDetails',
                 pinDescription: pin.description,
                 pinCuisine: pin.cuisine
@@ -154,20 +228,25 @@ export default function HomeScreen({ navigation }) {
       return (
         <View style={styles.restaurantGroupContainer}>
           <View style={styles.restaurantNameHeaderContainer}>
-            <Text style={styles.restaurantNameHeaderText}>{item.pinName}</Text>
+            <View style={styles.restaurantNameInfoContainer}>
+              <Text style={styles.restaurantNameHeaderText}>{item.pinName}</Text>
+              {item.distance !== null && (
+                <Text style={styles.distanceText}>Distance: {formatDistance(item.distance)}</Text>
+              )}
+            </View>
             {item.originalPin?.location?.coordinates && (
-        <TouchableOpacity
+              <TouchableOpacity
                 style={styles.viewOnMapButton}
-          onPress={() => {
+                onPress={() => {
                   navigation.navigate('Map', { 
                     targetPinId: item.originalPin._id,
                     targetCoordinates: item.originalPin.location.coordinates, 
                     fromSearch: true 
-            });
-          }}
-        >
+                  });
+                }}
+              >
                 <Text style={styles.viewOnMapButtonText}>View on Map</Text>
-        </TouchableOpacity>
+              </TouchableOpacity>
             )}
           </View>
           {item.items.map(menuItem => {
