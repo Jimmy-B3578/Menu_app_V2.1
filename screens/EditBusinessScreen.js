@@ -8,8 +8,10 @@ import {
   Alert,
   StyleSheet,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  KeyboardAvoidingView
 } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Picker } from '@react-native-picker/picker'; // Import Picker
 import axios from 'axios';
 import { colors } from '../styles/themes';
@@ -187,7 +189,16 @@ export default function EditBusinessScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <KeyboardAwareScrollView
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+      enableOnAndroid={true}
+      enableAutomaticScroll={true}
+      keyboardShouldPersistTaps="handled"
+      extraScrollHeight={100}
+      extraHeight={Platform.OS === 'ios' ? 130 : 120}
+      resetScrollToCoords={{ x: 0, y: 0 }}
+    >
       <Text style={styles.label}>Business Name</Text>
       <TextInput
         style={styles.input}
@@ -279,6 +290,6 @@ export default function EditBusinessScreen({ route, navigation }) {
           <Text style={styles.saveButtonText}>Save Changes</Text>
         )}
       </TouchableOpacity>
-    </ScrollView>
+    </KeyboardAwareScrollView>
   );
 } 

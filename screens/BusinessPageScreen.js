@@ -166,7 +166,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       ...business
     };
     if (!isRefresh) {
-      setOpenedFromMap(fromMap);
+    setOpenedFromMap(fromMap);
     }
     setSelectedBusiness(details);
   };
@@ -347,22 +347,22 @@ export default function BusinessPageScreen({ route, navigation }) {
             <Text style={styles.detailReviewCount}>{selectedBusiness.reviewCount} reviews</Text>
           </View>
           {selectedBusiness.description ? (
-            <Text style={styles.detailDescription}>{selectedBusiness.description}</Text>
+          <Text style={styles.detailDescription}>{selectedBusiness.description}</Text>
           ) : (
             <Text style={styles.detailDescription}>No description available.</Text>
           )}
           <View style={styles.detailActionButtons}>
             {selectedBusiness.phone ? (
-              <TouchableOpacity style={styles.detailActionButton} onPress={handleCall}>
-                <Ionicons name="call-outline" size={24} color={colors.primary} />
-                <Text style={styles.detailActionText}>Call</Text>
-              </TouchableOpacity>
+            <TouchableOpacity style={styles.detailActionButton} onPress={handleCall}>
+              <Ionicons name="call-outline" size={24} color={colors.primary} />
+              <Text style={styles.detailActionText}>Call</Text>
+            </TouchableOpacity>
             ) : null}
             {selectedBusiness.website ? (
-              <TouchableOpacity style={styles.detailActionButton} onPress={handleWebsite}>
-                <Ionicons name="globe-outline" size={24} color={colors.primary} />
-                <Text style={styles.detailActionText}>Website</Text>
-              </TouchableOpacity>
+            <TouchableOpacity style={styles.detailActionButton} onPress={handleWebsite}>
+              <Ionicons name="globe-outline" size={24} color={colors.primary} />
+              <Text style={styles.detailActionText}>Website</Text>
+            </TouchableOpacity>
             ) : null}
             <TouchableOpacity style={styles.detailActionButton} onPress={handleShare}>
               <Ionicons name="share-outline" size={24} color={colors.primary} />
@@ -372,41 +372,41 @@ export default function BusinessPageScreen({ route, navigation }) {
         </View>
 
         {formattedHours.length > 0 && (
-          <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Hours</Text>
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Hours</Text>
             {formattedHours.map((group) => (
               <View key={group.key} style={styles.hoursItem}>
                 <Text style={styles.dayText}>{group.days}</Text>
                 <Text style={styles.hoursText}>{group.times}</Text>
-              </View>
-            ))}
-          </View>
+            </View>
+          ))}
+        </View>
         )}
 
         {selectedBusiness.amenities && selectedBusiness.amenities.length > 0 && (
-          <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Amenities</Text>
-            <View style={styles.amenitiesContainer}>
-              {selectedBusiness.amenities.map((item, index) => (
-                <View key={index} style={styles.amenityTag}>
-                  <Text style={styles.amenityText}>{item}</Text>
-                </View>
-              ))}
-            </View>
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Amenities</Text>
+          <View style={styles.amenitiesContainer}>
+            {selectedBusiness.amenities.map((item, index) => (
+              <View key={index} style={styles.amenityTag}>
+                <Text style={styles.amenityText}>{item}</Text>
+              </View>
+            ))}
           </View>
+        </View>
         )}
 
         {selectedBusiness.reviews && selectedBusiness.reviews.length > 0 && (
-          <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Reviews</Text>
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Reviews</Text>
             {selectedBusiness.reviews.map((review, index) => (
-              <View key={index} style={styles.reviewItem}>
-                <View style={styles.reviewHeader}>
-                  <Text style={styles.reviewAuthor}>{review.author}</Text>
-                  <Text style={styles.starText}>{renderStars(review.rating)}</Text>
-                </View>
-                <Text style={styles.reviewText}>{review.text}</Text>
+            <View key={index} style={styles.reviewItem}>
+              <View style={styles.reviewHeader}>
+                <Text style={styles.reviewAuthor}>{review.author}</Text>
+                <Text style={styles.starText}>{renderStars(review.rating)}</Text>
               </View>
+              <Text style={styles.reviewText}>{review.text}</Text>
+            </View>
             ))}
           </View>
         )}
@@ -423,25 +423,25 @@ export default function BusinessPageScreen({ route, navigation }) {
                 <Text style={styles.adminButtonText}>Edit Business Details</Text>
               </TouchableOpacity>
             )}
-            {canDelete && (
-              <TouchableOpacity
+        {canDelete && (
+            <TouchableOpacity
                 style={[styles.adminButton, styles.deleteButton, deleting ? styles.deleteButtonDisabled : {}]}
-                onPress={handleDeleteBusiness}
-                disabled={deleting}
-              >
-                {deleting ? (
-                  <ActivityIndicator color="#fff" />
-                ) : (
+              onPress={handleDeleteBusiness}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
                   <>
                     <Ionicons name="trash-outline" size={20} color={colors.white || '#fff'} style={styles.adminButtonIcon} />
                     <Text style={styles.adminButtonText}>Delete Business</Text>
                   </>
-                )}
-              </TouchableOpacity>
+              )}
+            </TouchableOpacity>
             )}
           </View>
         )}
-        
+
         <View style={styles.detailSpacer} />
       </ScrollView>
     );
@@ -483,7 +483,7 @@ export default function BusinessPageScreen({ route, navigation }) {
           ListEmptyComponent={() => (
             <View style={styles.emptyListContainer}>
               <Text style={styles.emptyListText}>No businesses found.</Text>
-            </View>
+    </View>
           )}
         />
       )}
