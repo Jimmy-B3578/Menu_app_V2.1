@@ -147,7 +147,7 @@ const pinSchema = new mongoose.Schema({
       type: [mongoose.Schema.Types.Mixed],
       default: []
   }
-}, { timestamps: true, versionKey: false }); // Changed timestamps to true
+}, { versionKey: false }); // Remove timestamps and keep versionKey: false
 
 const Pin = mongoose.model('Pin', pinSchema, 'pins'); // Use 'pins' collection
 
