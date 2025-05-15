@@ -40,6 +40,7 @@ export default function EditBusinessScreen({ route, navigation }) {
   const [description, setDescription] = useState(businessData?.description || '');
   const [phone, setPhone] = useState(businessData?.phone || '');
   const [website, setWebsite] = useState(businessData?.website || '');
+  const [suburb, setSuburb] = useState(businessData?.suburb || '');
   
   const [hours, setHours] = useState(() => {
     // Ensure hours are structured correctly with all days, defaulting if necessary
@@ -107,6 +108,10 @@ export default function EditBusinessScreen({ route, navigation }) {
       Alert.alert('Validation Error', 'Business name cannot be empty.');
       return;
     }
+    if (!suburb.trim()) {
+      Alert.alert('Validation Error', 'Suburb cannot be empty.');
+      return;
+    }
 
     // Check if businessData and businessData._id are valid
     if (!businessData || !businessData._id || (typeof businessData._id === 'string' && businessData._id.length !== 24)) { // Basic check for ObjectId-like string length
@@ -124,6 +129,7 @@ export default function EditBusinessScreen({ route, navigation }) {
       description,
       phone,
       website,
+      suburb,
       hours, 
       amenities,
       // Include any other fields that are part of the Pin schema and are NOT auto-managed (like createdBy, location)
@@ -215,6 +221,14 @@ export default function EditBusinessScreen({ route, navigation }) {
         placeholder="Enter business description"
         multiline
         numberOfLines={4}
+      />
+
+      <Text style={styles.label}>Suburb</Text>
+      <TextInput
+        style={styles.input}
+        value={suburb}
+        onChangeText={setSuburb}
+        placeholder="Enter suburb"
       />
 
       <Text style={styles.label}>Phone Number</Text>

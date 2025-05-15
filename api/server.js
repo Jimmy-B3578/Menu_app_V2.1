@@ -61,7 +61,12 @@ const pinSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
-  phone: { // New field
+  suburb: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  phone: {
     type: String, 
     default: ''
   },
@@ -329,57 +334,65 @@ app.get('/pins/:pinId', async (req, res) => {
   }
 });
 
-// PUT /pins/:pinId - Update a specific pin's details
-app.put('/pins/:pinId', async (req, res) => {
-  const { pinId } = req.params;
-  // IMPORTANT: In a real application, the user ID for authorization
-  // should come from an authenticated session (e.g., req.user.id derived from a JWT token).
-  // Passing userId in the request body for authorization is NOT secure for production.
+// PUT /pins/:id - Update a pin's details (including menus, hours, amenities)
+app.put('/pins/:id', async (req, res) => {
+  const { id } = req.params;
+  // Include suburb in the destructured and allowed fields
+  const { name, description, suburb, phone, website, hours, amenities, foodMenu, drinksMenu, cuisine } = req.body;
 
-  if (!mongoose.Types.ObjectId.isValid(pinId)) {
-    return res.status(400).json({ message: 'Invalid Pin ID format.' });
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: 'Invalid Pin ID' });
   }
 
   try {
-    const pin = await Pin.findById(pinId);
-    if (!pin) {
-      return res.status(404).json({ message: 'Pin not found.' });
+    const pinToUpdate = await Pin.findById(id);
+    if (!pinToUpdate) {
+      return res.status(404).json({ message: 'Pin not found' });
     }
 
-    // TODO: Add backend authorization check here in a real application.
-    // This check should verify that the currently authenticated user (e.g., from req.user.id)
-    // is the creator of the pin (pin.createdBy.toString()) or has an admin role.
-    // Example:
-    // if (req.user.id !== pin.createdBy.toString() && req.user.role !== 'admin') {
-    //   return res.status(403).json({ message: 'User not authorized to edit this pin.' });
-    // }
+    // Basic check: if name is being updated, ensure it's not empty
+    if (name !== undefined && name.trim() === '') {
+        return res.status(400).json({ message: 'Business name cannot be empty.' });
+    }
+    // Basic check: if suburb is being updated, ensure it's not empty
+    if (suburb !== undefined && suburb.trim() === '') {
+        return res.status(400).json({ message: 'Suburb cannot be empty.' });
+    }
 
-    const { name, description, phone, website, hours, amenities } = req.body;
+
+    // Construct a dynamic update object
+    const updateFields = {};
+    if (name !== undefined) updateFields.name = name.trim();
+    if (description !== undefined) updateFields.description = description; // trim handled by schema
+    if (suburb !== undefined) updateFields.suburb = suburb.trim(); // <-- Add suburb to updateFields
+    if (phone !== undefined) updateFields.phone = phone;
+    if (website !== undefined) updateFields.website = website;
+    if (hours !== undefined) updateFields.hours = hours; // Assuming hours structure is validated on client or here
+    if (amenities !== undefined) updateFields.amenities = amenities; // Assuming array of strings
+    if (foodMenu !== undefined) updateFields.foodMenu = foodMenu;
+    if (drinksMenu !== undefined) updateFields.drinksMenu = drinksMenu;
+    if (cuisine !== undefined) updateFields.cuisine = cuisine; // Assuming array of strings, or single string
+
+    const updatedPin = await Pin.findByIdAndUpdate(
+      id,
+      { $set: updateFields },
+      { new: true, runValidators: true } // new: true returns the updated document, runValidators ensures schema rules are applied
+    );
+
+    if (!updatedPin) { // Should be redundant given the findById check, but good for safety
+        return res.status(404).json({ message: 'Pin not found during update attempt.' });
+    }
     
-    // Update only fields that are present in the request body
-    if (name !== undefined) pin.name = name;
-    if (description !== undefined) pin.description = description;
-    if (phone !== undefined) pin.phone = phone;
-    if (website !== undefined) pin.website = website;
-    if (hours !== undefined) {
-        // TODO: Add validation for the structure of each item in the 'hours' array
-        pin.hours = hours;
-    }
-    if (amenities !== undefined) {
-        // TODO: Add validation for the 'amenities' array (e.g., check for string types)
-        pin.amenities = amenities;
-    }
-
-    const updatedPin = await pin.save();
+    // console.log('Pin updated:', updatedPin); // Minimize logging
     res.status(200).json(updatedPin);
 
   } catch (error) {
     console.error('Error updating pin:', error);
+    // Handle potential validation errors from Mongoose
     if (error.name === 'ValidationError') {
-        // Mongoose validation errors (e.g., required fields missing, type mismatches)
-        return res.status(400).json({ message: 'Validation Error updating pin.', errors: error.errors });
+        return res.status(400).json({ message: 'Validation Error', errors: error.errors });
     }
-    res.status(500).json({ message: 'Error updating pin.', error: error.message });
+    res.status(500).json({ message: 'Error updating pin', error: error.message });
   }
 });
 
