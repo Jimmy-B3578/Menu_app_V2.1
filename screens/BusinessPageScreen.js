@@ -342,14 +342,16 @@ export default function BusinessPageScreen({ route, navigation }) {
         </View>
 
         <View style={styles.infoCard}>
-          <Text style={styles.detailBusinessName}>{selectedBusiness.name}</Text>
+          <View style={styles.businessHeaderRow}>
+            <Text style={styles.detailBusinessName}>{selectedBusiness.name}</Text>
+            <View style={styles.detailRatingContainer}>
+              <Text style={styles.starText}>{renderStars(selectedBusiness.rating)}</Text>
+              <Text style={styles.detailReviewCount}>{selectedBusiness.reviewCount} reviews</Text>
+            </View>
+          </View>
           {selectedBusiness.suburb ? (
             <Text style={styles.detailSuburb}>{selectedBusiness.suburb}</Text>
           ) : null}
-          <View style={styles.detailRatingContainer}>
-            <Text style={styles.starText}>{renderStars(selectedBusiness.rating)}</Text>
-            <Text style={styles.detailReviewCount}>{selectedBusiness.reviewCount} reviews</Text>
-          </View>
           {selectedBusiness.description ? (
             <Text style={styles.detailDescription}>{selectedBusiness.description}</Text>
           ) : (

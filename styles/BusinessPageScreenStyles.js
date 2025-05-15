@@ -157,11 +157,18 @@ export const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
+  businessHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
   detailBusinessName: {
     fontSize: 24,
     fontWeight: 'bold',
     color: colors.text || '#333',
-    marginBottom: 8,
+    flex: 1, // Allow name to take available space but shrink if needed
+    marginRight: 10, // Add space between name and rating
   },
   detailSuburb: {
     fontSize: 16,
@@ -170,14 +177,12 @@ export const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   detailRatingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
+    alignItems: 'flex-end', // Align to the right
   },
   detailReviewCount: {
     fontSize: 14,
     color: colors.textSecondary || '#666',
-    marginLeft: 8,
+    marginTop: 2, // Space between stars and review count
   },
   detailDescription: {
     fontSize: 16,
