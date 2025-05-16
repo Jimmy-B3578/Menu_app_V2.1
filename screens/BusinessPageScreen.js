@@ -12,7 +12,8 @@ import {
   Share,
   Alert,
   Modal,
-  TextInput
+  TextInput,
+  Keyboard
 } from 'react-native';
 import { styles } from '../styles/BusinessPageScreenStyles.js';
 import { colors } from '../styles/themes';
@@ -37,6 +38,8 @@ export default function BusinessPageScreen({ route, navigation }) {
   const [reviewText, setReviewText] = useState('');
   const [reviewRating, setReviewRating] = useState(5);
   const [editingReview, setEditingReview] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
   
   const currentUser = useUser();
 
@@ -94,23 +97,34 @@ export default function BusinessPageScreen({ route, navigation }) {
     return grouped;
   };
 
+  const fetchBusinesses = async (query = '') => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      let apiUrl;
+      if (query) {
+        // Search businesses by name
+        apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/search/name?q=${encodeURIComponent(query)}`;
+        setIsSearching(true);
+      } else {
+        // Get all businesses
+        apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins`;
+        setIsSearching(false);
+      }
+      
+      const response = await axios.get(apiUrl);
+      setBusinesses(response.data || []);
+    } catch (err) {
+      console.error("Failed to fetch businesses:", err.response ? err.response.data : err.message);
+      setError('Could not load businesses. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (selectedBusiness === null && !route.params?.refreshBusiness) {
-      const fetchBusinesses = async () => {
-        try {
-          setLoading(true);
-          setError(null);
-          const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins`;
-          const response = await axios.get(apiUrl);
-          const pins = response.data;
-          setBusinesses(pins || []);
-        } catch (err) {
-          console.error("Failed to fetch businesses:", err.response ? err.response.data : err.message);
-          setError('Could not load businesses. Please try again later.');
-        } finally {
-          setLoading(false);
-        }
-      };
       fetchBusinesses();
     }
   }, [selectedBusiness, route.params?.refreshBusiness]);
@@ -511,9 +525,7 @@ export default function BusinessPageScreen({ route, navigation }) {
         <View style={styles.cardDetailsRow}>
           <View style={styles.cardRatingContainer}>
             <Text style={styles.starText}>{renderStars(item.averageRating || 0)}</Text>
-            {item.reviewCount > 0 && (
-              <Text style={styles.cardReviewCount}>{item.reviewCount} reviews</Text>
-            )}
+            <Text style={styles.cardReviewCount}>{item.reviewCount || 0} reviews</Text>
           </View>
         </View>
       </View>
@@ -851,6 +863,41 @@ export default function BusinessPageScreen({ route, navigation }) {
     setEditReviewVisible(true);
   };
 
+  const handleSearch = () => {
+    Keyboard.dismiss();
+    fetchBusinesses(searchQuery);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    fetchBusinesses('');
+  };
+
+  const renderSearchBar = () => {
+    return (
+      <View style={styles.searchBarContainer}>
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Search businesses..."
+          placeholderTextColor={colors.textMuted || '#999'}
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearch}
+          returnKeyType="search"
+        />
+        {searchQuery ? (
+          <TouchableOpacity style={styles.clearSearchButton} onPress={clearSearch}>
+            <Ionicons name="close-circle" size={20} color={colors.textMuted || '#999'} />
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.searchIconButton} onPress={handleSearch}>
+            <Ionicons name="search" size={20} color={colors.primary || '#007bff'} />
+          </TouchableOpacity>
+        )}
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -861,7 +908,7 @@ export default function BusinessPageScreen({ route, navigation }) {
         ) : (
           <>
             <View style={styles.headerSpacer} />
-            <Text style={styles.title}>Businesses</Text>
+            {renderSearchBar()}
             <View style={styles.headerSpacer} />
           </>
         )}
@@ -878,18 +925,29 @@ export default function BusinessPageScreen({ route, navigation }) {
       ) : selectedBusiness ? (
         renderDetailView()
       ) : (
-        <FlatList
-          style={styles.list}
-          data={businesses}
-          renderItem={renderBusinessCard}
-          keyExtractor={item => item._id || item.id}
-          contentContainerStyle={styles.listContentContainer}
-          ListEmptyComponent={() => (
-            <View style={styles.emptyListContainer}>
-              <Text style={styles.emptyListText}>No businesses found.</Text>
-    </View>
+        <>
+          {isSearching && businesses.length === 0 && !loading ? (
+            <View style={styles.noResultsContainer}>
+              <Text style={styles.noResultsText}>No businesses found matching "{searchQuery}"</Text>
+              <TouchableOpacity style={styles.clearSearchButton} onPress={clearSearch}>
+                <Text style={styles.clearSearchText}>Clear search</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <FlatList
+              style={styles.list}
+              data={businesses}
+              renderItem={renderBusinessCard}
+              keyExtractor={item => item._id || item.id}
+              contentContainerStyle={styles.listContentContainer}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyListContainer}>
+                  <Text style={styles.emptyListText}>No businesses found.</Text>
+                </View>
+              )}
+            />
           )}
-        />
+        </>
       )}
     </SafeAreaView>
   );

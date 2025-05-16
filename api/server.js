@@ -228,6 +228,33 @@ app.post('/users', async (req, res) => {
 
 // --- Pin Routes --- 
 
+// GET /pins/search/name?q=<query> - Search pins by business name only
+app.get('/pins/search/name', async (req, res) => {
+  const searchQuery = req.query.q;
+
+  if (!searchQuery || typeof searchQuery !== 'string' || searchQuery.trim() === '') {
+    return res.status(400).json({ message: 'Search query (q) is required and must be a non-empty string.' });
+  }
+
+  try {
+    const trimmedQuery = searchQuery.trim();
+    const escapedQuery = trimmedQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const queryRegex = new RegExp(escapedQuery, 'i'); // 'i' for case-insensitive
+
+    const pins = await Pin.find({
+      name: { $regex: queryRegex }  // Search only by name
+    })
+    .populate('createdBy', 'name email')
+    .sort({ name: 1 }); // Sort by pin name
+
+    res.status(200).json(pins);
+
+  } catch (error) {
+    console.error('Error searching pins by name:', error);
+    res.status(500).json({ message: 'Error searching pins by name', error: error.message });
+  }
+});
+
 // POST /pins - Create a new pin
 app.post('/pins', async (req, res) => {
   const { name, latitude, longitude, userId } = req.body;

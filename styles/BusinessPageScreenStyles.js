@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
     // Padding is handled by SafeAreaView and list content container
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 
   },
-  // Header container View that holds the static title
+  // Header container View that holds the static title or search bar
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -25,6 +25,56 @@ export const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 4,
     position: 'relative',
+  },
+  searchBarContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.white || '#fff',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    height: 40,
+    borderWidth: 1,
+    borderColor: colors.border || '#e1e1e1',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 1,
+    elevation: 2,
+  },
+  searchBar: {
+    flex: 1,
+    height: '100%',
+    fontSize: 15,
+    color: colors.text || '#333',
+    paddingRight: 30, // Space for the clear/search icon
+  },
+  clearSearchButton: {
+    position: 'absolute',
+    right: 10,
+    padding: 5,
+  },
+  searchIconButton: {
+    position: 'absolute',
+    right: 10,
+    padding: 5,
+  },
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: colors.textSecondary || '#666',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  clearSearchText: {
+    fontSize: 16,
+    color: colors.primary || '#007bff',
+    textDecorationLine: 'underline',
   },
   // Style for the main title text (now inside headerContainer)
   title: {
