@@ -210,10 +210,10 @@ export default function FoodMenuScreen({ route, navigation }) {
       setIsLoading(true);
       setError(null);
       try {
-        const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/${businessId}/foodMenu`;
+        const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/${businessId}`;
         console.log("Fetching food menu from:", apiUrl);
         const response = await axios.get(apiUrl);
-        setMenuStructure(response.data || []);
+        setMenuStructure(response.data.foodMenu || []);
       } catch (err) {
         console.error("Failed to fetch food menu:", err.response ? err.response.data : err.message);
         setError("Could not load menu.");

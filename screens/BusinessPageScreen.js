@@ -595,6 +595,17 @@ export default function BusinessPageScreen({ route, navigation }) {
               <Text style={styles.detailActionText}>Website</Text>
             </TouchableOpacity>
             ) : null}
+            <TouchableOpacity
+                style={styles.detailActionButton}
+                onPress={() => navigation.navigate('UnifiedMenu', { 
+                  businessId: selectedBusiness.id,
+                  businessName: selectedBusiness.name,
+                  pinCreatorId: selectedBusiness.creatorId 
+                })}
+              >
+                <Ionicons name="restaurant-outline" size={24} color={colors.primary} />
+                <Text style={styles.detailActionText}>Menu</Text>
+              </TouchableOpacity>
             <TouchableOpacity style={styles.detailActionButton} onPress={handleShare}>
               <Ionicons name="share-outline" size={24} color={colors.primary} />
               <Text style={styles.detailActionText}>Share</Text>

@@ -167,10 +167,10 @@ export default function DrinksMenuScreen({ route, navigation }) {
       setError(null);
       try {
         // Use drinksMenu endpoint
-        const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/${businessId}/drinksMenu`; 
+        const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/${businessId}`; 
         console.log("Fetching drinks menu from:", apiUrl);
         const response = await axios.get(apiUrl);
-        setMenuStructure(response.data || []);
+        setMenuStructure(response.data.drinksMenu || []);
       } catch (err) {
         console.error("Failed to fetch drinks menu:", err.response ? err.response.data : err.message);
         setError("Could not load menu.");
