@@ -102,8 +102,19 @@ const AddItemModal = ({ visible, onClose, onSave, initialData }) => {
 };
 
 // --- Add Header Modal Component ---
-const AddHeaderModal = ({ visible, onClose, onSave }) => {
+const AddHeaderModal = ({ visible, onClose, onSave, initialData }) => {
     const [title, setTitle] = useState('');
+    const [isEditMode, setIsEditMode] = useState(false);
+
+    useEffect(() => {
+        if (initialData) {
+            setTitle(initialData.title || '');
+            setIsEditMode(true);
+        } else {
+            setTitle('');
+            setIsEditMode(false);
+        }
+    }, [initialData, visible]);
 
     const handleSave = () => {
         if (!title.trim()) {
@@ -111,11 +122,10 @@ const AddHeaderModal = ({ visible, onClose, onSave }) => {
             return;
         }
         onSave({ title });
-        setTitle(''); onClose();
     };
 
     const handleClose = () => {
-      setTitle(''); onClose();
+      onClose();
     }
 
     return (
@@ -131,7 +141,7 @@ const AddHeaderModal = ({ visible, onClose, onSave }) => {
            >
              <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Add Menu Header</Text>
+                    <Text style={styles.modalTitle}>{isEditMode ? 'Edit Menu Header' : 'Add Menu Header'}</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="Header Title*" value={title} onChangeText={setTitle}
@@ -139,7 +149,7 @@ const AddHeaderModal = ({ visible, onClose, onSave }) => {
                     />
                     <View style={styles.modalButtonRow}>
                        <Button title="Cancel" onPress={handleClose} color={colors.error || '#dc3545'} />
-                       <Button title="Save Header" onPress={handleSave} />
+                       <Button title={isEditMode ? 'Save Changes' : 'Save Header'} onPress={handleSave} />
                     </View>
                 </View>
              </View>
@@ -190,6 +200,7 @@ export default function FoodMenuScreen({ route, navigation }) {
   const [isAddItemModalVisible, setIsAddItemModalVisible] = useState(false);
   const [isAddHeaderModalVisible, setIsAddHeaderModalVisible] = useState(false);
   const [editingItemData, setEditingItemData] = useState(null); // <<< For storing item being edited and its index
+  const [editingHeaderData, setEditingHeaderData] = useState(null);
 
   // <<< State for Insertion Logic >>>
   const [itemModalSaveHandler, setItemModalSaveHandler] = useState(() => handleSaveNewItem);
@@ -328,6 +339,7 @@ export default function FoodMenuScreen({ route, navigation }) {
     setItemModalSaveHandler(() => handleSaveNewItem); // Default to adding new item
       setHeaderModalSaveHandler(() => handleSaveNewHeader);
     setEditingItemData(null); // <<< Clear editing item data when modals are reset
+    setEditingHeaderData(null);
   };
 
   const handlePressEditItem = (itemToEdit, index) => {
@@ -373,6 +385,40 @@ export default function FoodMenuScreen({ route, navigation }) {
     }
   };
 
+  const handlePressEditHeader = (headerToEdit, index) => {
+    setEditingHeaderData({ ...headerToEdit, originalIndex: index });
+    setHeaderModalSaveHandler(() => (updatedData) => handleSaveEditedHeader(updatedData));
+    setIsAddHeaderModalVisible(true);
+  };
+
+  const handleSaveEditedHeader = async (updatedData) => {
+    if (!editingHeaderData) {
+        console.error('[FoodMenuScreen] handleSaveEditedHeader: editingHeaderData is null!');
+        return;
+    }
+
+    const { originalIndex } = editingHeaderData;
+    let optimisticStructure = [];
+
+    setMenuStructure(prev => {
+        const newStructure = [...prev];
+        newStructure[originalIndex] = {
+            ...newStructure[originalIndex],
+            title: updatedData.title,
+        };
+        optimisticStructure = newStructure;
+        return newStructure;
+    });
+
+    setIsAddHeaderModalVisible(false);
+    resetModalSaveHandlers();
+
+    const success = await saveMenuToApi(optimisticStructure);
+    if (!success) {
+        console.log("[FoodMenuScreen] Failed to save edited header to API.");
+    }
+  };
+
   const handlePressDeleteItem = (itemToDelete, index) => {
     Alert.alert(
       "Delete Item",
@@ -394,6 +440,33 @@ export default function FoodMenuScreen({ route, navigation }) {
             if (!success) {
               console.log("Failed to delete item from API. UI might be out of sync.");
               // Consider error handling or reverting UI
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handlePressDeleteHeader = (headerToDelete, index) => {
+    Alert.alert(
+      "Delete Header",
+      `Are you sure you want to delete the header "${headerToDelete.title}"? This action cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            let optimisticStructure = [];
+            setMenuStructure(prev => {
+              const newStructure = [...prev];
+              newStructure.splice(index, 1);
+              optimisticStructure = newStructure;
+              return newStructure;
+            });
+            const success = await saveMenuToApi(optimisticStructure);
+            if (!success) {
+              console.log("Failed to delete header from API.");
             }
           },
         },
@@ -424,16 +497,19 @@ export default function FoodMenuScreen({ route, navigation }) {
       'Add Item Below',
       'Add Header Above',
       'Add Header Below',
+      'Edit Header',
+      'Delete Header',
       'Cancel',
     ];
     const headerCancelButtonIndex = headerOptions.length - 1;
+    const headerDestructiveButtonIndex = headerOptions.length - 2;
 
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
           options: item.type === 'item' ? itemOptions : headerOptions,
           cancelButtonIndex: item.type === 'item' ? itemCancelButtonIndex : headerCancelButtonIndex,
-          destructiveButtonIndex: item.type === 'item' ? itemDestructiveButtonIndex : undefined,
+          destructiveButtonIndex: item.type === 'item' ? itemDestructiveButtonIndex : headerDestructiveButtonIndex,
           title: item.type === 'item' ? item.name : item.title,
           message: item.type === 'item' ? `Price: ${item.price}` : 'Menu Header'
         },
@@ -471,6 +547,10 @@ export default function FoodMenuScreen({ route, navigation }) {
             } else if (buttonIndex === 3) { // Add Header Below Header
               insertionIndexRef.current = index + 1;
               openAddHeaderModal();
+            } else if (buttonIndex === 4) { // Edit Header
+              handlePressEditHeader(item, index);
+            } else if (buttonIndex === 5) { // Delete Header
+              handlePressDeleteHeader(item, index);
             }
           }
         }
@@ -510,6 +590,9 @@ export default function FoodMenuScreen({ route, navigation }) {
       if (item.type === 'item') {
         androidActions.push({ text: "Edit Item", onPress: () => handlePressEditItem(item, index) });
         androidActions.push({ text: "Delete Item", onPress: () => handlePressDeleteItem(item, index), style: "destructive" });
+      } else {
+        androidActions.push({ text: "Edit Header", onPress: () => handlePressEditHeader(item, index) });
+        androidActions.push({ text: "Delete Header", onPress: () => handlePressDeleteHeader(item, index), style: "destructive" });
       }
       androidActions.push({ text: "Cancel", style: "cancel" });
 
@@ -636,7 +719,14 @@ export default function FoodMenuScreen({ route, navigation }) {
               setIsAddHeaderModalVisible(false);
               resetModalSaveHandlers();
             }}
-            onSave={headerModalSaveHandler} // <<< Use state handler
+            onSave={(dataFromModal) => {
+              if (editingHeaderData) {
+                handleSaveEditedHeader(dataFromModal);
+              } else {
+                headerModalSaveHandler(dataFromModal);
+              }
+            }}
+            initialData={editingHeaderData}
         />
     </View>
   );

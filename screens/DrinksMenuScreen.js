@@ -86,8 +86,19 @@ const AddItemModal = ({ visible, onClose, onSave }) => {
 };
 
 // --- Add Header Modal Component ---
-const AddHeaderModal = ({ visible, onClose, onSave }) => {
+const AddHeaderModal = ({ visible, onClose, onSave, initialData }) => {
     const [title, setTitle] = useState('');
+    const [isEditMode, setIsEditMode] = useState(false);
+
+    useEffect(() => {
+        if (initialData) {
+            setTitle(initialData.title || '');
+            setIsEditMode(true);
+        } else {
+            setTitle('');
+            setIsEditMode(false);
+        }
+    }, [initialData, visible]);
 
     const handleSave = () => {
         if (!title.trim()) {
@@ -95,11 +106,10 @@ const AddHeaderModal = ({ visible, onClose, onSave }) => {
             return;
         }
         onSave({ title });
-        setTitle(''); onClose();
     };
 
      const handleClose = () => {
-      setTitle(''); onClose();
+      onClose();
     }
 
     return (
@@ -115,7 +125,7 @@ const AddHeaderModal = ({ visible, onClose, onSave }) => {
            >
              <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Add Menu Header</Text>
+                    <Text style={styles.modalTitle}>{isEditMode ? 'Edit Menu Header' : 'Add Menu Header'}</Text>
                     <TextInput
                         style={styles.input}
                         placeholder="Header Title*" value={title} onChangeText={setTitle}
@@ -123,7 +133,7 @@ const AddHeaderModal = ({ visible, onClose, onSave }) => {
                     />
                     <View style={styles.modalButtonRow}>
                        <Button title="Cancel" onPress={handleClose} color={colors.error || '#dc3545'} />
-                       <Button title="Save Header" onPress={handleSave} />
+                       <Button title={isEditMode ? 'Save Changes' : 'Save Header'} onPress={handleSave} />
                     </View>
                 </View>
              </View>
@@ -149,6 +159,7 @@ export default function DrinksMenuScreen({ route, navigation }) {
   // State for modals
   const [isAddItemModalVisible, setIsAddItemModalVisible] = useState(false);
   const [isAddHeaderModalVisible, setIsAddHeaderModalVisible] = useState(false);
+  const [editingHeaderData, setEditingHeaderData] = useState(null); // For storing header being edited
 
   // State for Insertion Logic
   const [itemModalSaveHandler, setItemModalSaveHandler] = useState(() => handleSaveNewItem);
@@ -289,6 +300,63 @@ export default function DrinksMenuScreen({ route, navigation }) {
     }
   };
 
+  const handlePressEditHeader = (headerToEdit, index) => {
+    setEditingHeaderData({ ...headerToEdit, originalIndex: index });
+    setHeaderModalSaveHandler(() => (updatedData) => handleSaveEditedHeader(updatedData));
+    setIsAddHeaderModalVisible(true);
+  };
+
+  const handleSaveEditedHeader = async (updatedData) => {
+    if (!editingHeaderData) {
+        console.error('[DrinksMenuScreen] handleSaveEditedHeader: editingHeaderData is null!');
+        return;
+    }
+    const { originalIndex } = editingHeaderData;
+    let optimisticStructure = [];
+    setMenuStructure(prev => {
+        const newStructure = [...prev];
+        newStructure[originalIndex] = {
+            ...newStructure[originalIndex],
+            title: updatedData.title,
+        };
+        optimisticStructure = newStructure;
+        return newStructure;
+    });
+    setIsAddHeaderModalVisible(false);
+    resetModalSaveHandlers();
+    const success = await saveMenuToApi(optimisticStructure);
+    if (!success) {
+        console.log("[DrinksMenuScreen] Failed to save edited header to API.");
+    }
+  };
+
+  const handlePressDeleteHeader = (headerToDelete, index) => {
+    Alert.alert(
+      "Delete Header",
+      `Are you sure you want to delete the header "${headerToDelete.title}"? This action cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            let optimisticStructure = [];
+            setMenuStructure(prev => {
+              const newStructure = [...prev];
+              newStructure.splice(index, 1);
+              optimisticStructure = newStructure;
+              return newStructure;
+            });
+            const success = await saveMenuToApi(optimisticStructure);
+            if (!success) {
+              console.log("Failed to delete header from API.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
   // --- Modal Opening / Context Menu ---
   const openAddItemModal = (onSaveHandler = handleSaveNewItem) => {
     setItemModalSaveHandler(() => onSaveHandler);
@@ -303,54 +371,77 @@ export default function DrinksMenuScreen({ route, navigation }) {
   const resetModalSaveHandlers = () => {
       setItemModalSaveHandler(() => handleSaveNewItem);
       setHeaderModalSaveHandler(() => handleSaveNewHeader);
+      setEditingHeaderData(null);
   }
 
   // --- Long Press Context Menu ---
   const showContextMenu = (item, index) => {
-    // This part is simplified to match the logic in FoodMenuScreen for consistency
-    const options = [
+    const itemOptions = [
       'Add Item Above',
       'Add Item Below',
       'Add Header Above',
       'Add Header Below',
       'Cancel',
     ];
-    const cancelButtonIndex = options.length - 1;
+
+    const headerOptions = [
+      'Add Item Above',
+      'Add Item Below',
+      'Add Header Above',
+      'Add Header Below',
+      'Edit Header',
+      'Delete Header',
+      'Cancel',
+    ];
+    
+    const cancelButtonIndex = item.type === 'item' ? itemOptions.length - 1 : headerOptions.length - 1;
+    const destructiveButtonIndex = item.type === 'header' ? headerOptions.length - 2 : undefined;
+    const options = item.type === 'item' ? itemOptions : headerOptions;
 
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
           options,
           cancelButtonIndex,
+          destructiveButtonIndex,
           title: item.type === 'item' ? item.name : item.title,
         },
         (buttonIndex) => {
           if (buttonIndex === cancelButtonIndex) return;
 
-          if (buttonIndex === 0) { // Add Item Above
-            insertionIndexRef.current = index;
-            openAddItemModal();
-          } else if (buttonIndex === 1) { // Add Item Below
-            insertionIndexRef.current = index + 1;
-            openAddItemModal();
-          } else if (buttonIndex === 2) { // Add Header Above
-            insertionIndexRef.current = index;
-            openAddHeaderModal();
-          } else if (buttonIndex === 3) { // Add Header Below
-            insertionIndexRef.current = index + 1;
-            openAddHeaderModal();
+          if (item.type === 'header' && buttonIndex === destructiveButtonIndex) {
+            handlePressDeleteHeader(item, index);
+            return;
+          }
+
+          if (buttonIndex === 0) {
+            insertionIndexRef.current = index; openAddItemModal();
+          } else if (buttonIndex === 1) {
+            insertionIndexRef.current = index + 1; openAddItemModal();
+          } else if (buttonIndex === 2) {
+            insertionIndexRef.current = index; openAddHeaderModal();
+          } else if (buttonIndex === 3) {
+            insertionIndexRef.current = index + 1; openAddHeaderModal();
+          } else if (item.type === 'header' && buttonIndex === 4) {
+            handlePressEditHeader(item, index);
           }
         }
       );
     } else {
       // Android Alert
-      const actions = [
+      let actions = [
         { text: "Add Item Above", onPress: () => { insertionIndexRef.current = index; openAddItemModal(); }},
         { text: "Add Item Below", onPress: () => { insertionIndexRef.current = index + 1; openAddItemModal(); }},
         { text: "Add Header Above", onPress: () => { insertionIndexRef.current = index; openAddHeaderModal(); }},
         { text: "Add Header Below", onPress: () => { insertionIndexRef.current = index + 1; openAddHeaderModal(); }},
-        { text: "Cancel", style: "cancel" },
       ];
+
+      if (item.type === 'header') {
+        actions.push({ text: "Edit Header", onPress: () => handlePressEditHeader(item, index) });
+        actions.push({ text: "Delete Header", style: 'destructive', onPress: () => handlePressDeleteHeader(item, index) });
+      }
+
+      actions.push({ text: "Cancel", style: "cancel" });
       Alert.alert('Menu Actions', `What would you like to do with "${item.title || item.name}"?`, actions, { cancelable: true });
     }
   };
@@ -456,7 +547,14 @@ export default function DrinksMenuScreen({ route, navigation }) {
               resetModalSaveHandlers(); 
               insertionIndexRef.current = null;
             }}
-            onSave={headerModalSaveHandler}
+            onSave={(dataFromModal) => {
+              if (editingHeaderData) {
+                handleSaveEditedHeader(dataFromModal);
+              } else {
+                headerModalSaveHandler(dataFromModal);
+              }
+            }}
+            initialData={editingHeaderData}
         />
     </View>
   );
