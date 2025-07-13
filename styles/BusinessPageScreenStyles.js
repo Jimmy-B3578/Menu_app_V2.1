@@ -504,6 +504,10 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border || '#ddd',
   },
+  modalStar: {
+    fontSize: 26,
+    marginHorizontal: 5,
+  },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',

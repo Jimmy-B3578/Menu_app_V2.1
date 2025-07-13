@@ -403,11 +403,14 @@ export default function BusinessPageScreen({ route, navigation }) {
               <TouchableOpacity 
                 key={star} 
                 onPress={() => setReviewRating(star)}
-                style={styles.ratingStar}
               >
-                <Text style={[styles.starText, { fontSize: 30 }]}>
-                  {star <= reviewRating ? '★' : '☆'}
-                </Text>
+                <Ionicons
+                  name={star <= reviewRating ? 'star' : 'star-outline'}
+                  style={[
+                    styles.modalStar,
+                    { color: star <= reviewRating ? colors.yellow : colors.dark }
+                  ]}
+                />
               </TouchableOpacity>
             ))}
           </View>
@@ -467,11 +470,14 @@ export default function BusinessPageScreen({ route, navigation }) {
               <TouchableOpacity 
                 key={star} 
                 onPress={() => setReviewRating(star)}
-                style={styles.ratingStar}
               >
-                <Text style={[styles.starText, { fontSize: 30 }]}>
-                  {star <= reviewRating ? '★' : '☆'}
-                </Text>
+                <Ionicons
+                  name={star <= reviewRating ? 'star' : 'star-outline'}
+                  style={[
+                    styles.modalStar,
+                    { color: star <= reviewRating ? colors.yellow : colors.dark }
+                  ]}
+                />
               </TouchableOpacity>
             ))}
           </View>

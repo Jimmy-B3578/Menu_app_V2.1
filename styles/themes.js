@@ -1,8 +1,31 @@
 export const colors = {
-    primary: '#7a7474',
+    primary: '#007AFF',
     secondary: '#7a7474',
-    background: '#ffffff',
-    text: '#000000',
-    border: '#cccccc',
-    // Add other theme colors as needed
-  };
+    background: '#F0F0F7',
+    cardBackground: '#FFFFFF',
+    text: '#1C1C1E',
+    textSecondary: '#8A8A8E',
+    textMuted: '#AEAEB2',
+    border: '#D1D1D6',
+    error: '#FF3B30',
+    success: '#34C759',
+    warning: '#FFCC00',
+    yellow: '#FFCC00',
+    dark: '#000000',
+};
+
+export const darkTheme = {
+    primary: '#007AFF',
+    secondary: '#7a7474',
+    background: '#F0F0F7',
+    cardBackground: '#FFFFFF',
+    text: '#1C1C1E',
+    textSecondary: '#8A8A8E',
+    textMuted: '#8E8E93',
+    border: '#3A3A3C',
+    error: '#FF453A',
+    success: '#32D74B',
+    warning: '#FFD60A',
+    yellow: '#FFD60A',
+    dark: '#FFFFFF',
+};
