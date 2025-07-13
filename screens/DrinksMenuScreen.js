@@ -143,6 +143,9 @@ export default function DrinksMenuScreen({ route, navigation }) {
   const [error, setError] = useState(null);
   const [highlightedItemId, setHighlightedItemId] = useState(null);
 
+  // Add ref for tracking insertion index
+  const insertionIndexRef = useRef(null);
+
   // State for modals
   const [isAddItemModalVisible, setIsAddItemModalVisible] = useState(false);
   const [isAddHeaderModalVisible, setIsAddHeaderModalVisible] = useState(false);
@@ -208,11 +211,13 @@ export default function DrinksMenuScreen({ route, navigation }) {
 
   // --- Save Handlers (Regular Add to End) ---
   const handleSaveNewItem = (itemData) => {
-    handleSaveItem(itemData);
+    handleSaveItem(itemData, insertionIndexRef.current); // Pass index
+    insertionIndexRef.current = null; // Reset after use
   };
 
   const handleSaveNewHeader = (headerData) => {
-    handleSaveHeader(headerData);
+    handleSaveHeader(headerData, insertionIndexRef.current); // Pass index
+    insertionIndexRef.current = null; // Reset after use
   };
 
   // --- Generalized Save/Insert Logic with API Call ---
@@ -253,6 +258,8 @@ export default function DrinksMenuScreen({ route, navigation }) {
       optimisticStructure = newStructure; 
       return newStructure;
     });
+    // Add these lines to close the modal
+    setIsAddItemModalVisible(false);
     resetModalSaveHandlers();
     const success = await saveMenuToApi(optimisticStructure);
     if (!success) {
@@ -273,6 +280,8 @@ export default function DrinksMenuScreen({ route, navigation }) {
        optimisticStructure = newStructure;
       return newStructure;
     });
+    // Add these lines to close the modal
+    setIsAddHeaderModalVisible(false);
     resetModalSaveHandlers();
     const success = await saveMenuToApi(optimisticStructure);
      if (!success) {
@@ -298,34 +307,51 @@ export default function DrinksMenuScreen({ route, navigation }) {
 
   // --- Long Press Context Menu ---
   const showContextMenu = (item, index) => {
+    // This part is simplified to match the logic in FoodMenuScreen for consistency
+    const options = [
+      'Add Item Above',
+      'Add Item Below',
+      'Add Header Above',
+      'Add Header Below',
+      'Cancel',
+    ];
+    const cancelButtonIndex = options.length - 1;
+
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          options: ['Cancel', 'Add Item Above', 'Add Item Below', 'Add Header Above', 'Add Header Below'],
-          cancelButtonIndex: 0,
+          options,
+          cancelButtonIndex,
+          title: item.type === 'item' ? item.name : item.title,
         },
         (buttonIndex) => {
-          const insertionIndexAbove = index;
-          const insertionIndexBelow = index + 1;
-          if (buttonIndex === 1) openAddItemModal((itemData) => handleSaveItem(itemData, insertionIndexAbove));
-          else if (buttonIndex === 2) openAddItemModal((itemData) => handleSaveItem(itemData, insertionIndexBelow));
-          else if (buttonIndex === 3) openAddHeaderModal((headerData) => handleSaveHeader(headerData, insertionIndexAbove));
-          else if (buttonIndex === 4) openAddHeaderModal((headerData) => handleSaveHeader(headerData, insertionIndexBelow));
+          if (buttonIndex === cancelButtonIndex) return;
+
+          if (buttonIndex === 0) { // Add Item Above
+            insertionIndexRef.current = index;
+            openAddItemModal();
+          } else if (buttonIndex === 1) { // Add Item Below
+            insertionIndexRef.current = index + 1;
+            openAddItemModal();
+          } else if (buttonIndex === 2) { // Add Header Above
+            insertionIndexRef.current = index;
+            openAddHeaderModal();
+          } else if (buttonIndex === 3) { // Add Header Below
+            insertionIndexRef.current = index + 1;
+            openAddHeaderModal();
+          }
         }
       );
     } else {
-      Alert.alert(
-          'Menu Actions',
-          `What would you like to do with "${item.title || item.name}"?`,
-          [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Add Item Above', onPress: () => openAddItemModal((itemData) => handleSaveItem(itemData, index)) },
-              { text: 'Add Item Below', onPress: () => openAddItemModal((itemData) => handleSaveItem(itemData, index + 1)) },
-              { text: 'Add Header Above', onPress: () => openAddHeaderModal((headerData) => handleSaveHeader(headerData, index)) },
-              { text: 'Add Header Below', onPress: () => openAddHeaderModal((headerData) => handleSaveHeader(headerData, index + 1)) },
-          ],
-           { cancelable: true }
-      );
+      // Android Alert
+      const actions = [
+        { text: "Add Item Above", onPress: () => { insertionIndexRef.current = index; openAddItemModal(); }},
+        { text: "Add Item Below", onPress: () => { insertionIndexRef.current = index + 1; openAddItemModal(); }},
+        { text: "Add Header Above", onPress: () => { insertionIndexRef.current = index; openAddHeaderModal(); }},
+        { text: "Add Header Below", onPress: () => { insertionIndexRef.current = index + 1; openAddHeaderModal(); }},
+        { text: "Cancel", style: "cancel" },
+      ];
+      Alert.alert('Menu Actions', `What would you like to do with "${item.title || item.name}"?`, actions, { cancelable: true });
     }
   };
 
@@ -416,12 +442,20 @@ export default function DrinksMenuScreen({ route, navigation }) {
         {/* Modals (Rendered regardless, but opened only if canEdit allows buttons/actions) */}
         <AddItemModal
             visible={isAddItemModalVisible}
-            onClose={() => { setIsAddItemModalVisible(false); resetModalSaveHandlers(); }}
+            onClose={() => { 
+              setIsAddItemModalVisible(false); 
+              resetModalSaveHandlers(); 
+              insertionIndexRef.current = null;
+            }}
             onSave={itemModalSaveHandler}
         />
          <AddHeaderModal
             visible={isAddHeaderModalVisible}
-            onClose={() => { setIsAddHeaderModalVisible(false); resetModalSaveHandlers(); }}
+            onClose={() => { 
+              setIsAddHeaderModalVisible(false); 
+              resetModalSaveHandlers(); 
+              insertionIndexRef.current = null;
+            }}
             onSave={headerModalSaveHandler}
         />
     </View>

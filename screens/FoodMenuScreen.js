@@ -227,11 +227,13 @@ export default function FoodMenuScreen({ route, navigation }) {
 
   // --- Save Handlers (Regular Add to End) ---
   const handleSaveNewItem = (itemData) => {
-    handleSaveItem(itemData); // Defaults to appending
+    handleSaveItem(itemData, insertionIndexRef.current); // Pass index
+    insertionIndexRef.current = null; // Reset after use
   };
 
   const handleSaveNewHeader = (headerData) => {
-    handleSaveHeader(headerData); // Defaults to appending
+    handleSaveHeader(headerData, insertionIndexRef.current); // Pass index
+    insertionIndexRef.current = null; // Reset after use
   };
 
   // --- Generalized Save/Insert Logic with API Call ---
@@ -623,8 +625,7 @@ export default function FoodMenuScreen({ route, navigation }) {
                 handleSaveEditedItem(dataFromModal);
               } else {
                 // For new items (including above/below via insertionIndexRef)
-                handleSaveItem(dataFromModal, insertionIndexRef.current);
-                insertionIndexRef.current = null; // Reset after use
+                itemModalSaveHandler(dataFromModal);
               }
             }}
             initialData={editingItemData}
