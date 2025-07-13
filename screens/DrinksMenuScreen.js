@@ -21,26 +21,40 @@ import axios from 'axios';
 import { useUser } from '../context/UserContext';
 
 // --- Add Item Modal Component ---
-const AddItemModal = ({ visible, onClose, onSave }) => {
+const AddItemModal = ({ visible, onClose, onSave, initialData }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  useEffect(() => {
+    if (initialData) {
+      setName(initialData.name || '');
+      setPrice(initialData.price ? String(initialData.price) : '');
+      setDescription(initialData.description || '');
+      setIsEditMode(true);
+    } else {
+      setName('');
+      setPrice('');
+      setDescription('');
+      setIsEditMode(false);
+    }
+  }, [initialData, visible]);
 
   const handleSave = () => {
     if (!name.trim() || !price.trim()) {
         Alert.alert('Missing Information', 'Please enter at least a name and price.');
         return;
     }
-    if (isNaN(parseFloat(price))) {
-        Alert.alert('Invalid Price', 'Please enter a valid number for the price.');
+    if (!/^[0-9]*\\.?[0-9]+$/.test(price) && !/^[0-9]+$/.test(price)) {
+        Alert.alert('Invalid Price', 'Please enter a valid number for the price (e.g., 10 or 9.99).');
         return;
     }
-    onSave({ name, price, description });
-    setName(''); setPrice(''); setDescription(''); onClose();
+    onSave({ name, price: parseFloat(price), description });
   };
 
   const handleClose = () => {
-    setName(''); setPrice(''); setDescription(''); onClose();
+    onClose();
   }
 
   return (
@@ -56,7 +70,7 @@ const AddItemModal = ({ visible, onClose, onSave }) => {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Menu Item</Text>
+            <Text style={styles.modalTitle}>{isEditMode ? 'Edit Menu Item' : 'Add Menu Item'}</Text>
             <TextInput
               style={styles.input}
               placeholder="Item Name*" value={name} onChangeText={setName}
@@ -76,7 +90,7 @@ const AddItemModal = ({ visible, onClose, onSave }) => {
             />
             <View style={styles.modalButtonRow}>
               <Button title="Cancel" onPress={handleClose} color={colors.error || '#dc3545'} />
-              <Button title="Save Item" onPress={handleSave} />
+              <Button title={isEditMode ? 'Save Changes' : 'Save Item'} onPress={handleSave} />
             </View>
           </View>
         </View>
@@ -159,6 +173,7 @@ export default function DrinksMenuScreen({ route, navigation }) {
   // State for modals
   const [isAddItemModalVisible, setIsAddItemModalVisible] = useState(false);
   const [isAddHeaderModalVisible, setIsAddHeaderModalVisible] = useState(false);
+  const [editingItemData, setEditingItemData] = useState(null);
   const [editingHeaderData, setEditingHeaderData] = useState(null); // For storing header being edited
 
   // State for Insertion Logic
@@ -330,6 +345,33 @@ export default function DrinksMenuScreen({ route, navigation }) {
     }
   };
 
+  const handlePressDeleteItem = (itemToDelete, index) => {
+    Alert.alert(
+      "Delete Item",
+      `Are you sure you want to delete "${itemToDelete.name}"? This action cannot be undone.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            let optimisticStructure = [];
+            setMenuStructure(prev => {
+              const newStructure = [...prev];
+              newStructure.splice(index, 1);
+              optimisticStructure = newStructure;
+              return newStructure;
+            });
+            const success = await saveMenuToApi(optimisticStructure);
+            if (!success) {
+              console.log("Failed to delete item from API.");
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handlePressDeleteHeader = (headerToDelete, index) => {
     Alert.alert(
       "Delete Header",
@@ -368,9 +410,46 @@ export default function DrinksMenuScreen({ route, navigation }) {
     setIsAddHeaderModalVisible(true);
   };
 
+  const handlePressEditItem = (itemToEdit, index) => {
+    setEditingItemData({ ...itemToEdit, originalIndex: index });
+    setItemModalSaveHandler(() => (updatedData) => handleSaveEditedItem(updatedData));
+    setIsAddItemModalVisible(true);
+  };
+
+  const handleSaveEditedItem = async (updatedData) => {
+    if (!editingItemData) {
+      console.error('[DrinksMenuScreen] handleSaveEditedItem: editingItemData is null!');
+      return;
+    }
+
+    const { originalIndex } = editingItemData;
+    let optimisticStructure = [];
+
+    setMenuStructure(prev => {
+      const newStructure = [...prev];
+      newStructure[originalIndex] = {
+        ...newStructure[originalIndex],
+        name: updatedData.name,
+        price: updatedData.price,
+        description: updatedData.description,
+      };
+      optimisticStructure = newStructure;
+      return newStructure;
+    });
+
+    setIsAddItemModalVisible(false);
+    resetModalSaveHandlers();
+
+    const success = await saveMenuToApi(optimisticStructure);
+    if (!success) {
+      console.log("[DrinksMenuScreen] Failed to save edited item to API.");
+    }
+  };
+
   const resetModalSaveHandlers = () => {
       setItemModalSaveHandler(() => handleSaveNewItem);
       setHeaderModalSaveHandler(() => handleSaveNewHeader);
+      setEditingItemData(null);
       setEditingHeaderData(null);
   }
 
@@ -381,6 +460,8 @@ export default function DrinksMenuScreen({ route, navigation }) {
       'Add Item Below',
       'Add Header Above',
       'Add Header Below',
+      'Edit Item',
+      'Delete Item',
       'Cancel',
     ];
 
@@ -394,9 +475,14 @@ export default function DrinksMenuScreen({ route, navigation }) {
       'Cancel',
     ];
     
-    const cancelButtonIndex = item.type === 'item' ? itemOptions.length - 1 : headerOptions.length - 1;
-    const destructiveButtonIndex = item.type === 'header' ? headerOptions.length - 2 : undefined;
+    const itemCancelButtonIndex = itemOptions.length - 1;
+    const itemDestructiveButtonIndex = itemOptions.length - 2;
+    const headerCancelButtonIndex = headerOptions.length - 1;
+    const headerDestructiveButtonIndex = headerOptions.length - 2;
+
     const options = item.type === 'item' ? itemOptions : headerOptions;
+    const cancelButtonIndex = item.type === 'item' ? itemCancelButtonIndex : headerCancelButtonIndex;
+    const destructiveButtonIndex = item.type === 'item' ? itemDestructiveButtonIndex : headerDestructiveButtonIndex;
 
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
@@ -409,21 +495,36 @@ export default function DrinksMenuScreen({ route, navigation }) {
         (buttonIndex) => {
           if (buttonIndex === cancelButtonIndex) return;
 
-          if (item.type === 'header' && buttonIndex === destructiveButtonIndex) {
-            handlePressDeleteHeader(item, index);
-            return;
-          }
-
-          if (buttonIndex === 0) {
-            insertionIndexRef.current = index; openAddItemModal();
-          } else if (buttonIndex === 1) {
-            insertionIndexRef.current = index + 1; openAddItemModal();
-          } else if (buttonIndex === 2) {
-            insertionIndexRef.current = index; openAddHeaderModal();
-          } else if (buttonIndex === 3) {
-            insertionIndexRef.current = index + 1; openAddHeaderModal();
-          } else if (item.type === 'header' && buttonIndex === 4) {
-            handlePressEditHeader(item, index);
+          if (item.type === 'item') {
+            if (buttonIndex === itemDestructiveButtonIndex) {
+              handlePressDeleteItem(item, index);
+            } else if (buttonIndex === 0) {
+              insertionIndexRef.current = index; openAddItemModal();
+            } else if (buttonIndex === 1) {
+              insertionIndexRef.current = index + 1; openAddItemModal();
+            } else if (buttonIndex === 2) {
+              insertionIndexRef.current = index; openAddHeaderModal();
+            } else if (buttonIndex === 3) {
+              insertionIndexRef.current = index + 1; openAddHeaderModal();
+            } else if (buttonIndex === 4) {
+              handlePressEditItem(item, index);
+            }
+          } else { // Header actions
+            if (buttonIndex === headerDestructiveButtonIndex) {
+              handlePressDeleteHeader(item, index);
+              return;
+            }
+            if (buttonIndex === 0) {
+              insertionIndexRef.current = index; openAddItemModal();
+            } else if (buttonIndex === 1) {
+              insertionIndexRef.current = index + 1; openAddItemModal();
+            } else if (buttonIndex === 2) {
+              insertionIndexRef.current = index; openAddHeaderModal();
+            } else if (buttonIndex === 3) {
+              insertionIndexRef.current = index + 1; openAddHeaderModal();
+            } else if (buttonIndex === 4) {
+              handlePressEditHeader(item, index);
+            }
           }
         }
       );
@@ -436,7 +537,10 @@ export default function DrinksMenuScreen({ route, navigation }) {
         { text: "Add Header Below", onPress: () => { insertionIndexRef.current = index + 1; openAddHeaderModal(); }},
       ];
 
-      if (item.type === 'header') {
+      if (item.type === 'item') {
+        actions.push({ text: "Edit Item", onPress: () => handlePressEditItem(item, index) });
+        actions.push({ text: "Delete Item", style: 'destructive', onPress: () => handlePressDeleteItem(item, index) });
+      } else if (item.type === 'header') {
         actions.push({ text: "Edit Header", onPress: () => handlePressEditHeader(item, index) });
         actions.push({ text: "Delete Header", style: 'destructive', onPress: () => handlePressDeleteHeader(item, index) });
       }
@@ -538,7 +642,14 @@ export default function DrinksMenuScreen({ route, navigation }) {
               resetModalSaveHandlers(); 
               insertionIndexRef.current = null;
             }}
-            onSave={itemModalSaveHandler}
+            onSave={(dataFromModal) => {
+              if (editingItemData) {
+                handleSaveEditedItem(dataFromModal);
+              } else {
+                itemModalSaveHandler(dataFromModal);
+              }
+            }}
+            initialData={editingItemData}
         />
          <AddHeaderModal
             visible={isAddHeaderModalVisible}
