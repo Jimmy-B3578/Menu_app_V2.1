@@ -130,9 +130,12 @@ export default function BusinessPageScreen({ route, navigation }) {
   }, [selectedBusiness, route.params?.refreshBusiness]);
 
   useEffect(() => {
-    if (route.params?.businessData) {
-      console.log("Processing businessData from route params:", route.params.businessData);
-      handleSelectBusiness(route.params.businessData, true);
+    const { businessData, fromMap } = route.params || {};
+
+    if (businessData) {
+      handleSelectBusiness(businessData, true); // Always true when data is passed
+      // Clear the params so this logic doesn't re-run on tab focus
+      navigation.setParams({ businessData: undefined, fromMap: undefined });
     }
   }, [route.params?.businessData]);
 
@@ -198,7 +201,7 @@ export default function BusinessPageScreen({ route, navigation }) {
     }
   };
 
-  const handleSelectBusiness = (business, fromMap = false, isRefresh = false) => {
+  const handleSelectBusiness = (business, fromMap = false) => {
     const details = {
       id: business._id || business.id || '',
       name: business.name || business.title || 'Business Name',
@@ -217,9 +220,8 @@ export default function BusinessPageScreen({ route, navigation }) {
       reviews: business.reviews || [],
       ...business
     };
-    if (!isRefresh) {
+
     setOpenedFromMap(fromMap);
-    }
     setSelectedBusiness(details);
     setShowAllReviews(false);
     setFilterRating(null);
@@ -275,13 +277,14 @@ export default function BusinessPageScreen({ route, navigation }) {
 
   const handleBackPress = () => {
     if (openedFromMap) {
-      console.log("Going back to Map screen");
+      // When going back to the map, we don't clear the selected business
+      // in case the user quickly comes back. We just navigate away.
       navigation.navigate('Map');
     } else {
-      console.log("Going back to List view");
       setSelectedBusiness(null);
-      setOpenedFromMap(false);
     }
+    // The `openedFromMap` flag will be naturally reset the next time
+    // a business is selected from the list or passed from the map.
   };
 
   const handleDeleteBusiness = async () => {
