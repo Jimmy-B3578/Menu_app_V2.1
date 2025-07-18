@@ -19,6 +19,7 @@ import styles from '../styles/HomeScreenStyles';
 import { colors } from '../styles/themes';
 import uuid from 'react-native-uuid';
 import * as Location from 'expo-location';
+import Constants from 'expo-constants';
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === 'android') {
@@ -117,7 +118,7 @@ export default function HomeScreen({ navigation }) {
     try {
       const animationDelayPromise = new Promise(resolve => setTimeout(resolve, animationDuration));
       
-      const fetchDataPromise = axios.get(`${process.env.EXPO_PUBLIC_API_URL}/search/pins?q=${encodeURIComponent(searchQuery)}`);
+      const fetchDataPromise = axios.get(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/search/pins?q=${encodeURIComponent(searchQuery)}`);
 
       const [_, response] = await Promise.all([animationDelayPromise, fetchDataPromise]);
 

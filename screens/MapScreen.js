@@ -14,6 +14,7 @@ import {
 import MapView, { Marker } from 'react-native-maps'; // Import MapView and Marker
 import * as Location from 'expo-location'; // Import expo-location
 import axios from 'axios'; // <<< Make sure axios is imported
+import Constants from 'expo-constants';
 import styles from '../styles/MapScreenStyles';
 import { colors } from '../styles/themes'; // <<< Import colors
 
@@ -44,7 +45,7 @@ export default function MapScreen({ route, user, navigation }) {
   // --- Fetch existing pins --- 
   const fetchPins = useCallback(async () => {
     try {
-      const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/pins`);
+      const response = await axios.get(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins`);
       const fetchedMarkers = response.data.map(pin => ({
         id: pin._id,
         coordinate: { latitude: pin.location.coordinates[1], longitude: pin.location.coordinates[0] },
@@ -210,7 +211,7 @@ export default function MapScreen({ route, user, navigation }) {
     };
 
     try {
-      const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/pins`, pinData);
+      const response = await axios.post(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins`, pinData);
       const createdPin = response.data;
 
       // Map backend data to frontend marker format

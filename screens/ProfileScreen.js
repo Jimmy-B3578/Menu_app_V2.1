@@ -5,6 +5,7 @@ import styles from '../styles/ProfileScreenStyles';
 import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import * as SecureStore from 'expo-secure-store'; // Import SecureStore
+import Constants from 'expo-constants';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -27,10 +28,10 @@ export default function ProfileScreen({ user, setUser }) { // Receive props
 
   // Auth0 configuration (moved from App.js)
   const discovery = {
-    authorizationEndpoint: `https://${process.env.EXPO_PUBLIC_AUTH0_DOMAIN}/authorize`,
+    authorizationEndpoint: `https://${Constants.expoConfig.extra.EXPO_PUBLIC_AUTH0_DOMAIN}/authorize`,
   };
   const config = {
-    clientId: process.env.EXPO_PUBLIC_AUTH0_CLIENT_ID,
+    clientId: Constants.expoConfig.extra.EXPO_PUBLIC_AUTH0_CLIENT_ID,
     redirectUri,
     scopes: ['openid', 'profile', 'email'],
     responseType: 'token id_token',
@@ -50,7 +51,7 @@ export default function ProfileScreen({ user, setUser }) { // Receive props
     }
     console.log(`Attempting to save user ${userData.email} to DB...`);
     try {
-        const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/users`, {
+        const response = await axios.post(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/users`, {
             name: userData.name,
             email: userData.email,
             role: userData.role // Send the role extracted from token

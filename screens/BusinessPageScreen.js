@@ -21,6 +21,7 @@ import axios from 'axios';
 import MapView, { Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
 import { useUser } from '../context/UserContext';
+import Constants from 'expo-constants';
 
 export default function BusinessPageScreen({ route, navigation }) {
   const [businesses, setBusinesses] = useState([]);
@@ -105,11 +106,11 @@ export default function BusinessPageScreen({ route, navigation }) {
       let apiUrl;
       if (query) {
         // Search businesses by name
-        apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/search/name?q=${encodeURIComponent(query)}`;
+        apiUrl = `${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/search/name?q=${encodeURIComponent(query)}`;
         setIsSearching(true);
       } else {
         // Get all businesses
-        apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins`;
+        apiUrl = `${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins`;
         setIsSearching(false);
       }
       
@@ -155,7 +156,7 @@ export default function BusinessPageScreen({ route, navigation }) {
           setLoading(true);
           try {
             console.log(`[BusinessPageScreen] Refreshing business with ID: ${idToRefresh}`);
-            const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/pins/${idToRefresh}`);
+            const response = await axios.get(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${idToRefresh}`);
             const businessData = response.data;
             if (businessData) {
               handleSelectBusiness(businessData, openedFromMap, true);
@@ -187,7 +188,7 @@ export default function BusinessPageScreen({ route, navigation }) {
     
     setReviewsLoading(true);
     try {
-      let url = `${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews`;
+      let url = `${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews`;
       if (filterRating) {
         url += `?rating=${filterRating}`;
       }
@@ -302,7 +303,7 @@ export default function BusinessPageScreen({ route, navigation }) {
             setDeleting(true);
             try {
               console.log('[BusinessPageScreen] Attempting to delete pin with ID:', selectedBusiness.id);
-              await axios.delete(`${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}`);
+              await axios.delete(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}`);
               
               if (openedFromMap) {
                 navigation.navigate('Map', { refresh: true, clearSelection: true });
@@ -793,7 +794,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       if (editingReview) {
         // Update existing review
         await axios.put(
-          `${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews/${editingReview._id}`,
+          `${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews/${editingReview._id}`,
           {
             userId: currentUser._id,
             rating: reviewRating,
@@ -803,7 +804,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       } else {
         // Add new review
         await axios.post(
-          `${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews`,
+          `${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews`,
           {
             userId: currentUser._id,
             userName: currentUser.name || 'Anonymous',
@@ -824,7 +825,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       fetchReviews();
       
       // Refresh business details to update rating
-      const refreshResponse = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}`);
+      const refreshResponse = await axios.get(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}`);
       handleSelectBusiness(refreshResponse.data, openedFromMap, true);
       
     } catch (err) {
@@ -853,7 +854,7 @@ export default function BusinessPageScreen({ route, navigation }) {
               setReviewsLoading(true);
               
               await axios.delete(
-                `${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews/${reviewId}`,
+                `${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}/reviews/${reviewId}`,
                 { data: { userId: currentUser._id } }
               );
               
@@ -861,7 +862,7 @@ export default function BusinessPageScreen({ route, navigation }) {
               fetchReviews();
               
               // Refresh business details to update rating
-              const refreshResponse = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}`);
+              const refreshResponse = await axios.get(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${selectedBusiness.id}`);
               handleSelectBusiness(refreshResponse.data, openedFromMap, true);
               
             } catch (err) {

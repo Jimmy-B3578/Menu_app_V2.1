@@ -17,6 +17,7 @@ import axios from 'axios';
 import { colors } from '../styles/themes';
 import styles from '../styles/EditBusinessScreenStyles'; // We will create this file
 import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 
 // Helper to generate time slots for pickers
 const generateTimeSlots = () => {
@@ -139,7 +140,7 @@ export default function EditBusinessScreen({ route, navigation }) {
     };
 
     try {
-      await axios.put(`${process.env.EXPO_PUBLIC_API_URL}/pins/${businessData._id}`, updatedData);
+      await axios.put(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${businessData._id}`, updatedData);
       navigation.navigate('Tabs', { screen: 'Business', params: { refreshBusiness: true, businessIdToRefresh: businessData._id } });
     } catch (error) {
       console.error('Error updating business details:', error.response ? error.response.data : error.message);

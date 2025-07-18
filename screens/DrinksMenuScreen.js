@@ -19,6 +19,7 @@ import { colors } from '../styles/themes';
 import uuid from 'react-native-uuid';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
+import Constants from 'expo-constants';
 
 // --- Add Item Modal Component ---
 const AddItemModal = ({ visible, onClose, onSave, initialData }) => {
@@ -196,7 +197,7 @@ export default function DrinksMenuScreen({ route, navigation }) {
       setError(null);
       try {
         // Use drinksMenu endpoint
-        const apiUrl = `${process.env.EXPO_PUBLIC_API_URL}/pins/${businessId}`; 
+        const apiUrl = `${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/pins/${businessId}`; 
         console.log("Fetching drinks menu from:", apiUrl);
         const response = await axios.get(apiUrl);
         setMenuStructure(response.data.drinksMenu || []);
