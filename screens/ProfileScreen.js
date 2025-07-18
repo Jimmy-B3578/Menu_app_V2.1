@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, Button, StyleSheet, Platform, Alert, TextInput, Modal, Pressable } from 'react-native';
 import axios from 'axios'; // Import axios
 import styles from '../styles/ProfileScreenStyles';
-import { makeRedirectUri, useAuthRequest } from 'expo-auth-session';
+import { useAuthRequest } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import * as SecureStore from 'expo-secure-store'; // Import SecureStore
 import Constants from 'expo-constants';
@@ -22,9 +22,8 @@ const USER_STORAGE_KEY = 'user_data'; // Use the same key as in App.js
 
 export default function ProfileScreen({ user, setUser }) { // Receive props
 
-  // Build the proxy redirect URI
-  const redirectUri = makeRedirectUri({ useProxy: true });
-  // console.log('Generated Auth0 Redirect URI:', redirectUri);
+  // Build the deep link redirect URI
+  const redirectUri = `${Constants.expoConfig.scheme}://${Constants.expoConfig.extra.EXPO_PUBLIC_AUTH0_DOMAIN}/ios/${Constants.expoConfig.ios.bundleIdentifier}/callback`;
 
   // Auth0 configuration (moved from App.js)
   const discovery = {
@@ -147,8 +146,8 @@ export default function ProfileScreen({ user, setUser }) { // Receive props
 
   // Sign In function (moved from App.js)
   const signIn = () => {
-    console.log('�� signIn() called');
-    promptAsync({ useProxy: true });
+    console.log('signIn() called');
+    promptAsync();
   };
 
   // Sign Out function with Auth0 logout
