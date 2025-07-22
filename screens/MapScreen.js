@@ -308,7 +308,7 @@ export default function MapScreen({ route, user, navigation }) {
         <MapView
           ref={mapRef}
           key={pinsInitiallyLoaded ? 'pins-loaded' : 'pins-loading'}
-          style={StyleSheet.absoluteFillObject}
+          style={styles.absoluteFill}
           initialRegion={initialRegion}
           showsUserLocation={true}
           showsMyLocationButton={false}
@@ -412,8 +412,8 @@ export default function MapScreen({ route, user, navigation }) {
             <Pressable
               style={({ pressed }) => [
                 styles.createButton,
-                !locationName.trim() ? styles.createButtonDisabled : {},
-                pressed ? { opacity: 0.7 } : {}
+                !locationName.trim() && styles.createButtonDisabled,
+                pressed && styles.createButtonPressed
               ]}
               onPress={handleCreatePin}
               disabled={!locationName.trim()}

@@ -121,6 +121,9 @@ export default StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
   },
+  createButtonPressed: {
+    opacity: 0.7,
+  },
   // Style applied when the create button is disabled (e.g., no text entered)
   createButtonDisabled: {
     backgroundColor: '#cccccc', // Greyed out color
@@ -199,6 +202,9 @@ export default StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: colors.background || '#f0f0f0', // Use theme background or fallback
+  },
+  absoluteFill: {
+    ...StyleSheet.absoluteFillObject,
   },
   backToSearchButton: {
     position: 'absolute',

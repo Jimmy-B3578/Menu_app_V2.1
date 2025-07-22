@@ -382,7 +382,7 @@ export default function BusinessPageScreen({ route, navigation }) {
               onPress={() => handleDeleteReview(item._id)}
             >
               <Ionicons name="trash-outline" size={18} color={colors.danger} />
-              <Text style={[styles.reviewActionText, { color: colors.danger }]}>Delete</Text>
+              <Text style={[styles.reviewActionText, styles.reviewActionTextDanger]}>Delete</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -412,7 +412,7 @@ export default function BusinessPageScreen({ route, navigation }) {
                   name={star <= reviewRating ? 'star' : 'star-outline'}
                   style={[
                     styles.modalStar,
-                    { color: star <= reviewRating ? colors.yellow : colors.dark }
+                    star <= reviewRating ? styles.modalStarSelected : styles.modalStarUnselected
                   ]}
                 />
               </TouchableOpacity>
@@ -479,7 +479,7 @@ export default function BusinessPageScreen({ route, navigation }) {
                   name={star <= reviewRating ? 'star' : 'star-outline'}
                   style={[
                     styles.modalStar,
-                    { color: star <= reviewRating ? colors.yellow : colors.dark }
+                    star <= reviewRating ? styles.modalStarSelected : styles.modalStarUnselected
                   ]}
                 />
               </TouchableOpacity>
@@ -744,13 +744,13 @@ export default function BusinessPageScreen({ route, navigation }) {
                 style={[styles.adminButton, styles.editButton]}
                 onPress={() => navigation.navigate('EditBusiness', { businessData: selectedBusiness })}
               >
-                <Ionicons name="pencil-outline" size={20} color={colors.white || '#fff'} style={styles.adminButtonIcon} />
+                <Ionicons name="pencil-outline" size={20} style={styles.adminButtonIcon} />
                 <Text style={styles.adminButtonText}>Edit Business Details</Text>
               </TouchableOpacity>
             )}
         {canDelete && (
             <TouchableOpacity
-                style={[styles.adminButton, styles.deleteButton, deleting ? styles.deleteButtonDisabled : {}]}
+                style={[styles.adminButton, styles.deleteButton, deleting && styles.deleteButtonDisabled]}
               onPress={handleDeleteBusiness}
               disabled={deleting}
             >
@@ -758,7 +758,7 @@ export default function BusinessPageScreen({ route, navigation }) {
                 <ActivityIndicator color="#fff" />
               ) : (
                   <>
-                    <Ionicons name="trash-outline" size={20} color={colors.white || '#fff'} style={styles.adminButtonIcon} />
+                    <Ionicons name="trash-outline" size={20} style={styles.adminButtonIcon} />
                     <Text style={styles.adminButtonText}>Delete Business</Text>
                   </>
               )}

@@ -329,7 +329,7 @@ export default function HomeScreen({ navigation }) {
         {searchActive ? (
           !isLoading && processedResults.length === 0 && (
             <View style={styles.searchButtonContainer}>
-              <TouchableOpacity style={[styles.searchButton, {backgroundColor: colors.primary, flex: 1}]} onPress={handleSearch}>
+              <TouchableOpacity style={[styles.searchButton, styles.fullWidthButton]} onPress={handleSearch}>
               <Text style={styles.searchButtonText}>Search</Text>
             </TouchableOpacity>
           </View>

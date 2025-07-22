@@ -508,6 +508,12 @@ export const styles = StyleSheet.create({
     fontSize: 26,
     marginHorizontal: 5,
   },
+  modalStarSelected: {
+    color: colors.yellow
+  },
+  modalStarUnselected: {
+    color: colors.dark
+  },
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -529,6 +535,9 @@ export const styles = StyleSheet.create({
     color: colors.white || '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  reviewActionTextDanger: {
+    color: colors.danger,
   },
   // End of review styles
   detailSpacer: {
@@ -603,6 +612,7 @@ export const styles = StyleSheet.create({
   },
   adminButtonIcon: {
     marginRight: 10,
+    color: colors.white || '#fff',
   },
   adminButtonText: {
     color: colors.white || '#fff',

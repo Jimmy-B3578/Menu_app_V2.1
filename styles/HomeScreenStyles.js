@@ -88,6 +88,9 @@ export default StyleSheet.create({
     alignItems: 'center', // Center text horizontally
     justifyContent: 'center', // Center text vertically
   },
+  fullWidthButton: {
+    flex: 1,
+  },
   singleSearchButton: { // Specific style for the search button when it's the only one
     width: '90%', // Make it take the full width of the container it would be in
     alignSelf: 'center',
