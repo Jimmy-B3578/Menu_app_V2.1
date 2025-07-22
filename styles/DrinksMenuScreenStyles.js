@@ -4,7 +4,7 @@ import { colors } from './themes';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background || '#f5f5f5',
+    backgroundColor: colors.background,
     // Removed centering for list view
     // justifyContent: 'center', 
     // alignItems: 'center', 
@@ -14,18 +14,18 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingVertical: 15,
     paddingHorizontal: 10,
-    backgroundColor: colors.surface || '#fff', // Give buttons a background
+    backgroundColor: colors.surface, // Give buttons a background
     borderBottomWidth: 1,
-    borderBottomColor: colors.border || '#eee',
+    borderBottomColor: colors.border,
   },
   addButton: {
-    backgroundColor: colors.primary || '#007AFF',
+    backgroundColor: colors.primary,
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
   },
   addButtonText: {
-    color: colors.buttonText || '#fff',
+    color: colors.button.text,
     fontWeight: 'bold',
     fontSize: 14,
   },
@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 16,
-    color: colors.textSecondary || '#888',
+    color: colors.textSecondary,
     textAlign: 'center',
     marginTop: 50, // Give it some space from the top
   },
@@ -45,12 +45,12 @@ export const styles = StyleSheet.create({
       marginTop: 15, // Space above headers
       marginBottom: 5,
       borderBottomWidth: 2,
-      borderBottomColor: colors.primary || '#ccc',
+      borderBottomColor: colors.primary,
   },
   headerText: {
       fontSize: 18,
       fontWeight: 'bold',
-      color: colors.primary || '#333',
+      color: colors.primary,
   },
   // Menu Item Styles
   menuItem: {
@@ -59,7 +59,7 @@ export const styles = StyleSheet.create({
     alignItems: 'flex-start', // Align items to the top
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border || '#eee',
+    borderBottomColor: colors.border,
   },
   menuItemMain: {
       flex: 1, // Allow text to take available space
@@ -68,17 +68,17 @@ export const styles = StyleSheet.create({
   menuItemName: {
     fontSize: 16,
     fontWeight: '500',
-    color: colors.text || '#333',
+    color: colors.text,
     marginBottom: 3, // Space between name and description
   },
    menuItemDescription: {
     fontSize: 13,
-    color: colors.textSecondary || '#666',
+    color: colors.textSecondary,
   },
   menuItemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.primary || '#007AFF',
+    color: colors.primary,
     minWidth: 50, // Ensure price has some minimum width
     textAlign: 'right',
   },
@@ -104,14 +104,14 @@ export const styles = StyleSheet.create({
     height: '100%',
     justifyContent: 'center', 
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: colors.modal.overlay,
   },
   modalContent: {
-    backgroundColor: colors.surface || '#fff',
+    backgroundColor: colors.surface,
     padding: 25,
     borderRadius: 10,
     width: '90%',
-    shadowColor: '#000',
+    shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border || '#ccc',
+    borderColor: colors.border,
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,

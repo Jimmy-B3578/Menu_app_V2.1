@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
   container: {
     flex: 1, // Take up all available space
     // Removed justifyContent and alignItems to allow natural stacking
-    backgroundColor: colors.background || '#f5f5f5', 
+    backgroundColor: colors.background, 
     // Padding is handled by SafeAreaView and list content container
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 
   },
@@ -18,8 +18,8 @@ export const styles = StyleSheet.create({
     paddingTop: 25,
     paddingBottom: 20,
     paddingHorizontal: 15,
-    backgroundColor: colors.background || '#f5f5f5',
-    shadowColor: '#000',
+    backgroundColor: colors.background,
+    shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -30,13 +30,13 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.white || '#fff',
+    backgroundColor: colors.input.background,
     borderRadius: 20,
     paddingHorizontal: 15,
     height: 40,
     borderWidth: 1,
-    borderColor: colors.border || '#e1e1e1',
-    shadowColor: '#000',
+    borderColor: colors.border,
+    shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 1,
@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     fontSize: 15,
-    color: colors.text || '#333',
+    color: colors.text,
     paddingRight: 30, // Space for the clear/search icon
   },
   clearSearchButton: {
@@ -67,20 +67,20 @@ export const styles = StyleSheet.create({
   },
   noResultsText: {
     fontSize: 16,
-    color: colors.textSecondary || '#666',
+    color: colors.textSecondary,
     marginBottom: 15,
     textAlign: 'center',
   },
   clearSearchText: {
     fontSize: 16,
-    color: colors.primary || '#007bff',
+    color: colors.primary,
     textDecorationLine: 'underline',
   },
   // Style for the main title text (now inside headerContainer)
   title: {
     fontSize: 24, 
     fontWeight: 'bold',
-    color: colors.text || '#333', 
+    color: colors.text, 
     textAlign: 'center',
   },
   // --- List Styles ---
@@ -93,11 +93,11 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 15,
   },
   businessCard: {
-    backgroundColor: colors.cardBackground || '#ffffff',
+    backgroundColor: colors.card.background,
     padding: 15,
     borderRadius: 8,
     marginBottom: 10, // Space between cards
-    shadowColor: '#000',
+    shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -106,7 +106,7 @@ export const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text || '#333',
+    color: colors.text,
   },
   cardHeader: {
     flexDirection: 'row', // Arrange name and suburb horizontally
@@ -116,7 +116,7 @@ export const styles = StyleSheet.create({
   },
   cardSuburb: {
     fontSize: 14, // Smaller font size
-    color: colors.textSecondary || '#666', // Lighter color
+    color: colors.textSecondary, // Lighter color
     marginLeft: 10, // Add space between name and suburb
   },
   cardDetailsRow: {
@@ -131,12 +131,12 @@ export const styles = StyleSheet.create({
   },
   cardReviewCount: {
     fontSize: 12,
-    color: colors.textSecondary || '#666',
+    color: colors.textSecondary,
     marginLeft: 5,
   },
   starText: {
     fontSize: 16,
-    color: colors.warning || '#FFD700', // Gold color for stars
+    color: colors.warning, // Gold color for stars
   },
   // --- Loading/Error/Empty Styles ---
   errorContainer: {
@@ -144,11 +144,11 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: colors.background || '#f5f5f5',
+    backgroundColor: colors.background,
   },
   errorText: {
     fontSize: 16,
-    color: colors.error || '#dc3545', // Use theme error color or red
+    color: colors.error, // Use theme error color or red
     textAlign: 'center',
   },
   emptyListContainer: {
@@ -160,7 +160,7 @@ export const styles = StyleSheet.create({
   },
   emptyListText: {
     fontSize: 16,
-    color: colors.textMuted || '#6c757d',
+    color: colors.textMuted,
     textAlign: 'center',
   },
   // --- Detail View Specific Styles ---
@@ -169,7 +169,7 @@ export const styles = StyleSheet.create({
   },
   detailMapContainer: {
     height: 200, // Fixed height for the map section
-    backgroundColor: colors.mapBackground || '#e0e0e0', // Placeholder color
+    backgroundColor: colors.background, // Placeholder color
     position: 'relative', // Needed for absolute positioning of directions button
   },
   detailMap: {
@@ -179,36 +179,36 @@ export const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.mapBackground || '#e0e0e0',
+    backgroundColor: colors.background,
   },
   directionsButton: {
     position: 'absolute',
     bottom: 16,
     right: 16,
-    backgroundColor: colors.primary || '#007AFF',
+    backgroundColor: colors.primary,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 20,
     flexDirection: 'row', // Icon and text side-by-side
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 3,
   },
   directionsButtonText: {
-    color: colors.buttonText || '#fff',
+    color: colors.button.text,
     fontWeight: 'bold',
     fontSize: 14,
     marginLeft: 5, // Space between icon and text
   },
   infoCard: {
-    backgroundColor: colors.cardBackground || '#ffffff',
+    backgroundColor: colors.card.background,
     padding: 16,
     margin: 15, // Margin around the card
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -223,13 +223,13 @@ export const styles = StyleSheet.create({
   detailBusinessName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.text || '#333',
+    color: colors.text,
     flex: 1, // Allow name to take available space but shrink if needed
     marginRight: 10, // Add space between name and rating
   },
   detailSuburb: {
     fontSize: 16,
-    color: colors.textSecondary || '#666',
+    color: colors.textSecondary,
     marginBottom: 8,
     fontStyle: 'italic',
   },
@@ -238,12 +238,12 @@ export const styles = StyleSheet.create({
   },
   detailReviewCount: {
     fontSize: 14,
-    color: colors.textSecondary || '#666',
+    color: colors.textSecondary,
     marginTop: 2, // Space between stars and review count
   },
   detailDescription: {
     fontSize: 16,
-    color: colors.text || '#555',
+    color: colors.text,
     lineHeight: 22,
     marginBottom: 16,
   },
@@ -252,7 +252,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: colors.border || '#eee',
+    borderTopColor: colors.border,
   },
   detailActionButton: {
     alignItems: 'center',
@@ -261,15 +261,15 @@ export const styles = StyleSheet.create({
   detailActionText: {
     marginTop: 4,
     fontSize: 12,
-    color: colors.primary || '#007AFF',
+    color: colors.primary,
   },
   sectionCard: {
-    backgroundColor: colors.cardBackground || '#ffffff',
+    backgroundColor: colors.card.background,
     padding: 16,
     marginHorizontal: 15,
     marginBottom: 10,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -278,7 +278,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text || '#333',
+    color: colors.text,
     marginBottom: 12,
   },
   hoursItem: {
@@ -288,18 +288,18 @@ export const styles = StyleSheet.create({
   },
   dayText: {
     fontSize: 14,
-    color: colors.text || '#444',
+    color: colors.text,
   },
   hoursText: {
     fontSize: 14,
-    color: colors.textSecondary || '#666',
+    color: colors.textSecondary,
   },
   amenitiesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   amenityTag: {
-    backgroundColor: colors.tagBackground || '#eef',
+    backgroundColor: colors.amenity.background,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 15,
@@ -308,11 +308,11 @@ export const styles = StyleSheet.create({
   },
   amenityText: {
     fontSize: 13,
-    color: colors.tagText || colors.primary || '#007AFF',
+    color: colors.amenity.text,
   },
   reviewItem: {
     borderBottomWidth: 1,
-    borderBottomColor: colors.border || '#eee',
+    borderBottomColor: colors.border,
     paddingVertical: 10,
     marginBottom: 10,
   },
@@ -325,16 +325,16 @@ export const styles = StyleSheet.create({
   reviewAuthor: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: colors.text || '#333',
+    color: colors.text,
   },
   reviewDate: {
     fontSize: 12,
-    color: colors.textMuted || '#888',
+    color: colors.textMuted,
     marginBottom: 5,
   },
   reviewText: {
     fontSize: 14,
-    color: colors.text || '#555',
+    color: colors.text,
     lineHeight: 18,
   },
   reviewActionButtons: {
@@ -350,12 +350,12 @@ export const styles = StyleSheet.create({
   },
   reviewActionText: {
     fontSize: 12,
-    color: colors.primary || '#007bff',
+    color: colors.primary,
     marginLeft: 3,
   },
   noReviewsText: {
     fontSize: 14,
-    color: colors.textSecondary || '#888',
+    color: colors.textSecondary,
     fontStyle: 'italic',
     textAlign: 'center',
     marginVertical: 15,
@@ -368,14 +368,14 @@ export const styles = StyleSheet.create({
   },
   reviewCount: {
     fontSize: 14,
-    color: colors.textSecondary || '#666',
+    color: colors.textSecondary,
   },
   ratingFilterContainer: {
     marginBottom: 12,
   },
   filterLabel: {
     fontSize: 14,
-    color: colors.textSecondary || '#555',
+    color: colors.textSecondary,
     marginBottom: 5,
   },
   ratingFilterScroll: {
@@ -387,17 +387,17 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginRight: 8,
     borderRadius: 15,
-    backgroundColor: colors.background || '#f0f0f0',
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: colors.border || '#ddd',
+    borderColor: colors.border,
   },
   filterButtonActive: {
-    backgroundColor: colors.primaryMuted || '#e6f7ff',
-    borderColor: colors.primary || '#007bff',
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   filterButtonText: {
     fontSize: 12,
-    color: colors.text || '#333',
+    color: colors.text,
   },
   seeAllReviewsButton: {
     alignItems: 'center',
@@ -406,7 +406,7 @@ export const styles = StyleSheet.create({
   },
   seeAllReviewsText: {
     fontSize: 14,
-    color: colors.primary || '#007bff',
+    color: colors.primary,
     fontWeight: '500',
   },
   showLessButton: {
@@ -416,13 +416,13 @@ export const styles = StyleSheet.create({
   },
   showLessText: {
     fontSize: 14,
-    color: colors.textSecondary || '#666',
+    color: colors.textSecondary,
   },
   reviewsLoader: {
     marginVertical: 20,
   },
   addReviewButton: {
-    backgroundColor: colors.primary || '#007bff',
+    backgroundColor: colors.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -434,39 +434,39 @@ export const styles = StyleSheet.create({
     marginRight: 8,
   },
   addReviewText: {
-    color: colors.white || '#fff',
+    color: colors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },
   signInToReviewButton: {
-    backgroundColor: colors.background || '#f0f0f0',
+    backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 15,
     borderWidth: 1,
-    borderColor: colors.border || '#ddd',
+    borderColor: colors.border,
   },
   signInToReviewText: {
-    color: colors.textSecondary || '#666',
+    color: colors.textSecondary,
     fontSize: 14,
   },
   // Modal styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: colors.modal.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   modalContent: {
-    backgroundColor: colors.white || '#fff',
+    backgroundColor: colors.white,
     borderRadius: 12,
     padding: 20,
     width: '100%',
     maxWidth: 400,
-    shadowColor: '#000',
+    shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 5,
@@ -475,14 +475,14 @@ export const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.text || '#333',
+    color: colors.text,
     marginBottom: 15,
     textAlign: 'center',
   },
   modalLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text || '#333',
+    color: colors.text,
     marginBottom: 8,
   },
   ratingSelector: {
@@ -494,7 +494,7 @@ export const styles = StyleSheet.create({
     padding: 5,
   },
   reviewInput: {
-    backgroundColor: colors.background || '#f5f5f5',
+    backgroundColor: colors.background,
     borderRadius: 8,
     padding: 12,
     height: 120,
@@ -502,17 +502,17 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: colors.border || '#ddd',
+    borderColor: colors.border,
   },
   modalStar: {
     fontSize: 26,
     marginHorizontal: 5,
   },
   modalStarSelected: {
-    color: colors.yellow
+    color: colors.review.star
   },
   modalStarUnselected: {
-    color: colors.dark
+    color: colors.review.starUnselected
   },
   modalButtons: {
     flexDirection: 'row',
@@ -526,18 +526,18 @@ export const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   modalCancelButton: {
-    backgroundColor: colors.grey || '#aaa',
+    backgroundColor: colors.modal.cancelButton,
   },
   modalSubmitButton: {
-    backgroundColor: colors.primary || '#007bff',
+    backgroundColor: colors.primary,
   },
   modalButtonText: {
-    color: colors.white || '#fff',
+    color: colors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },
   reviewActionTextDanger: {
-    color: colors.danger,
+    color: colors.error,
   },
   // End of review styles
   detailSpacer: {
@@ -560,17 +560,17 @@ export const styles = StyleSheet.create({
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
-      backgroundColor: colors.background || '#f5f5f5',
+      backgroundColor: colors.background,
   },
   errorContainerFullScreen: {
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
       padding: 20,
-      backgroundColor: colors.background || '#f5f5f5',
+      backgroundColor: colors.background,
   },
   deleteButton: {
-    backgroundColor: colors.danger || '#dc3545', // Standard delete color
+    backgroundColor: colors.error, // Standard delete color
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -580,21 +580,21 @@ export const styles = StyleSheet.create({
     marginHorizontal: 15, // Match sectionCard padding
   },
   deleteButtonDisabled: {
-    backgroundColor: colors.errorMuted || '#efa6ad', // Lighter red when disabled
+    backgroundColor: colors.button.disabled, // Lighter red when disabled
   },
   deleteButtonText: {
-    color: '#fff',
+    color: colors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },
   // New styles for Admin Actions section
   adminActionsCard: {
-    backgroundColor: colors.cardBackground || '#ffffff',
+    backgroundColor: colors.card.background,
     padding: 16,
     marginHorizontal: 15,
     marginBottom: 10,
     borderRadius: 8,
-    shadowColor: '#000',
+    shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -612,14 +612,14 @@ export const styles = StyleSheet.create({
   },
   adminButtonIcon: {
     marginRight: 10,
-    color: colors.white || '#fff',
+    color: colors.white,
   },
   adminButtonText: {
-    color: colors.white || '#fff',
+    color: colors.white,
     fontSize: 16,
     fontWeight: 'bold',
   },
   editButton: {
-    backgroundColor: colors.info || '#17a2b8', // A distinct color for edit
+    backgroundColor: colors.secondary, // A distinct color for edit
   },
 });

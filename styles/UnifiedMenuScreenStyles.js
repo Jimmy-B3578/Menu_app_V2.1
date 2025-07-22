@@ -12,16 +12,16 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   tabBarActiveTintColor: {
-    color: colors.primary,
+    color: colors.tabBar.active,
   },
   tabBarInactiveTintColor: {
-    color: colors.textMuted,
+    color: colors.tabBar.inactive,
   },
   tabBarIndicatorStyle: {
     backgroundColor: colors.primary,
   },
   tabBarStyle: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.tabBar.background,
   },
   tabBarLabelStyle: {
     fontWeight: 'bold',

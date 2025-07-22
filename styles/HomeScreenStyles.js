@@ -29,11 +29,11 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '90%',
-    borderColor: '#dfe1e5',
+    borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 25,
-    backgroundColor: '#fff',
-    shadowColor: "#000",
+    backgroundColor: colors.input.background,
+    shadowColor: colors.card.shadow,
     shadowOffset: {
       width: 0,
       height: 1,
@@ -96,7 +96,7 @@ export default StyleSheet.create({
     alignSelf: 'center',
   },
   searchButtonText: {
-    color: '#fff', // White text for button
+    color: colors.button.text,
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -106,10 +106,10 @@ export default StyleSheet.create({
     paddingHorizontal: 15,
   },
   resultItem: {
-    backgroundColor: '#f9f9f9',
+    backgroundColor: colors.surface,
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: colors.borderLight,
   },
   resultItemName: {
     fontSize: 18,
@@ -126,12 +126,12 @@ export default StyleSheet.create({
   resultItemMenuContext: { // Style for "Found in Food/Drinks Menu:"
     fontSize: 12,
     fontStyle: 'italic',
-    color: colors.textMuted || '#888',
+    color: colors.textMuted,
     marginBottom: 4,
   },
   resultItemDescription: {
     fontSize: 14,
-    color: colors.textMuted || '#666', // Use a muted theme color or default
+    color: colors.textMuted, // Use a muted theme color or default
     marginTop: 4,
   },
   resultItemCuisine: {
@@ -146,7 +146,7 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   errorText: {
-    color: 'red',
+    color: colors.error,
     textAlign: 'center',
     marginVertical: 10,
   },
@@ -154,7 +154,7 @@ export default StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
-    color: colors.textMuted || '#666',
+    color: colors.textMuted,
   },
   // Title for the screen (optional, if you re-add it)
   title: {
@@ -167,10 +167,10 @@ export default StyleSheet.create({
   // New Styles for Grouped Results
   restaurantGroupContainer: {
     marginBottom: 15, // Space between restaurant groups
-    borderColor: colors.border || '#ddd',
+    borderColor: colors.border,
     borderWidth: 1,
     borderRadius: 8,
-    backgroundColor: colors.cardBackground || '#fff',
+    backgroundColor: colors.card.background,
     overflow: 'hidden', // Ensures border radius is respected by children
   },
   restaurantNameHeaderContainer: { // Renamed from restaurantNameHeader to be a container
@@ -179,9 +179,9 @@ export default StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 15,
-    backgroundColor: colors.primaryMuted || '#e9ecef',
+    backgroundColor: colors.primary,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border || '#ddd',
+    borderBottomColor: colors.border,
   },
   restaurantNameInfoContainer: {
     flex: 1,
@@ -190,32 +190,32 @@ export default StyleSheet.create({
   restaurantNameHeaderText: { // Style for the text part of the header
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.primary,
+    color: colors.white,
     flexShrink: 1, // Allow text to shrink if button takes space
     marginRight: 10, // Add some space between text and button
   },
   distanceText: {
     fontSize: 14,
-    color: colors.textSecondary || '#666', // Use a muted color for distance
+    color: colors.textSecondary, // Use a muted color for distance
     marginTop: 2, // Small gap between name and distance
   },
   viewOnMapButton: {
-    backgroundColor: colors.secondary || '#6c757d',
+    backgroundColor: colors.secondary,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
     elevation: 1,
   },
   viewOnMapButtonText: {
-    color: '#fff',
+    color: colors.white,
     fontSize: 12,
     fontWeight: 'bold',
   },
   menuItemContainer: {
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight || '#f0f0f0',
-    backgroundColor: '#fff', // White background for items
+    borderBottomColor: colors.borderLight,
+    backgroundColor: colors.surface, // White background for items
   },
   menuItemHeader: {
     flexDirection: 'row',
@@ -237,7 +237,7 @@ export default StyleSheet.create({
   },
   menuItemDescription: {
     fontSize: 14,
-    color: colors.textMuted || '#666',
+    color: colors.textMuted,
     marginTop: 4,
   },
   // End of New Styles for Grouped Results

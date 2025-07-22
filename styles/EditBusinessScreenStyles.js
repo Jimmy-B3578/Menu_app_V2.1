@@ -4,7 +4,7 @@ import { colors } from './themes'; // Assuming you have a theme file
 export default StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background || '#f5f5f5',
+    backgroundColor: colors.background,
   },
   contentContainer: {
     padding: 20,
@@ -12,19 +12,19 @@ export default StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text || '#333',
+    color: colors.text,
     marginBottom: 8,
     marginTop: 15,
   },
   input: {
-    backgroundColor: colors.white || '#fff',
-    borderColor: colors.border || '#ccc',
+    backgroundColor: colors.input.background,
+    borderColor: colors.input.border,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: Platform.OS === 'ios' ? 12 : 10,
     fontSize: 16,
-    color: colors.text,
+    color: colors.input.text,
     marginBottom: 10,
   },
   textArea: {
@@ -34,11 +34,11 @@ export default StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.primary || '#007bff',
+    color: colors.primary,
     marginTop: 25,
     marginBottom: 15,
     borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight || '#eee',
+    borderBottomColor: colors.borderLight,
     paddingBottom: 5,
   },
   // Hours Styling
@@ -49,15 +49,15 @@ export default StyleSheet.create({
     marginBottom: Platform.OS === 'ios' ? 5 : 8,
     paddingVertical: Platform.OS === 'ios' ? 5 : 8,
     paddingHorizontal: 10,
-    backgroundColor: colors.cardBackground || '#fff',
+    backgroundColor: colors.card.background,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.borderLight || '#eee',
+    borderColor: colors.borderLight,
   },
   dayLabel: {
     fontSize: Platform.OS === 'ios' ? 14 : 15,
     fontWeight: '600',
-    color: colors.textSecondary || '#555',
+    color: colors.textSecondary,
     flex: Platform.OS === 'ios' ? 2 : 1,
     marginRight: 5,
   },
@@ -67,7 +67,7 @@ export default StyleSheet.create({
     alignItems: 'stretch',
   },
   isOpenButton: {
-    backgroundColor: colors.secondary || '#6c757d',
+    backgroundColor: colors.button.secondary,
     paddingVertical: 6,
     paddingHorizontal: 10,
     borderRadius: 15,
@@ -75,7 +75,7 @@ export default StyleSheet.create({
     marginBottom: 5,
   },
   isOpenButtonText: {
-    color: colors.white || '#fff',
+    color: colors.button.text,
     fontWeight: 'bold',
     fontSize: 12,
   },
@@ -89,7 +89,7 @@ export default StyleSheet.create({
   },
   pickerLabel: {
     fontSize: 12,
-    color: colors.textMuted || '#666',
+    color: colors.textMuted,
     marginBottom: Platform.OS === 'ios' ? -15 : 2,
     marginLeft: Platform.OS === 'ios' ? 5 : 0,
     textAlign: Platform.OS === 'ios' ? 'left' : 'center',
@@ -97,10 +97,10 @@ export default StyleSheet.create({
   pickerStyle: {
     height: Platform.OS === 'ios' ? 100 : 40,
     width: '100%',
-    backgroundColor: colors.inputBackground || colors.white || '#fff',
+    backgroundColor: colors.input.background,
     borderRadius: Platform.OS === 'android' ? 4 : 0,
     borderWidth: Platform.OS === 'android' ? 1 : 0,
-    borderColor: Platform.OS === 'android' ? (colors.border || '#ccc') : undefined,
+    borderColor: Platform.OS === 'android' ? colors.input.border : undefined,
   },
   iosPicker: {
     height: 100,
@@ -118,24 +118,24 @@ export default StyleSheet.create({
   },
   amenityInput: {
     flex: 1,
-    backgroundColor: colors.white || '#fff',
-    borderColor: colors.border || '#ccc',
+    backgroundColor: colors.input.background,
+    borderColor: colors.input.border,
     borderWidth: 1,
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: Platform.OS === 'ios' ? 12 : 10,
     fontSize: 16,
-    color: colors.text,
+    color: colors.input.text,
     marginRight: 10,
   },
   addAmenityButton: {
-    backgroundColor: colors.success || '#28a745',
+    backgroundColor: colors.success,
     paddingVertical: 12,
     paddingHorizontal: 15,
     borderRadius: 8,
   },
   addAmenityButtonText: {
-    color: colors.white || '#fff',
+    color: colors.button.text,
     fontWeight: 'bold',
     fontSize: 16,
   },
@@ -147,7 +147,7 @@ export default StyleSheet.create({
   amenityTagContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.primaryMuted || '#e0e0e0',
+    backgroundColor: colors.amenity.background,
     borderRadius: 15,
     paddingVertical: 5,
     paddingHorizontal: 10,
@@ -155,7 +155,7 @@ export default StyleSheet.create({
     marginBottom: 8,
   },
   amenityTagText: {
-    color: colors.primary || '#007bff',
+    color: colors.amenity.text,
     fontSize: 14,
     marginRight: 5,
   },
@@ -164,7 +164,7 @@ export default StyleSheet.create({
   },
   // Save Button
   saveButton: {
-    backgroundColor: colors.primary || '#007bff',
+    backgroundColor: colors.primary,
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -173,10 +173,10 @@ export default StyleSheet.create({
     marginBottom: 30,
   },
   saveButtonDisabled: {
-    backgroundColor: colors.grey || '#aaa',
+    backgroundColor: colors.button.disabled,
   },
   saveButtonText: {
-    color: colors.white || '#fff',
+    color: colors.button.text,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -186,10 +186,10 @@ export default StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 5,
-    backgroundColor: colors.cardBackground || '#fff',
+    backgroundColor: colors.card.background,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.borderLight || '#eee',
+    borderColor: colors.borderLight,
     marginBottom: 20,
   },
   daySelectorContainer: {
@@ -214,7 +214,7 @@ export default StyleSheet.create({
   // dayContainer, dayLabel, dayHoursControlsContainer are no longer used as top-level repeated items
 
   isOpenButton: {
-    backgroundColor: colors.secondary || '#6c757d',
+    backgroundColor: colors.button.secondary,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 18,
@@ -222,7 +222,7 @@ export default StyleSheet.create({
     marginBottom: 8,
   },
   isOpenButtonText: {
-    color: colors.white || '#fff',
+    color: colors.button.text,
     fontWeight: 'bold',
     fontSize: 13,
   },
@@ -237,7 +237,7 @@ export default StyleSheet.create({
   },
   pickerLabel: {
     fontSize: 12,
-    color: colors.textMuted || '#666',
+    color: colors.textMuted,
     marginBottom: Platform.OS === 'ios' ? -15 : 3, 
     marginLeft: Platform.OS === 'ios' ? 5 : (Platform.OS === 'android' ? 5 : 0),
     textAlign: Platform.OS === 'ios' ? 'left' : 'left',
@@ -245,10 +245,10 @@ export default StyleSheet.create({
   pickerStyle: {
     height: 45, 
     width: '100%',
-    backgroundColor: colors.inputBackground || colors.white || '#fff',
+    backgroundColor: colors.input.background,
     borderRadius: 4, 
     borderWidth: 1, 
-    borderColor: colors.border || '#ccc',
+    borderColor: colors.border,
     fontSize: 15,
   },
   iosPicker: {

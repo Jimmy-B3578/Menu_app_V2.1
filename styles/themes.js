@@ -1,31 +1,87 @@
 export const colors = {
+    // --- Global Palette ---
     primary: '#007AFF',
-    secondary: '#7a7474',
+    secondary: '#5AC8FA',
     background: '#F0F0F7',
-    cardBackground: '#FFFFFF',
+    surface: '#FFFFFF',
     text: '#1C1C1E',
-    textSecondary: '#8A8A8E',
-    textMuted: '#AEAEB2',
+    textSecondary: '#6c757d',
+    textMuted: '#8E8E93',
     border: '#D1D1D6',
+    borderLight: '#E5E5EA',
     error: '#FF3B30',
     success: '#34C759',
     warning: '#FFCC00',
-    yellow: '#FFCC00',
-    dark: '#000000',
+    white: '#FFFFFF',
+    black: '#000000',
+    transparent: 'transparent',
+
+    // --- Component-Specific Colors ---
+    button: {
+        primary: '#007AFF',
+        secondary: '#6c757d',
+        text: '#FFFFFF',
+        disabled: '#AEAEB2'
+    },
+    card: {
+        background: '#FFFFFF',
+        shadow: '#000000',
+    },
+    input: {
+        background: '#FFFFFF',
+        border: '#D1D1D6',
+        text: '#1C1C1E',
+        placeholder: '#8E8E93',
+    },
+    modal: {
+        overlay: 'rgba(0, 0, 0, 0.5)',
+        background: '#FFFFFF',
+        cancelButton: '#AEAEB2',
+    },
+    tabBar: {
+        active: '#007AFF',
+        inactive: '#8E8E93',
+        background: '#FFFFFF',
+    },
+    map: {
+        recenterButton: 'rgba(255, 255, 255, 0.9)',
+        backToSearchButton: 'rgba(0,0,0,0.6)',
+    },
+    review: {
+        star: '#FFCC00',
+        starUnselected: '#000000',
+    },
+    amenity: {
+        background: '#eef',
+        text: '#007AFF',
+    },
 };
 
 export const darkTheme = {
-    primary: '#007AFF',
-    secondary: '#7a7474',
-    background: '#F0F0F7',
-    cardBackground: '#FFFFFF',
-    text: '#1C1C1E',
-    textSecondary: '#8A8A8E',
+    ...colors,
+    background: '#000000',
+    surface: '#1C1C1E',
+    text: '#FFFFFF',
+    textSecondary: '#AEAEB2',
     textMuted: '#8E8E93',
     border: '#3A3A3C',
-    error: '#FF453A',
-    success: '#32D74B',
-    warning: '#FFD60A',
-    yellow: '#FFD60A',
-    dark: '#FFFFFF',
+    card: {
+        ...colors.card,
+        background: '#1C1C1E',
+    },
+    input: {
+        ...colors.input,
+        background: '#2C2C2E',
+        border: '#48484A',
+        text: '#FFFFFF',
+        placeholder: '#8E8E93',
+    },
+    modal: {
+        ...colors.modal,
+        background: '#1C1C1E',
+    },
+    tabBar: {
+        ...colors.tabBar,
+        background: '#1C1C1E',
+    },
 };
