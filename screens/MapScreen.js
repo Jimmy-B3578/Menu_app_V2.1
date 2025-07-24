@@ -305,14 +305,14 @@ export default function MapScreen({ route, user, navigation }) {
         </View>
       ) : initialRegion ? (
         // Show map view if region is ready
-        <MapView
+                <MapView
           ref={mapRef}
           key={pinsInitiallyLoaded ? 'pins-loaded' : 'pins-loading'}
           style={styles.absoluteFill}
           initialRegion={initialRegion}
           showsUserLocation={true}
           showsMyLocationButton={false}
-          userInterfaceStyle="dark"          
+          userInterfaceStyle={colors.map.darkMode ? "dark" : "light"}
           onLongPress={user && user.role === 'business' ? handleLongPress : undefined}
           onPress={handleMapPress} // <<< Add map press handler
         >

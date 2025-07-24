@@ -53,6 +53,7 @@ export const colors = {
     map: {
         recenterButton: 'rgba(255, 255, 255, 0.9)',
         backToSearchButton: 'rgba(0,0,0,0.6)',
+        darkMode: true, // Set to true for dark map, false for light map
     },
     review: {
         star: '#FFCC00',
