@@ -312,6 +312,7 @@ export default function MapScreen({ route, user, navigation }) {
           initialRegion={initialRegion}
           showsUserLocation={true}
           showsMyLocationButton={false}
+          userInterfaceStyle="dark"          
           onLongPress={user && user.role === 'business' ? handleLongPress : undefined}
           onPress={handleMapPress} // <<< Add map press handler
         >
