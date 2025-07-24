@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as SecureStore from 'expo-secure-store';
 import { UserProvider } from './context/UserContext';
 import { Ionicons } from '@expo/vector-icons';
+import { colors } from './styles/themes';
 
 // Import screens
 import HomeScreen from './screens/HomeScreen';
@@ -41,6 +42,12 @@ function TabNavigator({ user, setUser }) {
 
           // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
+        },
+        tabBarActiveTintColor: colors.navigation.icon,
+        tabBarInactiveTintColor: colors.navigation.iconInactive,
+        tabBarStyle: {
+          backgroundColor: colors.navigation.background,
+          borderTopColor: colors.navigation.border,
         },
       })}
     >

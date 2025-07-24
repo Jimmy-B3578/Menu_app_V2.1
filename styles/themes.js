@@ -38,6 +38,13 @@ export const colors = {
         background: '#FFFFFF',
         cancelButton: '#AEAEB2',
     },
+    navigation: {
+        background: '#265476',
+        icon: '#66FF66',
+        iconInactive: '#00FFCC',
+        title: '#1C1C1E',
+        border: '#D1D1D6',
+    },
     tabBar: {
         active: '#007AFF',
         inactive: '#8E8E93',
@@ -79,6 +86,14 @@ export const darkTheme = {
     modal: {
         ...colors.modal,
         background: '#1C1C1E',
+    },
+    navigation: {
+        ...colors.navigation,
+        background: '#1C1C1E',
+        icon: '#007AFF',
+        iconInactive: '#8E8E93',
+        title: '#FFFFFF',
+        border: '#3A3A3C',
     },
     tabBar: {
         ...colors.tabBar,
