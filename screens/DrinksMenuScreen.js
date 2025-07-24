@@ -16,13 +16,14 @@ import {
 } from 'react-native';
 import { styles } from '../styles/DrinksMenuScreenStyles';
 import { colors } from '../styles/themes';
+import { useTheme } from '../context/UserContext';
 import uuid from 'react-native-uuid';
 import axios from 'axios';
 import { useUser } from '../context/UserContext';
 import Constants from 'expo-constants';
 
 // --- Add Item Modal Component ---
-const AddItemModal = ({ visible, onClose, onSave, initialData }) => {
+const AddItemModal = ({ visible, onClose, onSave, initialData, theme }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
@@ -69,29 +70,29 @@ const AddItemModal = ({ visible, onClose, onSave, initialData }) => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>{isEditMode ? 'Edit Menu Item' : 'Add Menu Item'}</Text>
+        <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
+          <View style={[styles.modalContent, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
+            <Text style={[styles.modalTitle, { color: theme.text.main }]}>{isEditMode ? 'Edit Menu Item' : 'Add Menu Item'}</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
               placeholder="Item Name*" value={name} onChangeText={setName}
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={theme.input.placeholder}
             />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
               placeholder="Price*" value={price} onChangeText={setPrice}
               keyboardType="numeric"
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={theme.input.placeholder}
             />
             <TextInput
-              style={[styles.input, styles.inputDescription]}
+              style={[styles.input, styles.inputDescription, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
               placeholder="Description (Optional)" value={description} onChangeText={setDescription}
               multiline
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={theme.input.placeholder}
             />
             <View style={styles.modalButtonRow}>
-              <Button title="Cancel" onPress={handleClose} color={colors.error || '#dc3545'} />
-              <Button title={isEditMode ? 'Save Changes' : 'Save Item'} onPress={handleSave} />
+              <Button title="Cancel" onPress={handleClose} color={theme.error} />
+              <Button title={isEditMode ? 'Save Changes' : 'Save Item'} onPress={handleSave} color={theme.primary} />
             </View>
           </View>
         </View>
@@ -101,7 +102,7 @@ const AddItemModal = ({ visible, onClose, onSave, initialData }) => {
 };
 
 // --- Add Header Modal Component ---
-const AddHeaderModal = ({ visible, onClose, onSave, initialData }) => {
+const AddHeaderModal = ({ visible, onClose, onSave, initialData, theme }) => {
     const [title, setTitle] = useState('');
     const [isEditMode, setIsEditMode] = useState(false);
 
@@ -138,17 +139,17 @@ const AddHeaderModal = ({ visible, onClose, onSave, initialData }) => {
              behavior={Platform.OS === "ios" ? "padding" : "height"}
              style={styles.keyboardAvoidingContainer}
            >
-             <View style={styles.modalContainer}>
-                <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>{isEditMode ? 'Edit Menu Header' : 'Add Menu Header'}</Text>
+             <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
+                <View style={[styles.modalContent, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
+                    <Text style={[styles.modalTitle, { color: theme.text.main }]}>{isEditMode ? 'Edit Menu Header' : 'Add Menu Header'}</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
                         placeholder="Header Title*" value={title} onChangeText={setTitle}
-                        placeholderTextColor={colors.textSecondary}
+                        placeholderTextColor={theme.input.placeholder}
                     />
                     <View style={styles.modalButtonRow}>
-                       <Button title="Cancel" onPress={handleClose} color={colors.error || '#dc3545'} />
-                       <Button title={isEditMode ? 'Save Changes' : 'Save Header'} onPress={handleSave} />
+                       <Button title="Cancel" onPress={handleClose} color={theme.error} />
+                       <Button title={isEditMode ? 'Save Changes' : 'Save Header'} onPress={handleSave} color={theme.primary} />
                     </View>
                 </View>
              </View>
@@ -159,6 +160,7 @@ const AddHeaderModal = ({ visible, onClose, onSave, initialData }) => {
 
 // --- Main Screen Component ---
 export default function DrinksMenuScreen({ route, navigation }) {
+  const { theme } = useTheme();
   const { businessId, businessName, pinCreatorId, selectedItem } = route.params || {};
   const currentUser = useUser();
 
@@ -560,28 +562,32 @@ export default function DrinksMenuScreen({ route, navigation }) {
         disabled={!canEdit}
       >
         {item.type === 'header' ? (
-          <View style={styles.headerItem}>
-            <Text style={styles.headerText}>{item.title}</Text>
+          <View style={[styles.headerItem, { borderBottomColor: theme.primary }]}>
+            <Text style={[styles.headerText, { color: theme.primary }]}>{item.title}</Text>
           </View>
         ) : item.type === 'item' ? (
           <View style={[
             styles.menuItem,
+            { borderBottomColor: theme.border },
             isHighlighted && styles.highlightedMenuItem
           ]}>
             <View style={styles.menuItemMain}>
               <Text style={[
                 styles.menuItemName,
+                { color: theme.text.main },
                 isHighlighted && styles.highlightedMenuItemText
               ]}>{item.name}</Text>
               {item.description ? (
                 <Text style={[
                   styles.menuItemDescription,
+                  { color: theme.text.subtext },
                   isHighlighted && styles.highlightedMenuItemText
                 ]}>{item.description}</Text>
               ) : null}
             </View>
             <Text style={[
               styles.menuItemPrice,
+              { color: theme.primary },
               isHighlighted && styles.highlightedMenuItemText
             ]}>${parseFloat(item.price).toFixed(2)}</Text>
           </View>
@@ -593,30 +599,30 @@ export default function DrinksMenuScreen({ route, navigation }) {
   // --- Main Render Logic (including loading/error) ---
   if (isLoading) {
     return (
-        <View style={styles.loadingContainerFullScreen}> 
-            <ActivityIndicator size="large" color={colors.primary || '#0000ff'} />
+        <View style={[styles.loadingContainerFullScreen, { backgroundColor: theme.background }]}> 
+            <ActivityIndicator size="large" color={theme.primary} />
         </View>
     );
   }
 
   if (error && menuStructure.length === 0) {
      return (
-        <View style={styles.errorContainerFullScreen}> 
-            <Text style={styles.errorText}>{error}</Text>
+        <View style={[styles.errorContainerFullScreen, { backgroundColor: theme.background }]}> 
+            <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>
         </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
         {/* Conditionally Render Add Buttons */}
         {canEdit && (
-          <View style={styles.addButtonsContainer}>
-               <TouchableOpacity style={styles.addButton} onPress={() => openAddItemModal()}> 
-                   <Text style={styles.addButtonText}>+ Add Menu Item</Text>
+          <View style={[styles.addButtonsContainer, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
+               <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.primary }]} onPress={() => openAddItemModal()}> 
+                   <Text style={[styles.addButtonText, { color: theme.button.text }]}>+ Add Menu Item</Text>
                </TouchableOpacity>
-               <TouchableOpacity style={styles.addButton} onPress={() => openAddHeaderModal()}> 
-                   <Text style={styles.addButtonText}>+ Add Header</Text>
+               <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.primary }]} onPress={() => openAddHeaderModal()}> 
+                   <Text style={[styles.addButtonText, { color: theme.button.text }]}>+ Add Header</Text>
                </TouchableOpacity>
           </View>
         )}
@@ -629,7 +635,7 @@ export default function DrinksMenuScreen({ route, navigation }) {
             keyExtractor={item => item.id}
             ListEmptyComponent={
                 !isLoading && !error ? (
-                     <Text style={styles.placeholderText}>No menu items added yet.</Text>
+                     <Text style={[styles.placeholderText, { color: theme.text.subtext }]}>No menu items added yet.</Text>
                 ) : null
             }
             contentContainerStyle={styles.listContentContainer}
@@ -651,6 +657,7 @@ export default function DrinksMenuScreen({ route, navigation }) {
               }
             }}
             initialData={editingItemData}
+            theme={theme}
         />
          <AddHeaderModal
             visible={isAddHeaderModalVisible}
@@ -667,6 +674,7 @@ export default function DrinksMenuScreen({ route, navigation }) {
               }
             }}
             initialData={editingHeaderData}
+            theme={theme}
         />
     </View>
   );

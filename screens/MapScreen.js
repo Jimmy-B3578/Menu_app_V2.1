@@ -17,10 +17,12 @@ import axios from 'axios'; // <<< Make sure axios is imported
 import Constants from 'expo-constants';
 import styles from '../styles/MapScreenStyles';
 import { colors } from '../styles/themes'; // <<< Import colors
+import { useTheme } from '../context/UserContext';
 
 const { height: screenHeight } = Dimensions.get('window'); // Get screen height
 
 export default function MapScreen({ route, user, navigation }) {
+  const { theme } = useTheme();
   const [initialRegion, setInitialRegion] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
 
@@ -291,17 +293,17 @@ export default function MapScreen({ route, user, navigation }) {
   // ---------------------
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* --- Conditional Rendering Logic --- */}
       {isMapLoading ? (
         // Show loading indicator while timer is active
-        <View style={styles.loadingContainer}> 
-          <ActivityIndicator size="large" color={colors.primary} />
+        <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}> 
+          <ActivityIndicator size="large" color={theme.primary} />
         </View>
       ) : errorMsg ? (
         // Show error message if location failed
-        <View style={styles.centeredMessageContainer}> 
-          <Text>{errorMsg}</Text>
+        <View style={[styles.centeredMessageContainer, { backgroundColor: theme.background }]}> 
+          <Text style={{ color: theme.text.main }}>{errorMsg}</Text>
         </View>
       ) : initialRegion ? (
         // Show map view if region is ready
@@ -312,7 +314,7 @@ export default function MapScreen({ route, user, navigation }) {
           initialRegion={initialRegion}
           showsUserLocation={true}
           showsMyLocationButton={false}
-          userInterfaceStyle={colors.map.darkMode ? "dark" : "light"}
+          userInterfaceStyle={theme.map.darkMode ? "dark" : "light"}
           onLongPress={user && user.role === 'business' ? handleLongPress : undefined}
           onPress={handleMapPress} // <<< Add map press handler
         >
@@ -327,8 +329,8 @@ export default function MapScreen({ route, user, navigation }) {
         </MapView>
       ) : (
         // Fallback: Still loading region/permissions (show indicator or nothing)
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
+        <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+          <ActivityIndicator size="large" color={theme.primary} />
         </View>
       )}
       {/* ----------------------------------- */}
@@ -357,21 +359,21 @@ export default function MapScreen({ route, user, navigation }) {
 
       {/* --- Context Box --- */}
       {selectedMarker && (
-        <View style={[styles.contextBox, { height: contextBoxHeight }]}>
-          <Text style={styles.contextBoxTitle}>{selectedMarker.title}</Text>
+        <View style={[styles.contextBox, { height: contextBoxHeight, backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+          <Text style={[styles.contextBoxTitle, { color: theme.text.main }]}>{selectedMarker.title}</Text>
           <Pressable 
-            style={styles.contextButtonFull} 
+            style={[styles.contextButtonFull, { backgroundColor: theme.primary }]} 
             onPress={() => {
                 if (selectedMarker) {
                     navigation.navigate('Business', { businessData: selectedMarker });
                 }
             }}
           >
-            <Text style={styles.contextButtonText}>View Business Page</Text>
+            <Text style={[styles.contextButtonText, { color: theme.button.text }]}>View Business Page</Text>
           </Pressable>
           {/* Single Menu Button */}
             <Pressable 
-            style={styles.contextButtonFull} // Use full width style for the single menu button
+            style={[styles.contextButtonFull, { backgroundColor: theme.primary }]} // Use full width style for the single menu button
               onPress={() => {
                 if (selectedMarker) {
                 navigation.navigate('UnifiedMenu', { 
@@ -383,7 +385,7 @@ export default function MapScreen({ route, user, navigation }) {
                 }
               }}
             >
-            <Text style={styles.contextButtonText}>View Menu</Text>
+            <Text style={[styles.contextButtonText, { color: theme.button.text }]}>View Menu</Text>
             </Pressable>
           {/* Add a drag handle or other controls to adjust height later if needed */}
         </View>
@@ -397,29 +399,30 @@ export default function MapScreen({ route, user, navigation }) {
         visible={modalVisible}
         onRequestClose={handleCancel}
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
+        <View style={[styles.centeredView, { backgroundColor: theme.modal.overlay }]}>
+          <View style={[styles.modalView, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
             <Pressable style={styles.cancelButton} onPress={handleCancel}>
-              <Text style={styles.cancelButtonText}>X</Text>
+              <Text style={[styles.cancelButtonText, { color: theme.text.subtext }]}>X</Text>
             </Pressable>
-            <Text style={styles.modalText}>Enter Location Name:</Text>
+            <Text style={[styles.modalText, { color: theme.text.main }]}>Enter Location Name:</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
               onChangeText={setLocationName}
               value={locationName}
               placeholder="e.g., Home, Favorite Cafe"
-              placeholderTextColor="#808080"
+              placeholderTextColor={theme.input.placeholder}
             />
             <Pressable
               style={({ pressed }) => [
                 styles.createButton,
-                !locationName.trim() && styles.createButtonDisabled,
+                { backgroundColor: theme.primary },
+                !locationName.trim() && { backgroundColor: theme.button.disabled },
                 pressed && styles.createButtonPressed
               ]}
               onPress={handleCreatePin}
               disabled={!locationName.trim()}
             >
-              <Text style={styles.createButtonText}>Create Location</Text>
+              <Text style={[styles.createButtonText, { color: theme.button.text }]}>Create Location</Text>
             </Pressable>
           </View>
         </View>

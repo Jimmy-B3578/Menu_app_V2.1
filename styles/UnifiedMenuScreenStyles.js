@@ -6,7 +6,7 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   headerTintColor: {
-    color: colors.text,
+    color: colors.text.main,
   },
   headerTitleStyle: {
     fontWeight: 'bold',

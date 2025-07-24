@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     fontSize: 15,
-    color: colors.text,
+    color: colors.text.main,
     paddingRight: 30, // Space for the clear/search icon
   },
   clearSearchButton: {
@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
   },
   noResultsText: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
     marginBottom: 15,
     textAlign: 'center',
   },
@@ -80,7 +80,7 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 24, 
     fontWeight: 'bold',
-    color: colors.text, 
+    color: colors.text.main, 
     textAlign: 'center',
   },
   // --- List Styles ---
@@ -106,7 +106,7 @@ export const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
   },
   cardHeader: {
     flexDirection: 'row', // Arrange name and suburb horizontally
@@ -116,7 +116,7 @@ export const styles = StyleSheet.create({
   },
   cardSuburb: {
     fontSize: 14, // Smaller font size
-    color: colors.textSecondary, // Lighter color
+    color: colors.text.subtext, // Lighter color
     marginLeft: 10, // Add space between name and suburb
   },
   cardDetailsRow: {
@@ -131,7 +131,7 @@ export const styles = StyleSheet.create({
   },
   cardReviewCount: {
     fontSize: 12,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
     marginLeft: 5,
   },
   starText: {
@@ -160,7 +160,7 @@ export const styles = StyleSheet.create({
   },
   emptyListText: {
     fontSize: 16,
-    color: colors.textMuted,
+    color: colors.text.subtext,
     textAlign: 'center',
   },
   // --- Detail View Specific Styles ---
@@ -223,13 +223,13 @@ export const styles = StyleSheet.create({
   detailBusinessName: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
     flex: 1, // Allow name to take available space but shrink if needed
     marginRight: 10, // Add space between name and rating
   },
   detailSuburb: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
     marginBottom: 8,
     fontStyle: 'italic',
   },
@@ -238,12 +238,12 @@ export const styles = StyleSheet.create({
   },
   detailReviewCount: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
     marginTop: 2, // Space between stars and review count
   },
   detailDescription: {
     fontSize: 16,
-    color: colors.text,
+    color: colors.text.main,
     lineHeight: 22,
     marginBottom: 16,
   },
@@ -278,7 +278,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
     marginBottom: 12,
   },
   hoursItem: {
@@ -288,11 +288,11 @@ export const styles = StyleSheet.create({
   },
   dayText: {
     fontSize: 14,
-    color: colors.text,
+    color: colors.text.main,
   },
   hoursText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
   },
   amenitiesContainer: {
     flexDirection: 'row',
@@ -325,16 +325,16 @@ export const styles = StyleSheet.create({
   reviewAuthor: {
     fontSize: 15,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
   },
   reviewDate: {
     fontSize: 12,
-    color: colors.textMuted,
+    color: colors.text.subtext,
     marginBottom: 5,
   },
   reviewText: {
     fontSize: 14,
-    color: colors.text,
+    color: colors.text.main,
     lineHeight: 18,
   },
   reviewActionButtons: {
@@ -355,7 +355,7 @@ export const styles = StyleSheet.create({
   },
   noReviewsText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
     fontStyle: 'italic',
     textAlign: 'center',
     marginVertical: 15,
@@ -368,14 +368,14 @@ export const styles = StyleSheet.create({
   },
   reviewCount: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
   },
   ratingFilterContainer: {
     marginBottom: 12,
   },
   filterLabel: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
     marginBottom: 5,
   },
   ratingFilterScroll: {
@@ -397,7 +397,7 @@ export const styles = StyleSheet.create({
   },
   filterButtonText: {
     fontSize: 12,
-    color: colors.text,
+    color: colors.text.main,
   },
   seeAllReviewsButton: {
     alignItems: 'center',
@@ -416,7 +416,7 @@ export const styles = StyleSheet.create({
   },
   showLessText: {
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
   },
   reviewsLoader: {
     marginVertical: 20,
@@ -449,7 +449,7 @@ export const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   signInToReviewText: {
-    color: colors.textSecondary,
+    color: colors.text.subtext,
     fontSize: 14,
   },
   // Modal styles
@@ -475,14 +475,14 @@ export const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
     marginBottom: 15,
     textAlign: 'center',
   },
   modalLabel: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
     marginBottom: 8,
   },
   ratingSelector: {

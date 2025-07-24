@@ -3,11 +3,13 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import FoodMenuScreen from './FoodMenuScreen';
 import DrinksMenuScreen from './DrinksMenuScreen';
 import { colors } from '../styles/themes'; // Assuming you have a theme file
+import { useTheme } from '../context/UserContext';
 import { styles } from '../styles/UnifiedMenuScreenStyles';
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function UnifiedMenuScreen({ route, navigation }) {
+  const { theme } = useTheme();
   const {
     businessId,
     businessName,
@@ -20,21 +22,21 @@ export default function UnifiedMenuScreen({ route, navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title: businessName ? `${businessName} - Menu` : 'Menu',
-      headerStyle: styles.headerStyle,
-      headerTintColor: styles.headerTintColor.color,
-      headerTitleStyle: styles.headerTitleStyle,
+      headerStyle: { backgroundColor: theme.navigation.background },
+      headerTintColor: theme.navigation.title,
+      headerTitleStyle: { color: theme.navigation.title },
     });
-  }, [navigation, businessName]);
+  }, [navigation, businessName, theme]);
 
   return (
     <Tab.Navigator
       initialRouteName={initialRouteName || 'Food'} // Default to Food tab if not specified
       screenOptions={{
-        tabBarActiveTintColor: styles.tabBarActiveTintColor.color,
-        tabBarInactiveTintColor: styles.tabBarInactiveTintColor.color,
-        tabBarIndicatorStyle: styles.tabBarIndicatorStyle,
-        tabBarStyle: styles.tabBarStyle,
-        tabBarLabelStyle: styles.tabBarLabelStyle,
+        tabBarActiveTintColor: theme.tabBar.active,
+        tabBarInactiveTintColor: theme.tabBar.inactive,
+        tabBarIndicatorStyle: { backgroundColor: theme.primary },
+        tabBarStyle: { backgroundColor: theme.tabBar.background },
+        tabBarLabelStyle: { fontWeight: 'bold' },
       }}
     >
       <Tab.Screen

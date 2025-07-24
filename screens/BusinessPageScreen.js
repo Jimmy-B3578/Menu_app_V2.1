@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { styles } from '../styles/BusinessPageScreenStyles.js';
 import { colors } from '../styles/themes';
+import { useTheme } from '../context/UserContext';
 import axios from 'axios';
 import MapView, { Marker } from 'react-native-maps';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +25,7 @@ import { useUser } from '../context/UserContext';
 import Constants from 'expo-constants';
 
 export default function BusinessPageScreen({ route, navigation }) {
+  const { theme } = useTheme();
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
@@ -397,11 +399,11 @@ export default function BusinessPageScreen({ route, navigation }) {
       visible={addReviewVisible}
       onRequestClose={() => setAddReviewVisible(false)}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Write a Review</Text>
+      <View style={[styles.modalOverlay, { backgroundColor: theme.modal.overlay }]}>
+        <View style={[styles.modalContent, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
+          <Text style={[styles.modalTitle, { color: theme.text.main }]}>Write a Review</Text>
           
-          <Text style={styles.modalLabel}>Rating</Text>
+          <Text style={[styles.modalLabel, { color: theme.text.main }]}>Rating</Text>
           <View style={styles.ratingSelector}>
             {[1, 2, 3, 4, 5].map(star => (
               <TouchableOpacity 
@@ -412,43 +414,44 @@ export default function BusinessPageScreen({ route, navigation }) {
                   name={star <= reviewRating ? 'star' : 'star-outline'}
                   style={[
                     styles.modalStar,
-                    star <= reviewRating ? styles.modalStarSelected : styles.modalStarUnselected
+                    { color: star <= reviewRating ? theme.review.star : theme.review.starUnselected }
                   ]}
                 />
               </TouchableOpacity>
             ))}
           </View>
           
-          <Text style={styles.modalLabel}>Review</Text>
+          <Text style={[styles.modalLabel, { color: theme.text }]}>Review</Text>
           <TextInput
-            style={styles.reviewInput}
+            style={[styles.reviewInput, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
             value={reviewText}
             onChangeText={setReviewText}
             placeholder="Share your experience with this business..."
+            placeholderTextColor={theme.input.placeholder}
             multiline
             numberOfLines={5}
           />
           
           <View style={styles.modalButtons}>
             <TouchableOpacity 
-              style={[styles.modalButton, styles.modalCancelButton]} 
+              style={[styles.modalButton, styles.modalCancelButton, { backgroundColor: theme.modal.cancelButton }]} 
               onPress={() => {
                 setAddReviewVisible(false);
                 setReviewText('');
                 setReviewRating(5);
               }}
             >
-              <Text style={styles.modalButtonText}>Cancel</Text>
+              <Text style={[styles.modalButtonText, { color: theme.text }]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={[styles.modalButton, styles.modalSubmitButton]} 
+              style={[styles.modalButton, styles.modalSubmitButton, { backgroundColor: theme.primary }]} 
               onPress={handleSubmitReview}
               disabled={reviewsLoading}
             >
               {reviewsLoading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={theme.button.text} />
               ) : (
-                <Text style={styles.modalButtonText}>Submit</Text>
+                <Text style={[styles.modalButtonText, { color: theme.button.text }]}>Submit</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -464,11 +467,11 @@ export default function BusinessPageScreen({ route, navigation }) {
       visible={editReviewVisible}
       onRequestClose={() => setEditReviewVisible(false)}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Edit Your Review</Text>
+      <View style={[styles.modalOverlay, { backgroundColor: theme.modal.overlay }]}>
+        <View style={[styles.modalContent, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
+          <Text style={[styles.modalTitle, { color: theme.text.main }]}>Edit Your Review</Text>
           
-          <Text style={styles.modalLabel}>Rating</Text>
+          <Text style={[styles.modalLabel, { color: theme.text.main }]}>Rating</Text>
           <View style={styles.ratingSelector}>
             {[1, 2, 3, 4, 5].map(star => (
               <TouchableOpacity 
@@ -479,26 +482,27 @@ export default function BusinessPageScreen({ route, navigation }) {
                   name={star <= reviewRating ? 'star' : 'star-outline'}
                   style={[
                     styles.modalStar,
-                    star <= reviewRating ? styles.modalStarSelected : styles.modalStarUnselected
+                    { color: star <= reviewRating ? theme.review.star : theme.review.starUnselected }
                   ]}
                 />
               </TouchableOpacity>
             ))}
           </View>
           
-          <Text style={styles.modalLabel}>Review</Text>
+          <Text style={[styles.modalLabel, { color: theme.text }]}>Review</Text>
           <TextInput
-            style={styles.reviewInput}
+            style={[styles.reviewInput, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
             value={reviewText}
             onChangeText={setReviewText}
             placeholder="Share your experience with this business..."
+            placeholderTextColor={theme.input.placeholder}
             multiline
             numberOfLines={5}
           />
           
           <View style={styles.modalButtons}>
             <TouchableOpacity 
-              style={[styles.modalButton, styles.modalCancelButton]} 
+              style={[styles.modalButton, styles.modalCancelButton, { backgroundColor: theme.modal.cancelButton }]} 
               onPress={() => {
                 setEditReviewVisible(false);
                 setEditingReview(null);
@@ -506,17 +510,17 @@ export default function BusinessPageScreen({ route, navigation }) {
                 setReviewRating(5);
               }}
             >
-              <Text style={styles.modalButtonText}>Cancel</Text>
+              <Text style={[styles.modalButtonText, { color: theme.text }]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={[styles.modalButton, styles.modalSubmitButton]} 
+              style={[styles.modalButton, styles.modalSubmitButton, { backgroundColor: theme.primary }]} 
               onPress={handleSubmitReview}
               disabled={reviewsLoading}
             >
               {reviewsLoading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={theme.button.text} />
               ) : (
-                <Text style={styles.modalButtonText}>Save Changes</Text>
+                <Text style={[styles.modalButtonText, { color: theme.button.text }]}>Save Changes</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -527,15 +531,15 @@ export default function BusinessPageScreen({ route, navigation }) {
 
   const renderBusinessCard = ({ item }) => (
     <TouchableOpacity onPress={() => handleSelectBusiness(item, false)}>
-      <View style={styles.businessCard}>
+      <View style={[styles.businessCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle} numberOfLines={1}>{item.name || 'Unnamed Business'}</Text>
-          <Text style={styles.cardSuburb}>{item.suburb || 'Suburb'}</Text>
+          <Text style={[styles.cardTitle, { color: theme.text.main }]} numberOfLines={1}>{item.name || 'Unnamed Business'}</Text>
+          <Text style={[styles.cardSuburb, { color: theme.text.subtext }]}>{item.suburb || 'Suburb'}</Text>
         </View>
         <View style={styles.cardDetailsRow}>
           <View style={styles.cardRatingContainer}>
-            <Text style={styles.starText}>{renderStars(item.averageRating || 0)}</Text>
-            <Text style={styles.cardReviewCount}>{item.reviewCount || 0} reviews</Text>
+            <Text style={[styles.starText, { color: theme.warning }]}>{renderStars(item.averageRating || 0)}</Text>
+            <Text style={[styles.cardReviewCount, { color: theme.text.subtext }]}>{item.reviewCount || 0} reviews</Text>
           </View>
         </View>
       </View>
@@ -551,7 +555,7 @@ export default function BusinessPageScreen({ route, navigation }) {
     const hasMoreReviews = reviews.length > previewReviews.length;
 
     return (
-      <ScrollView style={styles.detailScrollView}>
+      <ScrollView style={[styles.detailScrollView, { backgroundColor: theme.background }]}>
         <View style={styles.detailMapContainer}>
           {selectedBusiness.coordinate ? (
             <MapView
@@ -564,45 +568,48 @@ export default function BusinessPageScreen({ route, navigation }) {
               }}
               scrollEnabled={false}
               zoomEnabled={false}
+              userInterfaceStyle={theme.map.darkMode ? "dark" : "light"}
             >
               <Marker coordinate={selectedBusiness.coordinate} title={selectedBusiness.name} />
             </MapView>
           ) : (
-            <View style={styles.detailMapPlaceholder}><Text>Map not available</Text></View>
+            <View style={[styles.detailMapPlaceholder, { backgroundColor: theme.background }]}>
+              <Text style={{ color: theme.text.main }}>Map not available</Text>
+            </View>
           )}
-          <TouchableOpacity style={styles.directionsButton} onPress={handleDirections}>
-            <Ionicons name="navigate-outline" size={20} color="#fff" />
-            <Text style={styles.directionsButtonText}>Directions</Text>
+          <TouchableOpacity style={[styles.directionsButton, { backgroundColor: theme.primary }]} onPress={handleDirections}>
+            <Ionicons name="navigate-outline" size={20} color={theme.button.text} />
+            <Text style={[styles.directionsButtonText, { color: theme.button.text }]}>Directions</Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.infoCard}>
+        <View style={[styles.infoCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
           <View style={styles.businessHeaderRow}>
-            <Text style={styles.detailBusinessName}>{selectedBusiness.name}</Text>
+            <Text style={[styles.detailBusinessName, { color: theme.text.main }]}>{selectedBusiness.name}</Text>
             <View style={styles.detailRatingContainer}>
-              <Text style={styles.starText}>{renderStars(selectedBusiness.averageRating)}</Text>
-              <Text style={styles.detailReviewCount}>{selectedBusiness.reviewCount} reviews</Text>
+              <Text style={[styles.starText, { color: theme.warning }]}>{renderStars(selectedBusiness.averageRating)}</Text>
+              <Text style={[styles.detailReviewCount, { color: theme.text.subtext }]}>{selectedBusiness.reviewCount} reviews</Text>
             </View>
           </View>
           {selectedBusiness.suburb ? (
-            <Text style={styles.detailSuburb}>{selectedBusiness.suburb}</Text>
+            <Text style={[styles.detailSuburb, { color: theme.text.subtext }]}>{selectedBusiness.suburb}</Text>
           ) : null}
           {selectedBusiness.description ? (
-            <Text style={styles.detailDescription}>{selectedBusiness.description}</Text>
+            <Text style={[styles.detailDescription, { color: theme.text.main }]}>{selectedBusiness.description}</Text>
           ) : (
-            <Text style={styles.detailDescription}>No description available.</Text>
+            <Text style={[styles.detailDescription, { color: theme.text.main }]}>No description available.</Text>
           )}
-          <View style={styles.detailActionButtons}>
+          <View style={[styles.detailActionButtons, { borderTopColor: theme.border }]}>
             {selectedBusiness.phone ? (
             <TouchableOpacity style={styles.detailActionButton} onPress={handleCall}>
-              <Ionicons name="call-outline" size={24} color={colors.primary} />
-              <Text style={styles.detailActionText}>Call</Text>
+              <Ionicons name="call-outline" size={24} color={theme.primary} />
+              <Text style={[styles.detailActionText, { color: theme.primary }]}>Call</Text>
             </TouchableOpacity>
             ) : null}
             {selectedBusiness.website ? (
             <TouchableOpacity style={styles.detailActionButton} onPress={handleWebsite}>
-              <Ionicons name="globe-outline" size={24} color={colors.primary} />
-              <Text style={styles.detailActionText}>Website</Text>
+              <Ionicons name="globe-outline" size={24} color={theme.primary} />
+              <Text style={[styles.detailActionText, { color: theme.primary }]}>Website</Text>
             </TouchableOpacity>
             ) : null}
             <TouchableOpacity
@@ -613,35 +620,35 @@ export default function BusinessPageScreen({ route, navigation }) {
                   pinCreatorId: selectedBusiness.creatorId 
                 })}
               >
-                <Ionicons name="restaurant-outline" size={24} color={colors.primary} />
-                <Text style={styles.detailActionText}>Menu</Text>
+                <Ionicons name="restaurant-outline" size={24} color={theme.primary} />
+                <Text style={[styles.detailActionText, { color: theme.primary }]}>Menu</Text>
               </TouchableOpacity>
             <TouchableOpacity style={styles.detailActionButton} onPress={handleShare}>
-              <Ionicons name="share-outline" size={24} color={colors.primary} />
-              <Text style={styles.detailActionText}>Share</Text>
+              <Ionicons name="share-outline" size={24} color={theme.primary} />
+              <Text style={[styles.detailActionText, { color: theme.primary }]}>Share</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {formattedHours.length > 0 && (
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Hours</Text>
+        <View style={[styles.sectionCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+          <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Hours</Text>
             {formattedHours.map((group) => (
               <View key={group.key} style={styles.hoursItem}>
-                <Text style={styles.dayText}>{group.days}</Text>
-                <Text style={styles.hoursText}>{group.times}</Text>
+                <Text style={[styles.dayText, { color: theme.text.main }]}>{group.days}</Text>
+                <Text style={[styles.hoursText, { color: theme.text.subtext }]}>{group.times}</Text>
             </View>
           ))}
         </View>
         )}
 
         {selectedBusiness.amenities && selectedBusiness.amenities.length > 0 && (
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Amenities</Text>
+        <View style={[styles.sectionCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+          <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Amenities</Text>
           <View style={styles.amenitiesContainer}>
             {selectedBusiness.amenities.map((item, index) => (
-              <View key={index} style={styles.amenityTag}>
-                <Text style={styles.amenityText}>{item}</Text>
+              <View key={index} style={[styles.amenityTag, { backgroundColor: theme.amenity.background }]}>
+                <Text style={[styles.amenityText, { color: theme.amenity.text }]}>{item}</Text>
               </View>
             ))}
           </View>
@@ -649,44 +656,46 @@ export default function BusinessPageScreen({ route, navigation }) {
         )}
 
         {/* Reviews Section */}
-        <View style={styles.sectionCard}>
+        <View style={[styles.sectionCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
           <View style={styles.sectionTitleRow}>
-            <Text style={styles.sectionTitle}>Reviews</Text>
-            <Text style={styles.reviewCount}>{selectedBusiness.reviewCount || 0} reviews</Text>
+            <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Reviews</Text>
+            <Text style={[styles.reviewCount, { color: theme.text.subtext }]}>{selectedBusiness.reviewCount || 0} reviews</Text>
           </View>
           
           {/* Filter by rating buttons */}
           <View style={styles.ratingFilterContainer}>
-            <Text style={styles.filterLabel}>Filter by rating:</Text>
+            <Text style={[styles.filterLabel, { color: theme.text.main }]}>Filter by rating:</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.ratingFilterScroll}>
               <TouchableOpacity 
                 style={[
                   styles.filterButton, 
+                  { backgroundColor: filterRating === null ? theme.primary : theme.surface, borderColor: theme.border },
                   filterRating === null && styles.filterButtonActive
                 ]}
                 onPress={() => setFilterRating(null)}
               >
-                <Text style={styles.filterButtonText}>All</Text>
+                <Text style={[styles.filterButtonText, { color: filterRating === null ? theme.button.text : theme.text.main }]}>All</Text>
               </TouchableOpacity>
               {[5, 4, 3, 2, 1].map(rating => (
                 <TouchableOpacity 
                   key={rating}
                   style={[
                     styles.filterButton, 
+                    { backgroundColor: filterRating === rating ? theme.primary : theme.surface, borderColor: theme.border },
                     filterRating === rating && styles.filterButtonActive
                   ]}
                   onPress={() => setFilterRating(rating)}
                 >
-                  <Text style={styles.filterButtonText}>{rating} ★</Text>
+                  <Text style={[styles.filterButtonText, { color: filterRating === rating ? theme.button.text : theme.text.main }]}>{rating} ★</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
           
           {reviewsLoading ? (
-            <ActivityIndicator style={styles.reviewsLoader} color={colors.primary} />
+            <ActivityIndicator style={styles.reviewsLoader} color={theme.primary} />
           ) : reviews.length === 0 ? (
-            <Text style={styles.noReviewsText}>No reviews yet. Be the first to leave a review!</Text>
+            <Text style={[styles.noReviewsText, { color: theme.text.subtext }]}>No reviews yet. Be the first to leave a review!</Text>
           ) : (
             <>
               {displayedReviews.map((review, index) => (
@@ -697,10 +706,10 @@ export default function BusinessPageScreen({ route, navigation }) {
               
               {!showAllReviews && hasMoreReviews && (
                 <TouchableOpacity 
-                  style={styles.seeAllReviewsButton}
+                  style={[styles.seeAllReviewsButton, { backgroundColor: theme.primary }]}
                   onPress={() => setShowAllReviews(true)}
                 >
-                  <Text style={styles.seeAllReviewsText}>
+                  <Text style={[styles.seeAllReviewsText, { color: theme.button.text }]}>
                     See All {selectedBusiness.reviewCount} Reviews
                   </Text>
                 </TouchableOpacity>
@@ -720,46 +729,46 @@ export default function BusinessPageScreen({ route, navigation }) {
           {/* Add Review Button */}
           {currentUser ? (
             <TouchableOpacity 
-              style={styles.addReviewButton}
+              style={[styles.addReviewButton, { backgroundColor: theme.primary }]}
               onPress={() => setAddReviewVisible(true)}
             >
-              <Ionicons name="add-circle-outline" size={20} color="#fff" style={styles.addReviewIcon} />
-              <Text style={styles.addReviewText}>Add Your Review</Text>
+              <Ionicons name="add-circle-outline" size={20} color={theme.button.text} style={styles.addReviewIcon} />
+              <Text style={[styles.addReviewText, { color: theme.button.text }]}>Add Your Review</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity 
-              style={styles.signInToReviewButton}
+              style={[styles.signInToReviewButton, { backgroundColor: theme.secondary }]}
               onPress={() => navigation.navigate('Account')}
             >
-              <Text style={styles.signInToReviewText}>Sign in to leave a review</Text>
+              <Text style={[styles.signInToReviewText, { color: theme.button.text }]}>Sign in to leave a review</Text>
             </TouchableOpacity>
           )}
         </View>
 
         {(canEdit || canDelete) && (
-          <View style={styles.adminActionsCard}>
-            <Text style={styles.sectionTitle}>Admin Actions</Text>
+          <View style={[styles.adminActionsCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+            <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Admin Actions</Text>
             {canEdit && (
               <TouchableOpacity
-                style={[styles.adminButton, styles.editButton]}
+                style={[styles.adminButton, styles.editButton, { backgroundColor: theme.secondary }]}
                 onPress={() => navigation.navigate('EditBusiness', { businessData: selectedBusiness })}
               >
-                <Ionicons name="pencil-outline" size={20} style={styles.adminButtonIcon} />
-                <Text style={styles.adminButtonText}>Edit Business Details</Text>
+                <Ionicons name="pencil-outline" size={20} style={[styles.adminButtonIcon, { color: theme.button.text }]} />
+                <Text style={[styles.adminButtonText, { color: theme.button.text }]}>Edit Business Details</Text>
               </TouchableOpacity>
             )}
         {canDelete && (
             <TouchableOpacity
-                style={[styles.adminButton, styles.deleteButton, deleting && styles.deleteButtonDisabled]}
+                style={[styles.adminButton, styles.deleteButton, { backgroundColor: theme.error }, deleting && { backgroundColor: theme.button.disabled }]}
               onPress={handleDeleteBusiness}
               disabled={deleting}
             >
               {deleting ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={theme.button.text} />
               ) : (
                   <>
-                    <Ionicons name="trash-outline" size={20} style={styles.adminButtonIcon} />
-                    <Text style={styles.adminButtonText}>Delete Business</Text>
+                    <Ionicons name="trash-outline" size={20} style={[styles.adminButtonIcon, { color: theme.button.text }]} />
+                    <Text style={[styles.adminButtonText, { color: theme.button.text }]}>Delete Business</Text>
                   </>
               )}
             </TouchableOpacity>
@@ -896,11 +905,11 @@ export default function BusinessPageScreen({ route, navigation }) {
 
   const renderSearchBar = () => {
     return (
-      <View style={styles.searchBarContainer}>
+      <View style={[styles.searchBarContainer, { backgroundColor: theme.input.background, borderColor: theme.input.border, shadowColor: theme.card.shadow }]}>
         <TextInput
-          style={styles.searchBar}
+          style={[styles.searchBar, { color: theme.input.text }]}
           placeholder="Search businesses..."
-          placeholderTextColor={colors.textMuted || '#999'}
+          placeholderTextColor={theme.input.placeholder}
           value={searchQuery}
           onChangeText={setSearchQuery}
           onSubmitEditing={handleSearch}
@@ -908,11 +917,11 @@ export default function BusinessPageScreen({ route, navigation }) {
         />
         {searchQuery ? (
           <TouchableOpacity style={styles.clearSearchButton} onPress={clearSearch}>
-            <Ionicons name="close-circle" size={20} color={colors.textMuted || '#999'} />
+            <Ionicons name="close-circle" size={20} color={theme.text.subtext} />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.searchIconButton} onPress={handleSearch}>
-            <Ionicons name="search" size={20} color={colors.primary || '#007bff'} />
+            <Ionicons name="search" size={20} color={theme.primary} />
           </TouchableOpacity>
         )}
       </View>
@@ -920,11 +929,11 @@ export default function BusinessPageScreen({ route, navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
+    <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
+      <View style={[styles.headerContainer, { backgroundColor: theme.background, shadowColor: theme.card.shadow }]}>
         {selectedBusiness ? (
           <TouchableOpacity style={styles.backButton} onPress={handleBackPress}>
-            <Ionicons name="arrow-back" size={24} color={colors.text || '#333'} />
+            <Ionicons name="arrow-back" size={24} color={theme.text.main} />
           </TouchableOpacity>
         ) : (
           <>
@@ -936,12 +945,12 @@ export default function BusinessPageScreen({ route, navigation }) {
       </View>
       
       {loading && !selectedBusiness ? (
-        <View style={styles.loadingContainerFullScreen}>
-          <ActivityIndicator size="large" color={colors.primary || '#0000ff'} />
+        <View style={[styles.loadingContainerFullScreen, { backgroundColor: theme.background }]}>
+          <ActivityIndicator size="large" color={theme.primary} />
         </View>
       ) : error ? (
-        <View style={styles.errorContainerFullScreen}>
-          <Text style={styles.errorText}>{error}</Text>
+        <View style={[styles.errorContainerFullScreen, { backgroundColor: theme.background }]}>
+          <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>
         </View>
       ) : selectedBusiness ? (
         renderDetailView()
@@ -949,9 +958,9 @@ export default function BusinessPageScreen({ route, navigation }) {
         <>
           {isSearching && businesses.length === 0 && !loading ? (
             <View style={styles.noResultsContainer}>
-              <Text style={styles.noResultsText}>No businesses found matching "{searchQuery}"</Text>
-              <TouchableOpacity style={styles.clearSearchButton} onPress={clearSearch}>
-                <Text style={styles.clearSearchText}>Clear search</Text>
+              <Text style={[styles.noResultsText, { color: theme.text.main }]}>No businesses found matching "{searchQuery}"</Text>
+              <TouchableOpacity style={[styles.clearSearchButton, { backgroundColor: theme.primary }]} onPress={clearSearch}>
+                <Text style={[styles.clearSearchText, { color: theme.button.text }]}>Clear search</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -963,7 +972,7 @@ export default function BusinessPageScreen({ route, navigation }) {
               contentContainerStyle={styles.listContentContainer}
               ListEmptyComponent={() => (
                 <View style={styles.emptyListContainer}>
-                  <Text style={styles.emptyListText}>No businesses found.</Text>
+                  <Text style={[styles.emptyListText, { color: theme.text.main }]}>No businesses found.</Text>
                 </View>
               )}
             />

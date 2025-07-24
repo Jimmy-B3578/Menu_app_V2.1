@@ -11,7 +11,7 @@ export default StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
   },
 
   // --- Styles for the Modal (used for adding new locations) ---
@@ -65,7 +65,7 @@ export default StyleSheet.create({
   cancelButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.textMuted, // Grey color
+    color: colors.text.subtext, // Grey color
   },
 
   // --- Styles for the Custom Recenter Button ---
@@ -90,7 +90,7 @@ export default StyleSheet.create({
   // Text style for the recenter button (e.g., the ⌖ symbol)
   recenterButtonText: {
     fontSize: 20,
-    color: colors.text, // Ensure color is set
+    color: colors.text.main, // Ensure color is set
     // Add Android-specific adjustments for centering
     ...Platform.select({
       android: {
@@ -151,7 +151,7 @@ export default StyleSheet.create({
   contextBoxTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
     marginBottom: 15, // Space below the title
     marginTop: 10, // Space above the title
   },

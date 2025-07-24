@@ -7,6 +7,7 @@ import * as SecureStore from 'expo-secure-store';
 import { UserProvider } from './context/UserContext';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from './styles/themes';
+import { useTheme } from './context/UserContext';
 
 // Import screens
 import HomeScreen from './screens/HomeScreen';
@@ -23,6 +24,8 @@ const Stack = createStackNavigator();
 const USER_STORAGE_KEY = 'user_data';
 
 function TabNavigator({ user, setUser }) {
+  const { theme } = useTheme();
+  
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -43,11 +46,11 @@ function TabNavigator({ user, setUser }) {
           // You can return any component that you like here!
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: colors.navigation.icon,
-        tabBarInactiveTintColor: colors.navigation.iconInactive,
+        tabBarActiveTintColor: theme.navigation.icon,
+        tabBarInactiveTintColor: theme.navigation.iconInactive,
         tabBarStyle: {
-          backgroundColor: colors.navigation.background,
-          borderTopColor: colors.navigation.border,
+          backgroundColor: theme.navigation.background,
+          borderTopColor: theme.navigation.border,
         },
       })}
     >

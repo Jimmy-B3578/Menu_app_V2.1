@@ -12,7 +12,7 @@ export default StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
     marginBottom: 8,
     marginTop: 15,
   },
@@ -57,7 +57,7 @@ export default StyleSheet.create({
   dayLabel: {
     fontSize: Platform.OS === 'ios' ? 14 : 15,
     fontWeight: '600',
-    color: colors.textSecondary,
+    color: colors.text.subtext,
     flex: Platform.OS === 'ios' ? 2 : 1,
     marginRight: 5,
   },
@@ -89,7 +89,7 @@ export default StyleSheet.create({
   },
   pickerLabel: {
     fontSize: 12,
-    color: colors.textMuted,
+    color: colors.text.subtext,
     marginBottom: Platform.OS === 'ios' ? -15 : 2,
     marginLeft: Platform.OS === 'ios' ? 5 : 0,
     textAlign: Platform.OS === 'ios' ? 'left' : 'center',
@@ -237,7 +237,7 @@ export default StyleSheet.create({
   },
   pickerLabel: {
     fontSize: 12,
-    color: colors.textMuted,
+    color: colors.text.subtext,
     marginBottom: Platform.OS === 'ios' ? -15 : 3, 
     marginLeft: Platform.OS === 'ios' ? 5 : (Platform.OS === 'android' ? 5 : 0),
     textAlign: Platform.OS === 'ios' ? 'left' : 'left',

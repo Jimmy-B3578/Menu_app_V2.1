@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
   },
   placeholderText: {
     fontSize: 16,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
     textAlign: 'center',
     marginTop: 50, // Give it some space from the top
   },
@@ -68,12 +68,12 @@ export const styles = StyleSheet.create({
   menuItemName: {
     fontSize: 16,
     fontWeight: '500',
-    color: colors.text,
+    color: colors.text.main,
     marginBottom: 3, // Space between name and description
   },
    menuItemDescription: {
     fontSize: 13,
-    color: colors.textSecondary,
+    color: colors.text.subtext,
   },
   menuItemPrice: {
     fontSize: 16,
@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: colors.text,
+    color: colors.text.main,
   },
   input: {
     borderWidth: 1,
@@ -136,7 +136,7 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 15,
     fontSize: 16,
-    color: colors.text, // Ensure input text color is appropriate
+    color: colors.text.main, // Ensure input text color is appropriate
   },
   inputDescription: {
       height: 80, // Taller for description
@@ -146,5 +146,20 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around', // Space buttons out
     marginTop: 20,
+  },
+  
+  // Add fullscreen loading and error containers
+  loadingContainerFullScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+  errorContainerFullScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: colors.background,
   },
 }); 

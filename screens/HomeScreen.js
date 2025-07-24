@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import axios from 'axios';
 import styles from '../styles/HomeScreenStyles';
 import { colors } from '../styles/themes';
+import { useTheme } from '../context/UserContext';
 import uuid from 'react-native-uuid';
 import * as Location from 'expo-location';
 import Constants from 'expo-constants';
@@ -62,6 +63,7 @@ const formatDistance = (distance) => {
 };
 
 export default function HomeScreen({ navigation }) {
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [processedResults, setProcessedResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -227,17 +229,17 @@ export default function HomeScreen({ navigation }) {
   const renderResultItem = ({ item }) => {
     if (item.type === 'restaurantGroup') {
       return (
-        <View style={styles.restaurantGroupContainer}>
-          <View style={styles.restaurantNameHeaderContainer}>
+        <View style={[styles.restaurantGroupContainer, { backgroundColor: theme.card.background, borderBottomColor: theme.borderLight, borderColor: theme.border }]}>
+          <View style={[styles.restaurantNameHeaderContainer, { backgroundColor: theme.primary, borderBottomColor: theme.border }]}>
             <View style={styles.restaurantNameInfoContainer}>
-              <Text style={styles.restaurantNameHeaderText}>{item.pinName}</Text>
+              <Text style={[styles.restaurantNameHeaderText, { color: theme.text.overlay }]}>{item.pinName}</Text>
               {item.distance !== null && (
-                <Text style={styles.distanceText}>Distance: {formatDistance(item.distance)}</Text>
+                <Text style={[styles.distanceText, { color: theme.text.subtext }]}>Distance: {formatDistance(item.distance)}</Text>
               )}
             </View>
             {item.originalPin?.location?.coordinates && (
               <TouchableOpacity
-                style={styles.viewOnMapButton}
+                style={[styles.viewOnMapButton, { backgroundColor: theme.primary }]}
                 onPress={() => {
                   navigation.navigate('Map', { 
                     targetPinId: item.originalPin._id,
@@ -246,7 +248,7 @@ export default function HomeScreen({ navigation }) {
                   });
                 }}
               >
-                <Text style={styles.viewOnMapButtonText}>View on Map</Text>
+                <Text style={[styles.viewOnMapButtonText, { color: theme.button.text }]}>View on Map</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -255,13 +257,13 @@ export default function HomeScreen({ navigation }) {
       return (
         <TouchableOpacity
                   key={menuItem.id}
-          style={styles.resultItem}
+          style={[styles.resultItem, { backgroundColor: theme.surface, borderBottomColor: theme.borderLight }]}
                   onPress={() => navigation.navigate('Business', { businessData: item.originalPin })}
         >
-                  <Text style={styles.resultItemName}>{item.pinName} (Details)</Text>
-                  {menuItem.pinDescription && <Text style={styles.resultItemDescription}>{menuItem.pinDescription}</Text>}
+                  <Text style={[styles.resultItemName, { color: theme.text.main }]}>{item.pinName} (Details)</Text>
+                  {menuItem.pinDescription && <Text style={[styles.resultItemDescription, { color: theme.text.subtext }]}>{menuItem.pinDescription}</Text>}
                   {menuItem.pinCuisine && menuItem.pinCuisine.length > 0 && (
-                    <Text style={styles.resultItemCuisine}>Cuisine: {menuItem.pinCuisine.join(', ')}</Text>
+                    <Text style={[styles.resultItemCuisine, { color: theme.primary }]}>Cuisine: {menuItem.pinCuisine.join(', ')}</Text>
           )}
         </TouchableOpacity>
               );
@@ -270,7 +272,7 @@ export default function HomeScreen({ navigation }) {
             return (
               <TouchableOpacity
                 key={menuItem.id}
-                style={styles.menuItemContainer}
+                style={[styles.menuItemContainer, { backgroundColor: theme.surface, borderBottomColor: theme.borderLight }]}
                 onPress={() => {
                   // Determine the target tab name for UnifiedMenuScreen
                   const targetInitialRoute = menuItem.menuName === 'Food Menu' ? 'Food' : 'Drinks';
@@ -289,12 +291,12 @@ export default function HomeScreen({ navigation }) {
                 }}
               >
                 <View style={styles.menuItemHeader}>
-                  <Text style={styles.menuItemName}>{menuItem.itemName}</Text>
+                  <Text style={[styles.menuItemName, { color: theme.text.main }]}>{menuItem.itemName}</Text>
                   {menuItem.itemPrice !== undefined && (
-                    <Text style={styles.menuItemPrice}>{`$${parseFloat(menuItem.itemPrice).toFixed(2)}`}</Text>
+                    <Text style={[styles.menuItemPrice, { color: theme.text.main }]}>{`$${parseFloat(menuItem.itemPrice).toFixed(2)}`}</Text>
                   )}
                 </View>
-                {menuItem.itemDescription && <Text style={styles.menuItemDescription}>{menuItem.itemDescription}</Text>}
+                {menuItem.itemDescription && <Text style={[styles.menuItemDescription, { color: theme.text.subtext }]}>{menuItem.itemDescription}</Text>}
               </TouchableOpacity>
             );
           })}
@@ -305,16 +307,16 @@ export default function HomeScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.fullScreenContainer}>
+    <SafeAreaView style={[styles.fullScreenContainer, { backgroundColor: theme.background }]}>
       <View style={[styles.searchAreaContainer, searchActive ? styles.searchAreaTop : styles.searchAreaCenter]}>
         {!searchActive && (
-          <Text style={styles.title}>Search Businesses & Items</Text>
+          <Text style={[styles.title, { color: theme.text.main }]}>Search Businesses & Items</Text>
         )}
-        <View style={styles.searchBarContainer}>
+        <View style={[styles.searchBarContainer, { backgroundColor: theme.input.background, borderColor: theme.input.border }]}>
       <TextInput
-        style={styles.searchBar}
+        style={[styles.searchBar, { color: theme.input.text }]}
           placeholder="Search by name, description, cuisine, items..."
-          placeholderTextColor="#808080"
+          placeholderTextColor={theme.input.placeholder}
           value={searchQuery}
           onChangeText={setSearchQuery}
           onSubmitEditing={handleSearch}
@@ -322,37 +324,37 @@ export default function HomeScreen({ navigation }) {
         />
           {searchQuery.length > 0 && (
             <TouchableOpacity onPress={clearSearch} style={styles.clearIcon}>
-              <Ionicons name="close-circle" size={24} color="#808080" />
+              <Ionicons name="close-circle" size={24} color={theme.text.subtext} />
             </TouchableOpacity>
           )}
         </View>
         {searchActive ? (
           !isLoading && processedResults.length === 0 && (
             <View style={styles.searchButtonContainer}>
-              <TouchableOpacity style={[styles.searchButton, styles.fullWidthButton]} onPress={handleSearch}>
-              <Text style={styles.searchButtonText}>Search</Text>
+              <TouchableOpacity style={[styles.searchButton, styles.fullWidthButton, { backgroundColor: theme.primary }]} onPress={handleSearch}>
+              <Text style={[styles.searchButtonText, { color: theme.button.text }]}>Search</Text>
             </TouchableOpacity>
           </View>
           )
         ) : (
-          <TouchableOpacity style={[styles.searchButton, styles.singleSearchButton]} onPress={handleSearch}>
-            <Text style={styles.searchButtonText}>Search</Text>
+          <TouchableOpacity style={[styles.searchButton, styles.singleSearchButton, { backgroundColor: theme.primary }]} onPress={handleSearch}>
+            <Text style={[styles.searchButtonText, { color: theme.button.text }]}>Search</Text>
           </TouchableOpacity>
         )}
       </View>
 
       {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
+        <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
+          <ActivityIndicator size="large" color={theme.primary} />
     </View>
       )}
 
       {!isLoading && error && searchActive && (
-        <Text style={styles.errorText}>{error}</Text>
+        <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>
       )}
 
       {!isLoading && !error && searchActive && processedResults.length === 0 && searchQuery.trim() !== '' && (
-        <Text style={styles.noResultsText}>No relevant items or businesses found for "{searchQuery}".</Text>
+        <Text style={[styles.noResultsText, { color: theme.text.subtext }]}>No relevant items or businesses found for "{searchQuery}".</Text>
       )}
 
       {searchActive && processedResults.length > 0 && (
@@ -360,7 +362,7 @@ export default function HomeScreen({ navigation }) {
           data={processedResults}
           renderItem={renderResultItem}
           keyExtractor={(item) => item.id}
-          style={styles.resultsContainer}
+          style={[styles.resultsContainer, { backgroundColor: theme.background }]}
           keyboardShouldPersistTaps="handled"
         />
       )}

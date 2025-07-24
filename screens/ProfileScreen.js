@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Button, StyleSheet, Platform, Alert, TextInput, Modal, Pressable } from 'react-native';
+import { View, Text, Button, StyleSheet, Platform, Alert, TextInput, Modal, Pressable, Switch } from 'react-native';
 import axios from 'axios'; // Import axios
 import styles from '../styles/ProfileScreenStyles';
 import { useAuthRequest } from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import * as SecureStore from 'expo-secure-store'; // Import SecureStore
 import Constants from 'expo-constants';
+import { useTheme } from '../context/UserContext';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -21,6 +22,8 @@ WebBrowser.maybeCompleteAuthSession();
 const USER_STORAGE_KEY = 'user_data'; // Use the same key as in App.js
 
 export default function ProfileScreen({ user, setUser }) { // Receive props
+
+  const { theme, isDarkMode, toggleTheme } = useTheme();
 
   // Build the deep link redirect URI
   const redirectUri = `${Constants.expoConfig.scheme}://${Constants.expoConfig.extra.EXPO_PUBLIC_AUTH0_DOMAIN}/ios/${Constants.expoConfig.ios.bundleIdentifier}/callback`;
@@ -178,18 +181,29 @@ export default function ProfileScreen({ user, setUser }) { // Receive props
         }
       ],
       { cancelable: true }
-    );
-  };
+          );
+    };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Profile Screen</Text>
+    return (
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+      {/* Dark Mode Toggle */}
+      <View style={styles.toggleContainer}>
+        <Text style={[styles.toggleLabel, { color: theme.text.main }]}>Dark Mode</Text>
+        <Switch
+          value={isDarkMode}
+          onValueChange={toggleTheme}
+          trackColor={{ false: theme.border, true: theme.primary }}
+          thumbColor={isDarkMode ? theme.surface : theme.surface}
+        />
+      </View>
+      
+      <Text style={[styles.title, { color: theme.text.main }]}>Profile Screen</Text>
       {!user ? (
         <Button title="Log in with Auth0" onPress={signIn} disabled={!request} />
       ) : (
         <>
-          <Text style={styles.userInfo}>Welcome, {user.name}!</Text>
-          <Text style={styles.userInfo}>{user.email}</Text>
+          <Text style={[styles.userInfo, { color: theme.text.main }]}>Welcome, {user.name}!</Text>
+<Text style={[styles.userInfo, { color: theme.text.main }]}>Email: {user.email}</Text>
           <Button title="Log Out" onPress={signOut} />
         </>
       )}

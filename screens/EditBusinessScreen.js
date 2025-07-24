@@ -15,6 +15,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Picker } from '@react-native-picker/picker'; // Import Picker
 import axios from 'axios';
 import { colors } from '../styles/themes';
+import { useTheme } from '../context/UserContext';
 import styles from '../styles/EditBusinessScreenStyles'; // We will create this file
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
@@ -35,6 +36,7 @@ const TIME_SLOTS = generateTimeSlots();
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function EditBusinessScreen({ route, navigation }) {
+  const { theme } = useTheme();
   const { businessData } = route.params;
   
   const [name, setName] = useState(businessData?.name || '');
@@ -68,8 +70,15 @@ export default function EditBusinessScreen({ route, navigation }) {
     navigation.setOptions({
       title: `Edit ${businessData?.name || 'Business'}`,
       headerBackTitle: 'Cancel', // Or simply 'Back'
+      headerStyle: {
+        backgroundColor: theme.background,
+      },
+      headerTintColor: theme.text.main,
+      headerTitleStyle: {
+        color: theme.text.main,
+      },
     });
-  }, [navigation, businessData?.name]);
+  }, [navigation, businessData?.name, theme]);
 
   // Modified to use selectedDayIndex from state
   const handleHourChange = (field, value) => {
@@ -159,34 +168,34 @@ export default function EditBusinessScreen({ route, navigation }) {
 
     return (
       <>
-        <TouchableOpacity onPress={handleToggleOpen} style={styles.isOpenButton}>
-          <Text style={styles.isOpenButtonText}>{daySchedule.isOpen ? 'Open' : 'Closed'}</Text>
+        <TouchableOpacity onPress={handleToggleOpen} style={[styles.isOpenButton, { backgroundColor: theme.button.secondary }]}>
+          <Text style={[styles.isOpenButtonText, { color: theme.button.text }]}>{daySchedule.isOpen ? 'Open' : 'Closed'}</Text>
         </TouchableOpacity>
         {daySchedule.isOpen && (
           <View style={styles.timePickersRowContainer}> 
             <View style={styles.pickerContainer}>
-              <Text style={styles.pickerLabel}>Open:</Text>
+              <Text style={[styles.pickerLabel, { color: theme.text.subtext }]}>Open:</Text>
               <Picker
                 selectedValue={daySchedule.open}
-                style={Platform.OS === 'ios' ? styles.iosPicker : styles.pickerStyle}
-                itemStyle={Platform.OS === 'ios' ? styles.iosPickerItem : {}}
+                style={Platform.OS === 'ios' ? [styles.iosPicker, { color: theme.input.text }] : [styles.pickerStyle, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+                itemStyle={Platform.OS === 'ios' ? [styles.iosPickerItem, { color: theme.input.text }] : {}}
                 onValueChange={(itemValue) => handleHourChange('open', itemValue)}
               >
                 {TIME_SLOTS.map(time => (
-                  <Picker.Item key={`${daySchedule.day}-open-${time}`} label={time} value={time} />
+                  <Picker.Item key={`${daySchedule.day}-open-${time}`} label={time} value={time} color={theme.input.text} />
                 ))}
               </Picker>
             </View>
             <View style={styles.pickerContainer}>
-              <Text style={styles.pickerLabel}>Close:</Text>
+              <Text style={[styles.pickerLabel, { color: theme.text.subtext }]}>Close:</Text>
               <Picker
                 selectedValue={daySchedule.close}
-                style={Platform.OS === 'ios' ? styles.iosPicker : styles.pickerStyle}
-                itemStyle={Platform.OS === 'ios' ? styles.iosPickerItem : {}}
+                style={Platform.OS === 'ios' ? [styles.iosPicker, { color: theme.input.text }] : [styles.pickerStyle, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+                itemStyle={Platform.OS === 'ios' ? [styles.iosPickerItem, { color: theme.input.text }] : {}}
                 onValueChange={(itemValue) => handleHourChange('close', itemValue)}
               >
                 {TIME_SLOTS.map(time => (
-                  <Picker.Item key={`${daySchedule.day}-close-${time}`} label={time} value={time} />
+                  <Picker.Item key={`${daySchedule.day}-close-${time}`} label={time} value={time} color={theme.input.text} />
                 ))}
               </Picker>
             </View>
@@ -198,7 +207,7 @@ export default function EditBusinessScreen({ route, navigation }) {
 
   return (
     <KeyboardAwareScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.contentContainer}
       enableOnAndroid={true}
       enableAutomaticScroll={true}
@@ -207,103 +216,109 @@ export default function EditBusinessScreen({ route, navigation }) {
       extraHeight={Platform.OS === 'ios' ? 130 : 120}
       resetScrollToCoords={{ x: 0, y: 0 }}
     >
-      <Text style={styles.label}>Business Name</Text>
+      <Text style={[styles.label, { color: theme.text.main }]}>Business Name</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
         value={name}
         onChangeText={setName}
         placeholder="Enter business name"
+        placeholderTextColor={theme.input.placeholder}
       />
 
-      <Text style={styles.label}>Description</Text>
+      <Text style={[styles.label, { color: theme.text.main }]}>Description</Text>
       <TextInput
-        style={[styles.input, styles.textArea]}
+        style={[styles.input, styles.textArea, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
         value={description}
         onChangeText={setDescription}
         placeholder="Enter business description"
+        placeholderTextColor={theme.input.placeholder}
         multiline
         numberOfLines={4}
       />
 
-      <Text style={styles.label}>Suburb</Text>
+      <Text style={[styles.label, { color: theme.text.main }]}>Suburb</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
         value={suburb}
         onChangeText={setSuburb}
         placeholder="Enter suburb"
+        placeholderTextColor={theme.input.placeholder}
       />
 
-      <Text style={styles.label}>Phone Number</Text>
+      <Text style={[styles.label, { color: theme.text.main }]}>Phone Number</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
         value={phone}
         onChangeText={setPhone}
         placeholder="Enter phone number"
+        placeholderTextColor={theme.input.placeholder}
         keyboardType="phone-pad"
       />
 
-      <Text style={styles.label}>Website</Text>
+      <Text style={[styles.label, { color: theme.text.main }]}>Website</Text>
       <TextInput
-        style={styles.input}
+        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
         value={website}
         onChangeText={setWebsite}
         placeholder="Enter website URL"
+        placeholderTextColor={theme.input.placeholder}
         keyboardType="url"
         autoCapitalize="none"
       />
 
-      <Text style={styles.sectionTitle}>Opening Hours</Text>
-      <View style={styles.hoursEditingContainer}>
-        <View style={styles.daySelectorContainer}>
+      <Text style={[styles.sectionTitle, { color: theme.primary, borderBottomColor: theme.borderLight }]}>Opening Hours</Text>
+      <View style={[styles.hoursEditingContainer, { backgroundColor: theme.card.background, borderColor: theme.borderLight }]}>
+        <View style={[styles.daySelectorContainer, { backgroundColor: theme.input.background, borderColor: theme.input.border }]}>
           <Picker
             selectedValue={DAYS_OF_WEEK[selectedDayIndex]}
             onValueChange={(itemValue, itemIndex) => setSelectedDayIndex(itemIndex)}
-            style={styles.dayOfWeekPicker}
-            itemStyle={styles.dayOfWeekPickerItem} // itemStyle is iOS only
+            style={[styles.dayOfWeekPicker, { color: theme.input.text }]}
+            itemStyle={[styles.dayOfWeekPickerItem, { color: theme.input.text }]} // itemStyle is iOS only
             mode="dropdown" // Android specific to ensure it's a dropdown
           >
             {DAYS_OF_WEEK.map((day, index) => (
-              <Picker.Item key={index} label={day} value={day} />
+              <Picker.Item key={index} label={day} value={day} color={theme.input.text} />
             ))}
           </Picker>
         </View>
-        <View style={styles.selectedDayEditorContainer}>
+        <View style={[styles.selectedDayEditorContainer, { backgroundColor: theme.card.background, borderColor: theme.borderLight }]}>
           {renderSelectedDayEditor()}
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Amenities</Text>
+      <Text style={[styles.sectionTitle, { color: theme.primary, borderBottomColor: theme.borderLight }]}>Amenities</Text>
       <View style={styles.amenityInputContainer}>
         <TextInput
-          style={styles.amenityInput}
+          style={[styles.amenityInput, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
           value={currentAmenity}
           onChangeText={setCurrentAmenity}
           placeholder="Add an amenity (e.g., WiFi)"
+          placeholderTextColor={theme.input.placeholder}
         />
-        <TouchableOpacity style={styles.addAmenityButton} onPress={handleAddAmenity}>
-          <Text style={styles.addAmenityButtonText}>Add</Text>
+        <TouchableOpacity style={[styles.addAmenityButton, { backgroundColor: theme.success }]} onPress={handleAddAmenity}>
+          <Text style={[styles.addAmenityButtonText, { color: theme.button.text }]}>Add</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.amenitiesListContainer}>
         {amenities.map((amenity, index) => (
-          <View key={index} style={styles.amenityTagContainer}>
-            <Text style={styles.amenityTagText}>{amenity}</Text>
+          <View key={index} style={[styles.amenityTagContainer, { backgroundColor: theme.amenity.background }]}>
+            <Text style={[styles.amenityTagText, { color: theme.amenity.text }]}>{amenity}</Text>
             <TouchableOpacity onPress={() => handleRemoveAmenity(amenity)} style={styles.removeAmenityButton}>
-              <Ionicons name="close-circle" size={20} color={colors.danger || '#dc3545'} />
+              <Ionicons name="close-circle" size={20} color={theme.error} />
             </TouchableOpacity>
           </View>
         ))}
       </View>
 
       <TouchableOpacity 
-        style={[styles.saveButton, isSaving && styles.saveButtonDisabled]}
+        style={[styles.saveButton, { backgroundColor: theme.primary }, isSaving && { backgroundColor: theme.button.disabled }]}
         onPress={handleSaveChanges} 
         disabled={isSaving}
       >
         {isSaving ? (
-          <ActivityIndicator color={colors.white || '#fff'} />
+          <ActivityIndicator color={theme.button.text} />
         ) : (
-          <Text style={styles.saveButtonText}>Save Changes</Text>
+          <Text style={[styles.saveButtonText, { color: theme.button.text }]}>Save Changes</Text>
         )}
       </TouchableOpacity>
     </KeyboardAwareScrollView>

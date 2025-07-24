@@ -114,7 +114,7 @@ export default StyleSheet.create({
   resultItemName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
   },
   resultItemPinName: { // Style for Pin Name when showing a matched item (might be deprecated or reused for restaurant header)
     fontSize: 16,
@@ -126,12 +126,12 @@ export default StyleSheet.create({
   resultItemMenuContext: { // Style for "Found in Food/Drinks Menu:"
     fontSize: 12,
     fontStyle: 'italic',
-    color: colors.textMuted,
+    color: colors.text.subtext,
     marginBottom: 4,
   },
   resultItemDescription: {
     fontSize: 14,
-    color: colors.textMuted, // Use a muted theme color or default
+    color: colors.text.subtext, // Use a muted theme color or default
     marginTop: 4,
   },
   resultItemCuisine: {
@@ -154,13 +154,13 @@ export default StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     fontSize: 16,
-    color: colors.textMuted,
+    color: colors.text.subtext,
   },
   // Title for the screen (optional, if you re-add it)
   title: {
     fontSize: 24, // Original title was 20
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
     textAlign: 'center',
     marginBottom: 20, // Space below title if search bar is at top
   },
@@ -196,7 +196,7 @@ export default StyleSheet.create({
   },
   distanceText: {
     fontSize: 14,
-    color: colors.textSecondary, // Use a muted color for distance
+    color: colors.text.subtext, // Use a muted color for distance
     marginTop: 2, // Small gap between name and distance
   },
   viewOnMapButton: {
@@ -226,18 +226,18 @@ export default StyleSheet.create({
   menuItemName: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text,
+    color: colors.text.main,
     flex: 1, // Allow text to take available space and wrap if necessary
   },
   menuItemPrice: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: colors.text, // Or a specific price color e.g. colors.success
+    color: colors.text.main, // Or a specific price color e.g. colors.success
     marginLeft: 10, // Space between name and price
   },
   menuItemDescription: {
     fontSize: 14,
-    color: colors.textMuted,
+    color: colors.text.subtext,
     marginTop: 4,
   },
   // End of New Styles for Grouped Results
