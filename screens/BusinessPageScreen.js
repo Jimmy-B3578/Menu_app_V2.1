@@ -362,13 +362,13 @@ export default function BusinessPageScreen({ route, navigation }) {
     return (
       <View style={styles.reviewItem}>
         <View style={styles.reviewHeader}>
-          <Text style={styles.reviewAuthor}>{item.userName}</Text>
+          <Text style={[styles.reviewAuthor, { color: theme.text.main }]}>{item.userName}</Text>
           <Text style={styles.starText}>{renderStars(item.rating)}</Text>
         </View>
-        <Text style={styles.reviewDate}>
+        <Text style={[styles.reviewDate, { color: theme.text.subtext }]}>
           {new Date(item.date).toLocaleDateString()}
         </Text>
-        <Text style={styles.reviewText}>{item.text}</Text>
+        <Text style={[styles.reviewText, { color: theme.text.main }]}>{item.text}</Text>
         
         {isCurrentUserReview && !isPreview && (
           <View style={styles.reviewActionButtons}>
@@ -376,15 +376,15 @@ export default function BusinessPageScreen({ route, navigation }) {
               style={styles.reviewActionButton} 
               onPress={() => handleEditReview(item)}
             >
-              <Ionicons name="pencil-outline" size={18} color={colors.primary} />
-              <Text style={styles.reviewActionText}>Edit</Text>
+              <Ionicons name="pencil-outline" size={18} color={theme.primary} />
+              <Text style={[styles.reviewActionText, { color: theme.primary }]}>Edit</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={styles.reviewActionButton} 
               onPress={() => handleDeleteReview(item._id)}
             >
-              <Ionicons name="trash-outline" size={18} color={colors.danger} />
-              <Text style={[styles.reviewActionText, styles.reviewActionTextDanger]}>Delete</Text>
+              <Ionicons name="trash-outline" size={18} color={theme.danger} />
+              <Text style={[styles.reviewActionText, { color: theme.danger }]}>Delete</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -441,7 +441,7 @@ export default function BusinessPageScreen({ route, navigation }) {
                 setReviewRating(5);
               }}
             >
-              <Text style={[styles.modalButtonText, { color: theme.text }]}>Cancel</Text>
+              <Text style={[styles.modalButtonText, { color: theme.text.main }]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.modalButton, styles.modalSubmitButton, { backgroundColor: theme.primary }]} 
@@ -510,7 +510,7 @@ export default function BusinessPageScreen({ route, navigation }) {
                 setReviewRating(5);
               }}
             >
-              <Text style={[styles.modalButtonText, { color: theme.text }]}>Cancel</Text>
+              <Text style={[styles.modalButtonText, { color: theme.text.main }]}>Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.modalButton, styles.modalSubmitButton, { backgroundColor: theme.primary }]} 
