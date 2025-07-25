@@ -49,7 +49,7 @@ function TabNavigator({ user, setUser }) {
         tabBarActiveTintColor: theme.navigation.icon,
         tabBarInactiveTintColor: theme.navigation.iconInactive,
         tabBarStyle: {
-          backgroundColor: theme.navigation.background,
+          backgroundColor: theme.surface,
           borderTopColor: theme.navigation.border,
         },
       })}

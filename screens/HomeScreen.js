@@ -229,7 +229,7 @@ export default function HomeScreen({ navigation }) {
   const renderResultItem = ({ item }) => {
     if (item.type === 'restaurantGroup') {
       return (
-        <View style={[styles.restaurantGroupContainer, { backgroundColor: theme.card.background, borderBottomColor: theme.borderLight, borderColor: theme.border }]}>
+        <View style={[styles.restaurantGroupContainer, { backgroundColor: theme.background, borderBottomColor: theme.borderLight, borderColor: theme.border }]}>
           <View style={[styles.restaurantNameHeaderContainer, { backgroundColor: theme.primary, borderBottomColor: theme.border }]}>
             <View style={styles.restaurantNameInfoContainer}>
               <Text style={[styles.restaurantNameHeaderText, { color: theme.text.overlay }]}>{item.pinName}</Text>
@@ -257,7 +257,7 @@ export default function HomeScreen({ navigation }) {
       return (
         <TouchableOpacity
                   key={menuItem.id}
-          style={[styles.resultItem, { backgroundColor: theme.surface, borderBottomColor: theme.borderLight }]}
+          style={[styles.resultItem, { backgroundColor: theme.background, borderBottomColor: theme.borderLight }]}
                   onPress={() => navigation.navigate('Business', { businessData: item.originalPin })}
         >
                   <Text style={[styles.resultItemName, { color: theme.text.main }]}>{item.pinName} (Details)</Text>
@@ -272,7 +272,7 @@ export default function HomeScreen({ navigation }) {
             return (
               <TouchableOpacity
                 key={menuItem.id}
-                style={[styles.menuItemContainer, { backgroundColor: theme.surface, borderBottomColor: theme.borderLight }]}
+                style={[styles.menuItemContainer, { backgroundColor: theme.background, borderBottomColor: theme.borderLight }]}
                 onPress={() => {
                   // Determine the target tab name for UnifiedMenuScreen
                   const targetInitialRoute = menuItem.menuName === 'Food Menu' ? 'Food' : 'Drinks';
@@ -312,9 +312,9 @@ export default function HomeScreen({ navigation }) {
         {!searchActive && (
           <Text style={[styles.title, { color: theme.text.main }]}>Search Businesses & Items</Text>
         )}
-        <View style={[styles.searchBarContainer, { backgroundColor: theme.input.background, borderColor: theme.input.border }]}>
+        <View style={[styles.searchBarContainer, { backgroundColor: theme.background, borderColor: theme.input.border }]}>
       <TextInput
-        style={[styles.searchBar, { color: theme.input.text }]}
+        style={[styles.searchBar, { color: theme.text.main }]}
           placeholder="Search by name, description, cuisine, items..."
           placeholderTextColor={theme.input.placeholder}
           value={searchQuery}

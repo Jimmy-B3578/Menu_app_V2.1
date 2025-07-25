@@ -71,7 +71,7 @@ export default function EditBusinessScreen({ route, navigation }) {
       title: `Edit ${businessData?.name || 'Business'}`,
       headerBackTitle: 'Cancel', // Or simply 'Back'
       headerStyle: {
-        backgroundColor: theme.background,
+        backgroundColor: theme.surface,
       },
       headerTintColor: theme.text.main,
       headerTitleStyle: {
@@ -218,7 +218,7 @@ export default function EditBusinessScreen({ route, navigation }) {
     >
       <Text style={[styles.label, { color: theme.text.main }]}>Business Name</Text>
       <TextInput
-        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+        style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
         value={name}
         onChangeText={setName}
         placeholder="Enter business name"
@@ -227,7 +227,7 @@ export default function EditBusinessScreen({ route, navigation }) {
 
       <Text style={[styles.label, { color: theme.text.main }]}>Description</Text>
       <TextInput
-        style={[styles.input, styles.textArea, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+        style={[styles.input, styles.textArea, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
         value={description}
         onChangeText={setDescription}
         placeholder="Enter business description"
@@ -238,7 +238,7 @@ export default function EditBusinessScreen({ route, navigation }) {
 
       <Text style={[styles.label, { color: theme.text.main }]}>Suburb</Text>
       <TextInput
-        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+        style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
         value={suburb}
         onChangeText={setSuburb}
         placeholder="Enter suburb"
@@ -247,7 +247,7 @@ export default function EditBusinessScreen({ route, navigation }) {
 
       <Text style={[styles.label, { color: theme.text.main }]}>Phone Number</Text>
       <TextInput
-        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+        style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
         value={phone}
         onChangeText={setPhone}
         placeholder="Enter phone number"
@@ -257,7 +257,7 @@ export default function EditBusinessScreen({ route, navigation }) {
 
       <Text style={[styles.label, { color: theme.text.main }]}>Website</Text>
       <TextInput
-        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+        style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
         value={website}
         onChangeText={setWebsite}
         placeholder="Enter website URL"
@@ -267,8 +267,8 @@ export default function EditBusinessScreen({ route, navigation }) {
       />
 
       <Text style={[styles.sectionTitle, { color: theme.primary, borderBottomColor: theme.borderLight }]}>Opening Hours</Text>
-      <View style={[styles.hoursEditingContainer, { backgroundColor: theme.card.background, borderColor: theme.borderLight }]}>
-        <View style={[styles.daySelectorContainer, { backgroundColor: theme.input.background, borderColor: theme.input.border }]}>
+      <View style={[styles.hoursEditingContainer, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+        <View style={[styles.daySelectorContainer, { backgroundColor: theme.surface, borderColor: theme.input.border }]}>
           <Picker
             selectedValue={DAYS_OF_WEEK[selectedDayIndex]}
             onValueChange={(itemValue, itemIndex) => setSelectedDayIndex(itemIndex)}
@@ -281,7 +281,7 @@ export default function EditBusinessScreen({ route, navigation }) {
             ))}
           </Picker>
         </View>
-        <View style={[styles.selectedDayEditorContainer, { backgroundColor: theme.card.background, borderColor: theme.borderLight }]}>
+        <View style={[styles.selectedDayEditorContainer, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
           {renderSelectedDayEditor()}
         </View>
       </View>
@@ -289,7 +289,7 @@ export default function EditBusinessScreen({ route, navigation }) {
       <Text style={[styles.sectionTitle, { color: theme.primary, borderBottomColor: theme.borderLight }]}>Amenities</Text>
       <View style={styles.amenityInputContainer}>
         <TextInput
-          style={[styles.amenityInput, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+          style={[styles.amenityInput, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
           value={currentAmenity}
           onChangeText={setCurrentAmenity}
           placeholder="Add an amenity (e.g., WiFi)"

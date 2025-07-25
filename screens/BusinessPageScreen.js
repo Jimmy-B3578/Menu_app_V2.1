@@ -400,7 +400,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       onRequestClose={() => setAddReviewVisible(false)}
     >
       <View style={[styles.modalOverlay, { backgroundColor: theme.modal.overlay }]}>
-        <View style={[styles.modalContent, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
+        <View style={[styles.modalContent, { backgroundColor: theme.background, shadowColor: theme.card.shadow }]}>
           <Text style={[styles.modalTitle, { color: theme.text.main }]}>Write a Review</Text>
           
           <Text style={[styles.modalLabel, { color: theme.text.main }]}>Rating</Text>
@@ -468,7 +468,7 @@ export default function BusinessPageScreen({ route, navigation }) {
       onRequestClose={() => setEditReviewVisible(false)}
     >
       <View style={[styles.modalOverlay, { backgroundColor: theme.modal.overlay }]}>
-        <View style={[styles.modalContent, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
+        <View style={[styles.modalContent, { backgroundColor: theme.background, shadowColor: theme.card.shadow }]}>
           <Text style={[styles.modalTitle, { color: theme.text.main }]}>Edit Your Review</Text>
           
           <Text style={[styles.modalLabel, { color: theme.text.main }]}>Rating</Text>
@@ -531,7 +531,7 @@ export default function BusinessPageScreen({ route, navigation }) {
 
   const renderBusinessCard = ({ item }) => (
     <TouchableOpacity onPress={() => handleSelectBusiness(item, false)}>
-      <View style={[styles.businessCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+      <View style={[styles.businessCard, { backgroundColor: theme.surface, shadowColor: theme.card.shadow }]}>
         <View style={styles.cardHeader}>
           <Text style={[styles.cardTitle, { color: theme.text.main }]} numberOfLines={1}>{item.name || 'Unnamed Business'}</Text>
           <Text style={[styles.cardSuburb, { color: theme.text.subtext }]}>{item.suburb || 'Suburb'}</Text>
@@ -583,7 +583,7 @@ export default function BusinessPageScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.infoCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+        <View style={[styles.infoCard, { backgroundColor: theme.surface, shadowColor: theme.card.shadow }]}>
           <View style={styles.businessHeaderRow}>
             <Text style={[styles.detailBusinessName, { color: theme.text.main }]}>{selectedBusiness.name}</Text>
             <View style={styles.detailRatingContainer}>
@@ -630,9 +630,9 @@ export default function BusinessPageScreen({ route, navigation }) {
           </View>
         </View>
 
-        {formattedHours.length > 0 && (
-        <View style={[styles.sectionCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
-          <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Hours</Text>
+                  {formattedHours.length > 0 && (
+          <View style={[styles.sectionCard, { backgroundColor: theme.surface, shadowColor: theme.card.shadow }]}>
+            <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Hours</Text>
             {formattedHours.map((group) => (
               <View key={group.key} style={styles.hoursItem}>
                 <Text style={[styles.dayText, { color: theme.text.main }]}>{group.days}</Text>
@@ -643,7 +643,7 @@ export default function BusinessPageScreen({ route, navigation }) {
         )}
 
         {selectedBusiness.amenities && selectedBusiness.amenities.length > 0 && (
-        <View style={[styles.sectionCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+        <View style={[styles.sectionCard, { backgroundColor: theme.surface, shadowColor: theme.card.shadow }]}>
           <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Amenities</Text>
           <View style={styles.amenitiesContainer}>
             {selectedBusiness.amenities.map((item, index) => (
@@ -656,7 +656,7 @@ export default function BusinessPageScreen({ route, navigation }) {
         )}
 
         {/* Reviews Section */}
-        <View style={[styles.sectionCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+        <View style={[styles.sectionCard, { backgroundColor: theme.surface, shadowColor: theme.card.shadow }]}>
           <View style={styles.sectionTitleRow}>
             <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Reviews</Text>
             <Text style={[styles.reviewCount, { color: theme.text.subtext }]}>{selectedBusiness.reviewCount || 0} reviews</Text>
@@ -746,7 +746,7 @@ export default function BusinessPageScreen({ route, navigation }) {
         </View>
 
         {(canEdit || canDelete) && (
-          <View style={[styles.adminActionsCard, { backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+          <View style={[styles.adminActionsCard, { backgroundColor: theme.surface, shadowColor: theme.card.shadow }]}>
             <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Admin Actions</Text>
             {canEdit && (
               <TouchableOpacity

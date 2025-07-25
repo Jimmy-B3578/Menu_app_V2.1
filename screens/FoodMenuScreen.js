@@ -72,22 +72,22 @@ const AddItemModal = ({ visible, onClose, onSave, initialData, theme }) => {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingContainer}
       >
-        <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
-          <View style={[styles.modalContent, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
-            <Text style={[styles.modalTitle, { color: theme.text.main }]}>{isEditMode ? 'Edit Menu Item' : 'Add Menu Item'}</Text>
+                  <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
+            <View style={[styles.modalContent, { backgroundColor: theme.surface, shadowColor: theme.card.shadow }]}>
+              <Text style={[styles.modalTitle, { color: theme.text.main }]}>{isEditMode ? 'Edit Menu Item' : 'Add Menu Item'}</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+              style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
               placeholder="Item Name*" value={name} onChangeText={setName}
               placeholderTextColor={theme.input.placeholder}
             />
             <TextInput
-              style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+              style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
               placeholder="Price*" value={price} onChangeText={setPrice}
               keyboardType="numeric"
               placeholderTextColor={theme.input.placeholder}
             />
             <TextInput
-              style={[styles.input, styles.inputDescription, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+              style={[styles.input, styles.inputDescription, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
               placeholder="Description (Optional)" value={description} onChangeText={setDescription}
               multiline
               placeholderTextColor={theme.input.placeholder}
@@ -141,11 +141,11 @@ const AddHeaderModal = ({ visible, onClose, onSave, initialData, theme }) => {
              behavior={Platform.OS === "ios" ? "padding" : "height"}
              style={styles.keyboardAvoidingContainer}
            >
-             <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
-                <View style={[styles.modalContent, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
-                    <Text style={[styles.modalTitle, { color: theme.text.main }]}>{isEditMode ? 'Edit Menu Header' : 'Add Menu Header'}</Text>
+                            <View style={[styles.modalContainer, { backgroundColor: theme.modal.overlay }]}>
+                  <View style={[styles.modalContent, { backgroundColor: theme.surface, shadowColor: theme.card.shadow }]}>
+                     <Text style={[styles.modalTitle, { color: theme.text.main }]}>{isEditMode ? 'Edit Menu Header' : 'Add Menu Header'}</Text>
                     <TextInput
-                        style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+                        style={[styles.input, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
                         placeholder="Header Title*" value={title} onChangeText={setTitle}
                         placeholderTextColor={theme.input.placeholder}
                     />
@@ -677,7 +677,7 @@ export default function FoodMenuScreen({ route, navigation }) {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
         {/* Conditionally Render Add Buttons */}
         {canEdit && (
-          <View style={[styles.addButtonsContainer, { backgroundColor: theme.surface, borderBottomColor: theme.border }]}>
+          <View style={[styles.addButtonsContainer, { backgroundColor: theme.background, borderBottomColor: theme.border }]}>
                <TouchableOpacity style={[styles.addButton, { backgroundColor: theme.primary }]} onPress={() => openAddItemModal()}> 
                    <Text style={[styles.addButtonText, { color: theme.button.text }]}>+ Add Menu Item</Text>
                </TouchableOpacity>

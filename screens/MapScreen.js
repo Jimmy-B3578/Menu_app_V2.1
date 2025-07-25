@@ -359,7 +359,7 @@ export default function MapScreen({ route, user, navigation }) {
 
       {/* --- Context Box --- */}
       {selectedMarker && (
-        <View style={[styles.contextBox, { height: contextBoxHeight, backgroundColor: theme.card.background, shadowColor: theme.card.shadow }]}>
+        <View style={[styles.contextBox, { height: contextBoxHeight, backgroundColor: theme.background, shadowColor: theme.card.shadow }]}>
           <Text style={[styles.contextBoxTitle, { color: theme.text.main }]}>{selectedMarker.title}</Text>
           <Pressable 
             style={[styles.contextButtonFull, { backgroundColor: theme.primary }]} 
@@ -400,13 +400,13 @@ export default function MapScreen({ route, user, navigation }) {
         onRequestClose={handleCancel}
       >
         <View style={[styles.centeredView, { backgroundColor: theme.modal.overlay }]}>
-          <View style={[styles.modalView, { backgroundColor: theme.modal.background, shadowColor: theme.card.shadow }]}>
+          <View style={[styles.modalView, { backgroundColor: theme.background, shadowColor: theme.card.shadow }]}>
             <Pressable style={styles.cancelButton} onPress={handleCancel}>
               <Text style={[styles.cancelButtonText, { color: theme.text.subtext }]}>X</Text>
             </Pressable>
             <Text style={[styles.modalText, { color: theme.text.main }]}>Enter Location Name:</Text>
             <TextInput
-              style={[styles.input, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
+              style={[styles.input, { backgroundColor: theme.background, borderColor: theme.input.border, color: theme.text.main }]}
               onChangeText={setLocationName}
               value={locationName}
               placeholder="e.g., Home, Favorite Cafe"

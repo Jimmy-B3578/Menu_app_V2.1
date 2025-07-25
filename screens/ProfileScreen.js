@@ -193,7 +193,7 @@ export default function ProfileScreen({ user, setUser }) { // Receive props
           value={isDarkMode}
           onValueChange={toggleTheme}
           trackColor={{ false: theme.border, true: theme.primary }}
-          thumbColor={isDarkMode ? theme.surface : theme.surface}
+          thumbColor={isDarkMode ? theme.background : theme.background}
         />
       </View>
       

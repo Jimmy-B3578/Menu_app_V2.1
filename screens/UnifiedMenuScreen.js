@@ -22,9 +22,9 @@ export default function UnifiedMenuScreen({ route, navigation }) {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       title: businessName ? `${businessName} - Menu` : 'Menu',
-      headerStyle: { backgroundColor: theme.navigation.background },
-      headerTintColor: theme.navigation.title,
-      headerTitleStyle: { color: theme.navigation.title },
+      headerStyle: { backgroundColor: theme.surface },
+      headerTintColor: theme.text.main,
+      headerTitleStyle: { color: theme.text.main },
     });
   }, [navigation, businessName, theme]);
 
@@ -35,7 +35,7 @@ export default function UnifiedMenuScreen({ route, navigation }) {
         tabBarActiveTintColor: theme.tabBar.active,
         tabBarInactiveTintColor: theme.tabBar.inactive,
         tabBarIndicatorStyle: { backgroundColor: theme.primary },
-        tabBarStyle: { backgroundColor: theme.tabBar.background },
+        tabBarStyle: { backgroundColor: theme.surface },
         tabBarLabelStyle: { fontWeight: 'bold' },
       }}
     >
