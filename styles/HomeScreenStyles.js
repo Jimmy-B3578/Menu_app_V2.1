@@ -108,8 +108,7 @@ export default StyleSheet.create({
   resultItem: {
     backgroundColor: colors.surface,
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
+    // Removed borderBottomWidth and borderBottomColor to prevent border conflicts
   },
   resultItemName: {
     fontSize: 18,
@@ -213,8 +212,7 @@ export default StyleSheet.create({
   },
   menuItemContainer: {
     padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
+    // Removed borderBottomWidth and borderBottomColor to prevent border conflicts
     backgroundColor: colors.surface, // White background for items
   },
   menuItemHeader: {

@@ -229,7 +229,7 @@ export default function HomeScreen({ navigation }) {
   const renderResultItem = ({ item }) => {
     if (item.type === 'restaurantGroup') {
       return (
-        <View style={[styles.restaurantGroupContainer, { backgroundColor: theme.background, borderBottomColor: theme.borderLight, borderColor: theme.border }]}>
+        <View style={[styles.restaurantGroupContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
           <View style={[styles.restaurantNameHeaderContainer, { backgroundColor: theme.primary, borderBottomColor: theme.border }]}>
             <View style={styles.restaurantNameInfoContainer}>
               <Text style={[styles.restaurantNameHeaderText, { color: theme.text.overlay }]}>{item.pinName}</Text>
@@ -257,7 +257,7 @@ export default function HomeScreen({ navigation }) {
       return (
         <TouchableOpacity
                   key={menuItem.id}
-          style={[styles.resultItem, { backgroundColor: theme.background, borderBottomColor: theme.borderLight }]}
+          style={[styles.resultItem, { backgroundColor: theme.surface }]}
                   onPress={() => navigation.navigate('Business', { businessData: item.originalPin })}
         >
                   <Text style={[styles.resultItemName, { color: theme.text.main }]}>{item.pinName} (Details)</Text>
@@ -272,7 +272,7 @@ export default function HomeScreen({ navigation }) {
             return (
               <TouchableOpacity
                 key={menuItem.id}
-                style={[styles.menuItemContainer, { backgroundColor: theme.background, borderBottomColor: theme.borderLight }]}
+                style={[styles.menuItemContainer, { backgroundColor: theme.surface }]}
                 onPress={() => {
                   // Determine the target tab name for UnifiedMenuScreen
                   const targetInitialRoute = menuItem.menuName === 'Food Menu' ? 'Food' : 'Drinks';
