@@ -229,17 +229,17 @@ export default function HomeScreen({ navigation }) {
   const renderResultItem = ({ item }) => {
     if (item.type === 'restaurantGroup') {
       return (
-        <View style={[styles.restaurantGroupContainer, { backgroundColor: theme.surface, borderColor: theme.border }]}>
+        <View style={[styles.restaurantGroupContainer, { backgroundColor: theme.surface, borderColor: theme.input.border }]}>
           <View style={[styles.restaurantNameHeaderContainer, { backgroundColor: theme.primary, borderBottomColor: theme.border }]}>
             <View style={styles.restaurantNameInfoContainer}>
               <Text style={[styles.restaurantNameHeaderText, { color: theme.text.overlay }]}>{item.pinName}</Text>
               {item.distance !== null && (
-                <Text style={[styles.distanceText, { color: theme.text.subtext }]}>Distance: {formatDistance(item.distance)}</Text>
+                <Text style={[styles.distanceText, { color: theme.distance.text }]}>Distance: {formatDistance(item.distance)}</Text>
               )}
             </View>
             {item.originalPin?.location?.coordinates && (
               <TouchableOpacity
-                style={[styles.viewOnMapButton, { backgroundColor: theme.primary }]}
+                style={[styles.viewOnMapButton, { backgroundColor: theme.surface }]}
                 onPress={() => {
                   navigation.navigate('Map', { 
                     targetPinId: item.originalPin._id,
@@ -248,7 +248,7 @@ export default function HomeScreen({ navigation }) {
                   });
                 }}
               >
-                <Text style={[styles.viewOnMapButtonText, { color: theme.button.text }]}>View on Map</Text>
+                <Text style={[styles.viewOnMapButtonText, { color: theme.text.subtext }]}>View on Map</Text>
               </TouchableOpacity>
             )}
           </View>

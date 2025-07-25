@@ -648,7 +648,7 @@ export default function BusinessPageScreen({ route, navigation }) {
           <View style={styles.amenitiesContainer}>
             {selectedBusiness.amenities.map((item, index) => (
               <View key={index} style={[styles.amenityTag, { backgroundColor: theme.amenity.background }]}>
-                <Text style={[styles.amenityText, { color: theme.amenity.text }]}>{item}</Text>
+                <Text style={[styles.amenityText, { color: theme.text.subtext }]}>{item}</Text>
               </View>
             ))}
           </View>
@@ -669,24 +669,24 @@ export default function BusinessPageScreen({ route, navigation }) {
               <TouchableOpacity 
                 style={[
                   styles.filterButton, 
-                  { backgroundColor: filterRating === null ? theme.primary : theme.surface, borderColor: theme.border },
+                  { backgroundColor: filterRating === null ? theme.text.main : theme.surface, borderColor: theme.input.border },
                   filterRating === null && styles.filterButtonActive
                 ]}
                 onPress={() => setFilterRating(null)}
               >
-                <Text style={[styles.filterButtonText, { color: filterRating === null ? theme.button.text : theme.text.main }]}>All</Text>
+                <Text style={[styles.filterButtonText, { color: filterRating === null ? theme.text.main : theme.text.main }]}>All</Text>
               </TouchableOpacity>
               {[5, 4, 3, 2, 1].map(rating => (
                 <TouchableOpacity 
                   key={rating}
                   style={[
                     styles.filterButton, 
-                    { backgroundColor: filterRating === rating ? theme.primary : theme.surface, borderColor: theme.border },
+                    { backgroundColor: filterRating === rating ? theme.text.main : theme.surface, borderColor: theme.borderLight },
                     filterRating === rating && styles.filterButtonActive
                   ]}
                   onPress={() => setFilterRating(rating)}
                 >
-                  <Text style={[styles.filterButtonText, { color: filterRating === rating ? theme.button.text : theme.text.main }]}>{rating} ★</Text>
+                  <Text style={[styles.filterButtonText, { color: filterRating === rating ? theme.text.main : theme.text.main }]}>{rating} ★</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -905,7 +905,7 @@ export default function BusinessPageScreen({ route, navigation }) {
 
   const renderSearchBar = () => {
     return (
-      <View style={[styles.searchBarContainer, { backgroundColor: theme.input.background, borderColor: theme.input.border, shadowColor: theme.card.shadow }]}>
+      <View style={[styles.searchBarContainer, { backgroundColor: theme.surface, borderColor: theme.input.border, shadowColor: theme.card.shadow }]}>
         <TextInput
           style={[styles.searchBar, { color: theme.input.text }]}
           placeholder="Search businesses..."

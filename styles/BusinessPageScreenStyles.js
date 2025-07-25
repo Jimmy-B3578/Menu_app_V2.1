@@ -35,7 +35,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 15,
     height: 40,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.input.border,
     shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -300,6 +300,7 @@ export const styles = StyleSheet.create({
   },
   amenityTag: {
     backgroundColor: colors.amenity.background,
+    color: colors.text.subtext,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 15,
@@ -308,7 +309,7 @@ export const styles = StyleSheet.create({
   },
   amenityText: {
     fontSize: 13,
-    color: colors.amenity.text,
+    color: colors.text.subtext,
   },
   reviewItem: {
     borderBottomWidth: 1,
@@ -389,7 +390,7 @@ export const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.input.border,
   },
   filterButtonActive: {
     backgroundColor: colors.primary,
@@ -446,7 +447,7 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 15,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.input.border,
   },
   signInToReviewText: {
     color: colors.text.subtext,
@@ -502,7 +503,7 @@ export const styles = StyleSheet.create({
     marginBottom: 20,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.input.border,
   },
   modalStar: {
     fontSize: 26,

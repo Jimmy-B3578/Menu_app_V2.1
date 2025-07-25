@@ -138,8 +138,8 @@ export default StyleSheet.create({
     right: 5,
     backgroundColor: colors.card.background, // Use theme color or fallback
     padding: 15, // Inner padding
-    borderTopLeftRadius: 5, // Rounded top corners
-    borderTopRightRadius: 15,
+    borderTopLeftRadius: 8, // Rounded top corners
+    borderTopRightRadius: 8,
     shadowColor: colors.card.shadow,
     shadowOffset: { width: 0, height: -2 }, // Shadow pointing upwards
     shadowOpacity: 0.1,

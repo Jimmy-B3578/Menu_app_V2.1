@@ -1,6 +1,6 @@
 export const lightTheme = {
     // --- Global Palette ---
-    primary: '#FF6B00', // warm orange for food-centric branding
+    primary: '#4caa27b', // warm orange for food-centric branding
     secondary: '#FFA940',
     background: '#FAFAFA', // Main app background
     surface: '#FFFFFF',    // Card/modal surface
@@ -32,6 +32,7 @@ export const lightTheme = {
     input: {
         border: '#DDD',
         placeholder: '#555',
+        text: '#1C1C1E', // Text color for input fields
     },
     modal: {
         overlay: 'rgba(0, 0, 0, 0.4)',
@@ -57,17 +58,21 @@ export const lightTheme = {
     },
     amenity: {
         background: '#FFF5E6',
+        text: '#555555', // Text color for amenity tags
+    },
+    distance: {
+        text: '#FFFFFF', // Muted gray for distance text
     },
 };
 
 export const darkTheme = {
     // --- Global Palette ---
-    primary: '#FFA940', // vibrant orange works well in dark mode
+    primary: '#ff7c5d', // vibrant orange works well in dark mode
     secondary: '#FF6B00',
     background: '#121212', // Main app background
     surface: '#1F1F1F',    // Card/modal surface
     border: '#2E2E2E',
-    borderLight: '#3C3C3C',
+    borderLight: '#FFFFFF',
     error: '#FF4D4F',
     success: '#52C41A',
     warning: '#FAAD14',
@@ -79,13 +84,13 @@ export const darkTheme = {
     text: {
         main: '#FFFFFF',      // Primary text color
         subtext: '#BFBFBF',   // Secondary/muted text
-        overlay: '#000000',   // Text that goes over accent colors
+        overlay: '#303030',   // Text that goes over accent colors
     },
 
     // --- Component-Specific Colors ---
     button: {
         primary: '#FFA940',
-        secondary: '#555',
+        secondary: '#DCDCDC',
         disabled: '#2E2E2E',
     },
     card: {
@@ -100,7 +105,7 @@ export const darkTheme = {
         cancelButton: '#3C3C3C',
     },
     navigation: {
-        icon: '#FFA940',
+        icon: '#ff7c5d',
         iconInactive: '#777',
         border: '#2E2E2E',
     },
@@ -119,6 +124,10 @@ export const darkTheme = {
     },
     amenity: {
         background: '#2A2A2A',
+        text: '#BFBFBF', // Text color for amenity tags in dark mode
+    },
+    distance: {
+        text: '#FFFFFF', // Lighter gray for dark mode distance text
     },
 };
 

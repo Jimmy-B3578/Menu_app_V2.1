@@ -32,8 +32,8 @@ export default function UnifiedMenuScreen({ route, navigation }) {
     <Tab.Navigator
       initialRouteName={initialRouteName || 'Food'} // Default to Food tab if not specified
       screenOptions={{
-        tabBarActiveTintColor: theme.tabBar.active,
-        tabBarInactiveTintColor: theme.tabBar.inactive,
+        tabBarActiveTintColor: theme.text.main,
+        tabBarInactiveTintColor: theme.text.main,
         tabBarIndicatorStyle: { backgroundColor: theme.primary },
         tabBarStyle: { backgroundColor: theme.surface },
         tabBarLabelStyle: { fontWeight: 'bold' },

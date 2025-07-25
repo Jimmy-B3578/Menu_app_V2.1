@@ -29,7 +29,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     width: '90%',
-    borderColor: colors.border,
+    borderColor: colors.input.border,
     borderWidth: 1,
     borderRadius: 25,
     backgroundColor: colors.input.background,
@@ -166,7 +166,7 @@ export default StyleSheet.create({
   // New Styles for Grouped Results
   restaurantGroupContainer: {
     marginBottom: 15, // Space between restaurant groups
-    borderColor: colors.border,
+    borderColor: colors.input.border,
     borderWidth: 1,
     borderRadius: 8,
     backgroundColor: colors.card.background,
@@ -195,18 +195,16 @@ export default StyleSheet.create({
   },
   distanceText: {
     fontSize: 14,
-    color: colors.text.subtext, // Use a muted color for distance
+    color: colors.distance.text, // Dedicated distance text color
     marginTop: 2, // Small gap between name and distance
   },
   viewOnMapButton: {
-    backgroundColor: colors.secondary,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 20,
     elevation: 1,
   },
   viewOnMapButtonText: {
-    color: colors.white,
     fontSize: 12,
     fontWeight: 'bold',
   },

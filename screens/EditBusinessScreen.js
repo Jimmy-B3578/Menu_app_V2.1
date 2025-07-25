@@ -177,12 +177,12 @@ export default function EditBusinessScreen({ route, navigation }) {
               <Text style={[styles.pickerLabel, { color: theme.text.subtext }]}>Open:</Text>
               <Picker
                 selectedValue={daySchedule.open}
-                style={Platform.OS === 'ios' ? [styles.iosPicker, { color: theme.input.text }] : [styles.pickerStyle, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
-                itemStyle={Platform.OS === 'ios' ? [styles.iosPickerItem, { color: theme.input.text }] : {}}
+                style={Platform.OS === 'ios' ? [styles.iosPicker, { color: theme.text.subtext }] : [styles.pickerStyle, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.subtext }]}
+                itemStyle={Platform.OS === 'ios' ? [styles.iosPickerItem, { color: theme.text.subtext }] : {}}
                 onValueChange={(itemValue) => handleHourChange('open', itemValue)}
               >
                 {TIME_SLOTS.map(time => (
-                  <Picker.Item key={`${daySchedule.day}-open-${time}`} label={time} value={time} color={theme.input.text} />
+                  <Picker.Item key={`${daySchedule.day}-open-${time}`} label={time} value={time} color={theme.text.subtext} />
                 ))}
               </Picker>
             </View>
@@ -190,12 +190,12 @@ export default function EditBusinessScreen({ route, navigation }) {
               <Text style={[styles.pickerLabel, { color: theme.text.subtext }]}>Close:</Text>
               <Picker
                 selectedValue={daySchedule.close}
-                style={Platform.OS === 'ios' ? [styles.iosPicker, { color: theme.input.text }] : [styles.pickerStyle, { backgroundColor: theme.input.background, borderColor: theme.input.border, color: theme.input.text }]}
-                itemStyle={Platform.OS === 'ios' ? [styles.iosPickerItem, { color: theme.input.text }] : {}}
+                style={Platform.OS === 'ios' ? [styles.iosPicker, { color: theme.text.subtext }] : [styles.pickerStyle, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.subtext }]}
+                itemStyle={Platform.OS === 'ios' ? [styles.iosPickerItem, { color: theme.text.subtext }] : {}}
                 onValueChange={(itemValue) => handleHourChange('close', itemValue)}
               >
                 {TIME_SLOTS.map(time => (
-                  <Picker.Item key={`${daySchedule.day}-close-${time}`} label={time} value={time} color={theme.input.text} />
+                  <Picker.Item key={`${daySchedule.day}-close-${time}`} label={time} value={time} color={theme.text.subtext} />
                 ))}
               </Picker>
             </View>
@@ -267,21 +267,21 @@ export default function EditBusinessScreen({ route, navigation }) {
       />
 
       <Text style={[styles.sectionTitle, { color: theme.primary, borderBottomColor: theme.borderLight }]}>Opening Hours</Text>
-      <View style={[styles.hoursEditingContainer, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+      <View style={[styles.hoursEditingContainer, { backgroundColor: theme.surface, borderColor: theme.input.border }]}>
         <View style={[styles.daySelectorContainer, { backgroundColor: theme.surface, borderColor: theme.input.border }]}>
           <Picker
             selectedValue={DAYS_OF_WEEK[selectedDayIndex]}
             onValueChange={(itemValue, itemIndex) => setSelectedDayIndex(itemIndex)}
-            style={[styles.dayOfWeekPicker, { color: theme.input.text }]}
-            itemStyle={[styles.dayOfWeekPickerItem, { color: theme.input.text }]} // itemStyle is iOS only
+            style={[styles.dayOfWeekPicker, { color: theme.text.subtext }]}
+            itemStyle={[styles.dayOfWeekPickerItem, { color: theme.text.subtext }]} // itemStyle is iOS only
             mode="dropdown" // Android specific to ensure it's a dropdown
           >
             {DAYS_OF_WEEK.map((day, index) => (
-              <Picker.Item key={index} label={day} value={day} color={theme.input.text} />
+              <Picker.Item key={index} label={day} value={day} color={theme.text.subtext} />
             ))}
           </Picker>
         </View>
-        <View style={[styles.selectedDayEditorContainer, { backgroundColor: theme.surface, borderColor: theme.borderLight }]}>
+        <View style={[styles.selectedDayEditorContainer, { backgroundColor: theme.surface, borderColor: theme.input.border }]}>
           {renderSelectedDayEditor()}
         </View>
       </View>
@@ -302,7 +302,7 @@ export default function EditBusinessScreen({ route, navigation }) {
       <View style={styles.amenitiesListContainer}>
         {amenities.map((amenity, index) => (
           <View key={index} style={[styles.amenityTagContainer, { backgroundColor: theme.amenity.background }]}>
-            <Text style={[styles.amenityTagText, { color: theme.amenity.text }]}>{amenity}</Text>
+            <Text style={[styles.amenityTagText, { color: theme.text.subtext }]}>{amenity}</Text>
             <TouchableOpacity onPress={() => handleRemoveAmenity(amenity)} style={styles.removeAmenityButton}>
               <Ionicons name="close-circle" size={20} color={theme.error} />
             </TouchableOpacity>

@@ -126,7 +126,7 @@ export const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.input.border,
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,

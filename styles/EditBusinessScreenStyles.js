@@ -52,7 +52,7 @@ export default StyleSheet.create({
     backgroundColor: colors.card.background,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.input.border,
   },
   dayLabel: {
     fontSize: Platform.OS === 'ios' ? 14 : 15,
@@ -155,7 +155,7 @@ export default StyleSheet.create({
     marginBottom: 8,
   },
   amenityTagText: {
-    color: colors.amenity.text,
+    color: colors.text.subtext,
     fontSize: 14,
     marginRight: 5,
   },
@@ -189,7 +189,7 @@ export default StyleSheet.create({
     backgroundColor: colors.card.background,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: colors.input.border,
     marginBottom: 20,
   },
   daySelectorContainer: {
@@ -248,7 +248,7 @@ export default StyleSheet.create({
     backgroundColor: colors.input.background,
     borderRadius: 4, 
     borderWidth: 1, 
-    borderColor: colors.border,
+    borderColor: colors.input.border,
     fontSize: 15,
   },
   iosPicker: {
