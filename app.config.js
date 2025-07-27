@@ -10,7 +10,8 @@ export default ({ config }) => ({
     "version": "1.0.0",
     "orientation": "portrait",
     "platforms": [
-      "ios"
+      "ios",
+      "android"
     ],
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

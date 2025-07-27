@@ -737,7 +737,7 @@ export default function BusinessPageScreen({ route, navigation }) {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity 
-              style={[styles.signInToReviewButton, { backgroundColor: theme.secondary }]}
+              style={[styles.signInToReviewButton, { backgroundColor: theme.primary }]}
               onPress={() => navigation.navigate('Account')}
             >
               <Text style={[styles.signInToReviewText, { color: theme.button.text }]}>Sign in to leave a review</Text>

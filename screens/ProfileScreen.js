@@ -188,12 +188,13 @@ export default function ProfileScreen({ user, setUser }) { // Receive props
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Dark Mode Toggle */}
       <View style={styles.toggleContainer}>
-        <Text style={[styles.toggleLabel, { color: theme.text.main }]}>Dark Mode</Text>
+        <Text style={[styles.toggleLabel, { color: theme.text.main }]}>{isDarkMode ? 'Dark Mode' : 'Light Mode'}</Text>
         <Switch
           value={isDarkMode}
           onValueChange={toggleTheme}
           trackColor={{ false: theme.border, true: theme.primary }}
-          thumbColor={isDarkMode ? theme.background : theme.background}
+          thumbColor={isDarkMode ? '#FFFFFF' : '#FFFFFF'}
+          ios_backgroundColor={theme.border}
         />
       </View>
       
