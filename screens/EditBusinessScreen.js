@@ -266,7 +266,7 @@ export default function EditBusinessScreen({ route, navigation }) {
         autoCapitalize="none"
       />
 
-      <Text style={[styles.sectionTitle, { color: theme.primary, borderBottomColor: theme.borderLight }]}>Opening Hours</Text>
+      <Text style={[styles.sectionTitle, { color: theme.text.main, borderBottomColor: theme.borderLight }]}>Opening Hours</Text>
       <View style={[styles.hoursEditingContainer, { backgroundColor: theme.surface, borderColor: theme.input.border }]}>
         <View style={[styles.daySelectorContainer, { backgroundColor: theme.surface, borderColor: theme.input.border }]}>
           <Picker
@@ -286,7 +286,7 @@ export default function EditBusinessScreen({ route, navigation }) {
         </View>
       </View>
 
-      <Text style={[styles.sectionTitle, { color: theme.primary, borderBottomColor: theme.borderLight }]}>Amenities</Text>
+      <Text style={[styles.sectionTitle, { color: theme.text.main, borderBottomColor: theme.borderLight }]}>Amenities</Text>
       <View style={styles.amenityInputContainer}>
         <TextInput
           style={[styles.amenityInput, { backgroundColor: theme.surface, borderColor: theme.input.border, color: theme.text.main }]}
@@ -311,7 +311,7 @@ export default function EditBusinessScreen({ route, navigation }) {
       </View>
 
       <TouchableOpacity 
-        style={[styles.saveButton, { backgroundColor: theme.primary }, isSaving && { backgroundColor: theme.button.disabled }]}
+        style={[styles.saveButton, { backgroundColor: theme.success }, isSaving && { backgroundColor: theme.button.disabled }]}
         onPress={handleSaveChanges} 
         disabled={isSaving}
       >

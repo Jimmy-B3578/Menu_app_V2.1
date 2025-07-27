@@ -750,7 +750,7 @@ export default function BusinessPageScreen({ route, navigation }) {
             <Text style={[styles.sectionTitle, { color: theme.text.main }]}>Admin Actions</Text>
             {canEdit && (
               <TouchableOpacity
-                style={[styles.adminButton, styles.editButton, { backgroundColor: theme.secondary }]}
+                style={[styles.adminButton, styles.editButton, { backgroundColor: theme.edit.background }]}
                 onPress={() => navigation.navigate('EditBusiness', { businessData: selectedBusiness })}
               >
                 <Ionicons name="pencil-outline" size={20} style={[styles.adminButtonIcon, { color: theme.button.text }]} />

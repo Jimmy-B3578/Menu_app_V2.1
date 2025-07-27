@@ -1,6 +1,6 @@
 export const lightTheme = {
     // --- Global Palette ---
-    primary: '#4caa27b', // warm orange for food-centric branding
+    primary: '#ff7c5d', // Updated to requested color
     secondary: '#FFA940',
     background: '#FAFAFA', // Main app background
     surface: '#FFFFFF',    // Card/modal surface
@@ -25,27 +25,31 @@ export const lightTheme = {
         primary: '#FF6B00',
         secondary: '#CCCCCC',
         disabled: '#E0E0E0',
+        text: '#FFFFFF', // Using text.overlay for button text
     },
     card: {
         shadow: '#0000001A', // subtle shadow
+        background: '#FFFFFF', // Using surface color
     },
     input: {
         border: '#DDD',
         placeholder: '#555',
         text: '#1C1C1E', // Text color for input fields
+        background: '#FFFFFF', // Using surface color
     },
     modal: {
         overlay: 'rgba(0, 0, 0, 0.4)',
         cancelButton: '#CCCCCC',
     },
     navigation: {
-        icon: '#FF6B00',
+        icon: '#ff7c5d',
         iconInactive: '#999',
         border: '#DDD',
     },
     tabBar: {
         active: '#FF6B00',
         inactive: '#999',
+        background: '#FFFFFF', // Using surface color
     },
     map: {
         recenterButton: 'rgba(255, 255, 255, 0.9)',
@@ -67,6 +71,9 @@ export const lightTheme = {
         text: '#ff7c5d',
         border: '#ff7c5d',
         background: '#fff5f2', // Very light shade of #ff7c5d
+    },
+    edit: {
+        background: '#4CAF50', // Green color for edit buttons
     },
 };
 
@@ -97,13 +104,17 @@ export const darkTheme = {
         primary: '#FFA940',
         secondary: '#DCDCDC',
         disabled: '#2E2E2E',
+        text: '#303030', // Using text.overlay for button text
     },
     card: {
         shadow: '#00000033',
+        background: '#1F1F1F', // Using surface color
     },
     input: {
         border: '#3C3C3C',
         placeholder: '#BFBFBF',
+        text: '#FFFFFF', // Using text.main for input text
+        background: '#1F1F1F', // Using surface color
     },
     modal: {
         overlay: 'rgba(0, 0, 0, 0.7)',
@@ -117,6 +128,7 @@ export const darkTheme = {
     tabBar: {
         active: '#FFA940',
         inactive: '#777',
+        background: '#1F1F1F', // Using surface color
     },
     map: {
         recenterButton: 'rgba(0, 0, 0, 0.8)',
@@ -138,6 +150,9 @@ export const darkTheme = {
         text: '#ff7c5d',
         border: '#ff7c5d',
         background: '#2a1f1c', // Very light shade of #ff7c5d for dark mode
+    },
+    edit: {
+        background: '#4CAF50', // Green color for edit buttons
     },
 };
 
