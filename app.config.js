@@ -13,7 +13,7 @@ export default ({ config }) => ({
       "ios",
       "android"
     ],
-    "icon": "./assets/icon.png",
+    "icon": "./assets/SearchEat_Logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
