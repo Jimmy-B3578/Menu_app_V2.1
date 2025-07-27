@@ -85,12 +85,12 @@ export const styles = StyleSheet.create({
 
   // Highlight styles
   highlightedMenuItem: {
-    backgroundColor: colors.primary + '20', // 20 is hex for 12.5% opacity
+    backgroundColor: colors.highlight.background,
     borderLeftWidth: 4,
-    borderLeftColor: colors.primary,
+    borderLeftColor: colors.highlight.border,
   },
   highlightedMenuItemText: {
-    color: colors.primary,
+    color: colors.highlight.text,
   },
 
   // --- Modal Styles ---

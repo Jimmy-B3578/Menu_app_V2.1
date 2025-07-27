@@ -63,6 +63,11 @@ export const lightTheme = {
     distance: {
         text: '#FFFFFF', // Muted gray for distance text
     },
+    highlight: {
+        text: '#ff7c5d',
+        border: '#ff7c5d',
+        background: '#fff5f2', // Very light shade of #ff7c5d
+    },
 };
 
 export const darkTheme = {
@@ -128,6 +133,11 @@ export const darkTheme = {
     },
     distance: {
         text: '#FFFFFF', // Lighter gray for dark mode distance text
+    },
+    highlight: {
+        text: '#ff7c5d',
+        border: '#ff7c5d',
+        background: '#2a1f1c', // Very light shade of #ff7c5d for dark mode
     },
 };
 
