@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Button, StyleSheet, Platform, Alert, TextInput, Modal, Pressable, Switch } from 'react-native';
+import { View, Text, Button, StyleSheet, Platform, Alert, TextInput, Modal, Pressable, Switch, TouchableOpacity } from 'react-native';
 import axios from 'axios'; // Import axios
 import styles from '../styles/ProfileScreenStyles';
 import { useAuthRequest } from 'expo-auth-session';
@@ -21,7 +21,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 const USER_STORAGE_KEY = 'user_data'; // Use the same key as in App.js
 
-export default function ProfileScreen({ user, setUser }) { // Receive props
+export default function ProfileScreen({ user, setUser, navigation }) { // Receive props
 
   const { theme, isDarkMode, toggleTheme } = useTheme();
 
@@ -208,6 +208,18 @@ export default function ProfileScreen({ user, setUser }) { // Receive props
           <Button title="Log Out" onPress={signOut} />
         </>
       )}
+      
+      {/* Privacy Policy Button */}
+      <TouchableOpacity 
+        style={[styles.privacyButton, { backgroundColor: theme.primary }]}
+        onPress={() => {
+          navigation.navigate('PrivacyPolicy');
+        }}
+      >
+        <Text style={[styles.privacyButtonText, { color: theme.text.onPrimary }]}>
+          Privacy Policy
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 } 

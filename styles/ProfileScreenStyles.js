@@ -33,4 +33,27 @@ export default StyleSheet.create({
     marginBottom: 8,
     color: colors.text.main,
   },
+  privacyButton: {
+    position: 'absolute',
+    bottom: 30,
+    left: 20,
+    right: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  privacyButtonText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
 }); 
