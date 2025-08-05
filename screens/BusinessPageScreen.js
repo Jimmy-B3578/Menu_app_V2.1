@@ -329,14 +329,16 @@ export default function BusinessPageScreen({ route, navigation }) {
     if (!currentUser || !selectedBusiness || !selectedBusiness.creatorId) {
       return false;
     }
-    return currentUser._id === selectedBusiness.creatorId;
+    // Allow deletion if user is the creator OR if user is an admin
+    return currentUser._id === selectedBusiness.creatorId || currentUser.role === 'admin';
   }, [currentUser, selectedBusiness]);
 
   const canEdit = useMemo(() => {
     if (!currentUser || !selectedBusiness || !selectedBusiness.creatorId) {
       return false;
     }
-    return currentUser._id === selectedBusiness.creatorId;
+    // Allow editing if user is the creator OR if user is an admin
+    return currentUser._id === selectedBusiness.creatorId || currentUser.role === 'admin';
   }, [currentUser, selectedBusiness]);
 
   const formattedHours = useMemo(() => {
