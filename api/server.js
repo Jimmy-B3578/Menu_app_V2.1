@@ -200,6 +200,65 @@ const calculateAverageRating = (reviews) => {
 };
 
 // Routes
+
+// DELETE /users/:userId - Delete a user account and all associated data
+app.delete('/users/:userId', async (req, res) => {
+    const { userId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ message: 'Invalid User ID format.' });
+    }
+
+    try {
+        // Find the user first to check if they exist
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        // Start a session for transaction
+        const session = await mongoose.startSession();
+        session.startTransaction();
+
+        try {
+            // 1. Delete all pins created by the user
+            await Pin.deleteMany({ createdBy: userId }, { session });
+
+            // 2. Remove user's reviews from all pins
+            await Pin.updateMany(
+                { 'reviews.userId': userId },
+                { $pull: { reviews: { userId: userId } } },
+                { session, multi: true }
+            );
+
+            // 3. Recalculate average ratings for pins that had reviews from this user
+            const pinsToUpdate = await Pin.find({ 'reviews.userId': userId });
+            for (const pin of pinsToUpdate) {
+                pin.reviewCount = pin.reviews.length;
+                pin.averageRating = calculateAverageRating(pin.reviews);
+                await pin.save({ session });
+            }
+
+            // 4. Finally, delete the user
+            await User.findByIdAndDelete(userId, { session });
+
+            // Commit the transaction
+            await session.commitTransaction();
+            session.endSession();
+
+            res.status(200).json({ message: 'User account and associated data deleted successfully.' });
+        } catch (error) {
+            // If anything fails, abort the transaction
+            await session.abortTransaction();
+            session.endSession();
+            throw error;
+        }
+    } catch (error) {
+        console.error('Error deleting user account:', error);
+        res.status(500).json({ message: 'Error deleting user account', error: error.message });
+    }
+});
+
 app.post('/users', async (req, res) => {
     const { name, email, role } = req.body;
 

@@ -206,6 +206,57 @@ export default function ProfileScreen({ user, setUser, navigation }) { // Receiv
           <Text style={[styles.userInfo, { color: theme.text.main }]}>Welcome, {user.name}!</Text>
 <Text style={[styles.userInfo, { color: theme.text.main }]}>Email: {user.email}</Text>
           <Button title="Log Out" onPress={signOut} />
+          
+          {/* Delete Account Button */}
+          <TouchableOpacity 
+            style={[styles.deleteButton, { backgroundColor: '#dc3545' }]}
+            onPress={async () => {
+              // Show confirmation dialog
+              Alert.alert(
+                "Delete Account",
+                "Are you sure you want to delete your account? This action cannot be undone and will delete all your data including reviews and business listings.",
+                [
+                  {
+                    text: "Cancel",
+                    style: "cancel"
+                  },
+                  {
+                    text: "Delete Account",
+                    style: "destructive",
+                    onPress: async () => {
+                      try {
+                        // Call the delete account API
+                        await axios.delete(`${Constants.expoConfig.extra.EXPO_PUBLIC_API_URL}/users/${user._id}`);
+                        
+                        // Clear user data from storage
+                        await SecureStore.deleteItemAsync(USER_STORAGE_KEY);
+                        
+                        // Clear user state
+                        setUser(null);
+                        
+                        // Show success message
+                        Alert.alert(
+                          "Account Deleted",
+                          "Your account has been successfully deleted.",
+                          [{ text: "OK" }]
+                        );
+                      } catch (error) {
+                        console.error('Error deleting account:', error);
+                        Alert.alert(
+                          "Error",
+                          "Failed to delete account. Please try again later.",
+                          [{ text: "OK" }]
+                        );
+                      }
+                    }
+                  }
+                ],
+                { cancelable: true }
+              );
+            }}
+          >
+            <Text style={styles.deleteButtonText}>Delete Account</Text>
+          </TouchableOpacity>
         </>
       )}
       
