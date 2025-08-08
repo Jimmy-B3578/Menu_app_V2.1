@@ -25,7 +25,7 @@ export const lightTheme = {
         primary: '#FF6B00',
         secondary: '#CCCCCC',
         disabled: '#E0E0E0',
-        text: '#FFFFFF', // Using text.overlay for button text
+        text: '#000000', // Black text for better contrast on orange button in light mode
     },
     card: {
         shadow: '#0000001A', // subtle shadow
@@ -52,7 +52,7 @@ export const lightTheme = {
         background: '#FFFFFF', // Using surface color
     },
     map: {
-        recenterButton: 'rgba(255, 255, 255, 0.9)',
+        recenterButton: '#FFFFFF', // Solid white background for better visibility
         backToSearchButton: 'rgba(0, 0, 0, 0.5)',
         darkMode: false,
     },
@@ -104,7 +104,7 @@ export const darkTheme = {
         primary: '#FFA940',
         secondary: '#DCDCDC',
         disabled: '#2E2E2E',
-        text: '#303030', // Using text.overlay for button text
+        text: '#FFFFFF', // White text for better contrast on colored buttons
     },
     card: {
         shadow: '#00000033',
@@ -131,7 +131,7 @@ export const darkTheme = {
         background: '#1F1F1F', // Using surface color
     },
     map: {
-        recenterButton: 'rgba(0, 0, 0, 0.8)',
+        recenterButton: '#FFFFFF', // Solid white background for better visibility in dark mode too
         backToSearchButton: 'rgba(255,255,255,0.8)',
         darkMode: true,
     },

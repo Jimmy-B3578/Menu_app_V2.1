@@ -90,7 +90,7 @@ export default StyleSheet.create({
   // Text style for the recenter button (e.g., the ⌖ symbol)
   recenterButtonText: {
     fontSize: 20,
-    color: colors.text.main, // Ensure color is set
+    color: '#000000', // Black icon for good contrast against white background
     // Add Android-specific adjustments for centering
     ...Platform.select({
       android: {
@@ -116,7 +116,7 @@ export default StyleSheet.create({
   },
   // Text style for the create button
   createButtonText: {
-    color: colors.black, // Text color (make sure it contrasts with button BG)
+    color: colors.button.text, // Use theme button text color
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 16,
@@ -217,7 +217,7 @@ export default StyleSheet.create({
     zIndex: 10, // Ensure it's above map elements
   },
   backToSearchButtonText: {
-    color: colors.white,
+    color: colors.text.overlay, // Use theme overlay text color for better contrast
     fontSize: 14,
     fontWeight: 'bold',
   },
