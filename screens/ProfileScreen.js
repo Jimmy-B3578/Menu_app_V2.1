@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, Button, StyleSheet, Platform, Alert, TextInput, Modal, Pressable, Switch, TouchableOpacity } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import axios from 'axios'; // Import axios
 import styles from '../styles/ProfileScreenStyles';
 import { useAuthRequest } from 'expo-auth-session';
@@ -44,6 +45,85 @@ export default function ProfileScreen({ user, setUser, navigation }) { // Receiv
   };
 
   const [request, response, promptAsync] = useAuthRequest(config, discovery);
+
+  // --- Apple Sign In handler ---
+  const signInWithApple = async () => {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      // Apple may return email/fullName only on first sign-in
+      let appleEmail = credential.email || '';
+      let appleName = credential.fullName
+        ? `${credential.fullName.givenName ?? ''} ${credential.fullName.familyName ?? ''}`.trim()
+        : '';
+
+      if (!appleEmail) {
+        // Try to reuse previously stored email
+        try {
+          const stored = await SecureStore.getItemAsync(USER_STORAGE_KEY);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed?.email) {
+              appleEmail = parsed.email;
+            }
+            if (!appleName && parsed?.name) {
+              appleName = parsed.name;
+            }
+          }
+        } catch (_) {
+          // ignore
+        }
+      }
+
+      if (!appleEmail) {
+        Alert.alert(
+          'Email Required',
+          'Apple did not share an email address. Please select “Share My Email” when prompted, or sign in again to continue.',
+        );
+        return;
+      }
+
+      // Save/upsert to backend with minimal data collection (name + email only)
+      const savedUser = await saveUserToDb({ name: appleName || 'Apple User', email: appleEmail });
+      if (savedUser) {
+        setUser(savedUser);
+        await SecureStore.setItemAsync(USER_STORAGE_KEY, JSON.stringify(savedUser));
+      } else {
+        Alert.alert('Sign in failed', 'Could not save your account. Please try again.');
+      }
+    } catch (e) {
+      if (e.code === 'ERR_CANCELED') {
+        // user canceled
+        return;
+      }
+      console.error('Apple Sign-In error:', e);
+      Alert.alert('Sign in failed', 'Apple Sign-In failed. Please try again.');
+    }
+  };
+
+  // Detect Apple availability
+  const [isAppleAvailable, setIsAppleAvailable] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        if (Platform.OS === 'ios') {
+          const available = await AppleAuthentication.isAvailableAsync();
+          if (mounted) setIsAppleAvailable(available);
+        }
+      } catch {
+        if (mounted) setIsAppleAvailable(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   // --- Function to save user data to backend ---
   const saveUserToDb = async (userData) => {
@@ -200,7 +280,20 @@ export default function ProfileScreen({ user, setUser, navigation }) { // Receiv
       
       <Text style={[styles.title, { color: theme.text.main }]}>Profile Screen</Text>
       {!user ? (
-        <Button title="Log in with Auth0" onPress={signIn} disabled={!request} />
+        <>
+          <Button title="Log in with Auth0" onPress={signIn} disabled={!request} />
+          {Platform.OS === 'ios' && isAppleAvailable && (
+            <View style={styles.appleButtonContainer}>
+              <AppleAuthentication.AppleAuthenticationButton
+                buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+                buttonStyle={isDarkMode ? AppleAuthentication.AppleAuthenticationButtonStyle.WHITE : AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+                cornerRadius={8}
+                style={{ width: '100%', height: 44 }}
+                onPress={signInWithApple}
+              />
+            </View>
+          )}
+        </>
       ) : (
         <>
           <Text style={[styles.userInfo, { color: theme.text.main }]}>Welcome, {user.name}!</Text>

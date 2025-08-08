@@ -56,6 +56,10 @@ export default StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
+  appleButtonContainer: {
+    marginTop: 12,
+    width: '80%',
+  },
   deleteButton: {
     marginTop: 20,
     paddingVertical: 12,

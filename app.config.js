@@ -25,6 +25,7 @@ export default ({ config }) => ({
       "supportsTablet": true,
       "buildNumber": "11",
       "bundleIdentifier": "com.jamesbrown.SearchEat",
+      "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSLocationWhenInUseUsageDescription": "We use your location to show nearby businesses."
@@ -42,7 +43,8 @@ export default ({ config }) => ({
     },
     "plugins": [
       "expo-secure-store",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-apple-authentication"
     ],
     "owner": "james3578",
     "extra": {
